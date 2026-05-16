@@ -41,6 +41,10 @@ class PatMaxModel:
     origin_y: float = 0.0
     pattern_w: int = 0
     pattern_h: int = 0
+    # Extra reference points (additional XY origins, pattern-local coords).
+    # Mỗi ref: {"name": str, "x": float, "y": float, "angle": float}
+    # x, y tính theo gốc (0,0) là góc trên-trái ROI (cùng hệ với origin_x/y).
+    extra_refs: List[Dict] = field(default_factory=list)
     # Raw patch (BGR) — dùng cho NCC
     patch_bgr: Optional[np.ndarray] = None
     # Gray patch
@@ -921,6 +925,54 @@ def draw_patmax_results(image: np.ndarray,
                         cv2.FONT_HERSHEY_SIMPLEX, _fs(0.5, s), COL_CYAN,
                         _t(2, s), cv2.LINE_AA)
 
+            # \u2500\u2500 Extra reference points (\u0111i\u1ec3m tham chi\u1ebfu b\u1ed5 sung) \u2500\u2500\u2500\u2500\u2500\u2500
+            extra_refs = list(getattr(model, "extra_refs", []) or []) if model else []
+            for ref in extra_refs:
+                try:
+                    rx_local = float(ref.get("x", 0.0))
+                    ry_local = float(ref.get("y", 0.0))
+                    r_name   = str(ref.get("name", "")).strip() or "R"
+                    r_ang_off = float(ref.get("angle", 0.0))
+                except (TypeError, ValueError):
+                    continue
+                # Transform ref t\u1eeb pattern-local v\u1ec1 image coords (gi\u1ed1ng origin)
+                edx = rx_local - pw / 2.0
+                edy = ry_local - ph / 2.0
+                exf = float(r.x) + sc * (edx * ca - edy * sa)
+                eyf = float(r.y) + sc * (edx * sa + edy * ca)
+                ex_i = int(round(exf)); ey_i = int(round(eyf))
+                # Marker: v\u00f2ng + X v\u00e0ng + cyan dot t\u00e2m (gi\u1ed1ng origin)
+                cv2.circle(vis, (ex_i, ey_i), r_o, col, _t(2, s), cv2.LINE_AA)
+                cv2.line(vis, (ex_i - arm, ey_i - arm), (ex_i + arm, ey_i + arm),
+                         COL_OMARK, _t(2, s), cv2.LINE_AA)
+                cv2.line(vis, (ex_i - arm, ey_i + arm), (ex_i + arm, ey_i - arm),
+                         COL_OMARK, _t(2, s), cv2.LINE_AA)
+                cv2.circle(vis, (ex_i, ey_i), r_d, COL_CYAN, -1, cv2.LINE_AA)
+                # H\u1ec7 tr\u1ee5c XY t\u1ea1i ref, xoay theo (r.angle + ref.angle)
+                total_ang = float(r.angle) + r_ang_off
+                rad_e = math.radians(-total_ang)
+                cae = math.cos(rad_e); sae = math.sin(rad_e)
+                xe_end = (int(ex_i + cae * axis_len), int(ey_i + sae * axis_len))
+                cv2.arrowedLine(vis, (ex_i, ey_i), xe_end, COL_X, _t(2, s),
+                                cv2.LINE_AA, tipLength=0.18)
+                cv2.putText(vis, "X", (xe_end[0] + _t(4, s), xe_end[1] + _t(4, s)),
+                            cv2.FONT_HERSHEY_SIMPLEX, _fs(0.5, s), COL_X,
+                            _t(2, s), cv2.LINE_AA)
+                ye_end = (int(ex_i - sae * axis_len), int(ey_i + cae * axis_len))
+                cv2.arrowedLine(vis, (ex_i, ey_i), ye_end, COL_Y, _t(2, s),
+                                cv2.LINE_AA, tipLength=0.18)
+                cv2.putText(vis, "Y", (ye_end[0] + _t(4, s), ye_end[1] + _t(4, s)),
+                            cv2.FONT_HERSHEY_SIMPLEX, _fs(0.5, s), COL_Y,
+                            _t(2, s), cv2.LINE_AA)
+                # Label "Name (x, y) +angle"
+                el_txt = f"{r_name} ({exf:.1f},{eyf:.1f})"
+                if abs(total_ang) > 0.05:
+                    el_txt += f"  {total_ang:+.1f}deg"
+                cv2.putText(vis, el_txt,
+                            (ex_i + int(14 * s), ey_i - int(10 * s)),
+                            cv2.FONT_HERSHEY_SIMPLEX, _fs(0.5, s), COL_CYAN,
+                            _t(2, s), cv2.LINE_AA)
+
         if show_bbox:
             # Label score \u1edf g\u00f3c bbox
             lx = max(0, int(r.x - r.width/2))
@@ -937,6 +989,27 @@ def draw_patmax_results(image: np.ndarray,
 # ═══════════════════════════════════════════════════════════════
 #  SAVE / LOAD
 # ═══════════════════════════════════════════════════════════════
+
+def transform_ref_to_image(model: PatMaxModel, ref: dict,
+                            result: PatMaxResult) -> Tuple[float, float, float]:
+    """Transform 1 extra reference point từ pattern-local sang image coords
+    sau khi pattern đã match. Trả (x_image, y_image, angle_total).
+    angle_total = result.angle + ref.angle (degrees).
+    """
+    pw = float(model.pattern_w); ph = float(model.pattern_h)
+    rx_local = float(ref.get("x", 0.0))
+    ry_local = float(ref.get("y", 0.0))
+    r_ang_off = float(ref.get("angle", 0.0))
+    edx = rx_local - pw / 2.0
+    edy = ry_local - ph / 2.0
+    rad = math.radians(-float(result.angle))
+    ca = math.cos(rad); sa = math.sin(rad)
+    sc = float(result.scale) if result.scale else 1.0
+    ex = float(result.x) + sc * (edx * ca - edy * sa)
+    ey = float(result.y) + sc * (edx * sa + edy * ca)
+    return ex, ey, float(result.angle) + r_ang_off
+
+
 def save_model(model: PatMaxModel, path: str):
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     base = os.path.splitext(path)[0]
@@ -995,6 +1068,7 @@ def load_model(path: str) -> Optional[PatMaxModel]:
             shape_type       = meta.get("shape_type", "rect"),
             shape_data       = meta.get("shape_data"),
             train_mode       = meta.get("train_mode", "evaluate"),
+            extra_refs       = list(meta.get("extra_refs") or []),
         )
         if os.path.exists(npath):
             npz = np.load(npath)

@@ -117,12 +117,16 @@ class ModelPreviewWidget(QWidget):
 #  Result table
 # ════════════════════════════════════════════════════════════════════
 class ResultTable(QTableWidget):
-    result_selected = Signal(int)   # row index
+    """Bảng kết quả: mỗi row = 1 (match × point).
+    Point = origin chính của pattern (j=0) + từng extra ref (j>=1).
+    Vd: 1 match + 1 extra ref → 2 rows.
+    """
+    result_selected = Signal(int, int)   # (result_idx, ref_idx) -1=origin
 
     def __init__(self, parent=None):
-        super().__init__(0, 6, parent)
+        super().__init__(0, 7, parent)
         self.setHorizontalHeaderLabels(
-            ["#", "Score", "X", "Y", "Angle (°)", "Scale"])
+            ["#", "Score", "Point", "X", "Y", "Angle (°)", "Scale"])
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.verticalHeader().setVisible(False)
         self.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -138,28 +142,73 @@ class ResultTable(QTableWidget):
                                    border:1px solid #1e2d45; padding:3px; }
         """)
         self.itemSelectionChanged.connect(self._on_selection_changed)
+        # Map row → (result_idx, ref_idx). ref_idx = -1: origin chính
+        self._row_map: List[Tuple[int, int]] = []
 
     def _on_selection_changed(self):
         rows = self.selectionModel().selectedRows()
-        if rows:
-            self.result_selected.emit(rows[0].row())
+        if not rows:
+            return
+        r = rows[0].row()
+        if 0 <= r < len(self._row_map):
+            res_idx, ref_idx = self._row_map[r]
+            self.result_selected.emit(res_idx, ref_idx)
 
-    def populate(self, results: List[PatMaxResult]):
+    def populate(self, results: List[PatMaxResult], model=None):
+        from core.patmax_engine import transform_ref_to_image
         self.setRowCount(0)
+        self._row_map = []
+        extras = list(getattr(model, "extra_refs", []) or []) if model else []
+
+        row = 0
         for i, r in enumerate(results):
-            self.insertRow(i)
-            col = "#39ff14" if r.score >= 0.7 else "#ffd700" if r.score >= 0.5 else "#ff3860"
-            for j, (val, fmt) in enumerate([
-                (str(i+1),         "{}"),
-                (r.score,          "{:.4f}"),
-                (r.origin_x,       "{:.2f}"),
-                (r.origin_y,       "{:.2f}"),
-                (r.angle,          "{:+.2f}"),
-                (r.scale,          "{:.3f}"),
-            ]):
-                txt = fmt.format(val) if not isinstance(val, str) else val
-                item = QTableWidgetItem(txt)
-                item.setTextAlignment(Qt.AlignCenter)
-                if j == 1:   # score
-                    item.setForeground(QColor(col))
-                self.setItem(i, j, item)
+            score_col = ("#39ff14" if r.score >= 0.7
+                         else "#ffd700" if r.score >= 0.5 else "#ff3860")
+
+            # Hàng 0 cho mỗi match: Origin chính
+            self.insertRow(row)
+            self._row_map.append((i, -1))
+            self._fill_row(row, str(i+1), r.score, "Origin",
+                            r.origin_x, r.origin_y, r.angle, r.scale, score_col)
+            row += 1
+
+            # Mỗi extra ref → 1 row
+            for j, ref in enumerate(extras, start=1):
+                try:
+                    ex, ey, eang = transform_ref_to_image(model, ref, r)
+                except Exception:
+                    continue
+                nm = str(ref.get("name", f"Ref {j}"))
+                self.insertRow(row)
+                self._row_map.append((i, j - 1))
+                # Score cell trống cho ref rows (chỉ origin show score)
+                self._fill_row(row, "", None, nm,
+                                ex, ey, eang, r.scale, score_col,
+                                muted=True)
+                row += 1
+
+    def _fill_row(self, row, idx_txt, score, point_name,
+                   x, y, angle, scale, score_col, muted: bool = False):
+        cells = [
+            (idx_txt,                    "{}"),
+            ("" if score is None else score, "{:.4f}"),
+            (point_name,                 "{}"),
+            (x,                          "{:.2f}"),
+            (y,                          "{:.2f}"),
+            (angle,                      "{:+.2f}"),
+            (scale,                      "{:.3f}"),
+        ]
+        for j, (val, fmt) in enumerate(cells):
+            if isinstance(val, str):
+                txt = val
+            elif val == "":
+                txt = ""
+            else:
+                txt = fmt.format(val)
+            item = QTableWidgetItem(txt)
+            item.setTextAlignment(Qt.AlignCenter)
+            if j == 1 and not muted:
+                item.setForeground(QColor(score_col))
+            elif muted:
+                item.setForeground(QColor("#94a3b8"))
+            self.setItem(row, j, item)

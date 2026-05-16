@@ -188,6 +188,55 @@ def proc_camera_acquire(inputs, params):
 #  CATEGORY: PATMAX / PATTERN FIND
 # ═══════════════════════════════════════════════════════════════════
 
+def _build_patmax_objects(results, model):
+    """Build list `objects` từ results.
+    Mỗi object: x/y = origin chính + ref{N}_x, ref{N}_y, ref{N}_angle cho
+    từng extra ref (đã transform theo angle/scale/scale của result).
+    Cũng có "refs": [{name, x, y, angle}, ...] để UI duyệt.
+    """
+    from core.patmax_engine import transform_ref_to_image
+    objs = []
+    extras = list(getattr(model, "extra_refs", []) or []) if model else []
+    for r in results:
+        obj = {"x": r.origin_x, "y": r.origin_y, "score": r.score,
+               "angle": r.angle, "scale": r.scale,
+               "center_x": r.x, "center_y": r.y,
+               "origin_x": r.origin_x, "origin_y": r.origin_y}
+        refs_data = []
+        for j, ref in enumerate(extras, start=1):
+            try:
+                ex, ey, eang = transform_ref_to_image(model, ref, r)
+            except Exception:
+                continue
+            nm = str(ref.get("name", f"Ref {j}"))
+            refs_data.append({"name": nm, "x": ex, "y": ey, "angle": eang})
+            obj[f"ref{j}_x"]     = ex
+            obj[f"ref{j}_y"]     = ey
+            obj[f"ref{j}_angle"] = eang
+        obj["refs"] = refs_data
+        objs.append(obj)
+    return objs
+
+
+def _apply_extra_terminals(out: dict, objects: list, params: dict):
+    """Apply extra output terminals từ params['_extra_terminals'].
+    term = {"object": int, "field": str, "name": str}
+    field có thể là field cơ bản (x, y, angle, score, scale, ...) hoặc
+    ref-aware (ref1_x, ref2_y, ...).
+    """
+    for term in (params.get("_extra_terminals") or []):
+        try:
+            obj_idx = int(term.get("object", 0))
+            field = str(term.get("field", "x"))
+            name = term.get("name") or f"{field}_{obj_idx}"
+            if 0 <= obj_idx < len(objects):
+                out[name] = objects[obj_idx].get(field, 0.0)
+            else:
+                out[name] = 0.0
+        except Exception:
+            continue
+
+
 def proc_patmax(inputs, params):
     """
     CogPatMaxPatternAlignTool — dùng PatMaxEngine.
@@ -268,13 +317,7 @@ def proc_patmax(inputs, params):
     vis = draw_patmax_results(clean, results, model,
                                 show_xy=show_xy, show_bbox=show_bbox)
 
-    objects = [
-        {"x": r.origin_x, "y": r.origin_y, "score": r.score,
-         "angle": r.angle, "scale": r.scale,
-         "center_x": r.x, "center_y": r.y,
-         "origin_x": r.origin_x, "origin_y": r.origin_y}
-        for r in results
-    ]
+    objects = _build_patmax_objects(results, model)
     if results:
         r = results[0]
         out = {"image": clean, "_display_image": vis,
@@ -287,18 +330,7 @@ def proc_patmax(inputs, params):
                "found": False, "score": 0.0,
                "x": 0.0, "y": 0.0, "angle": 0.0, "scale": 1.0,
                "num_found": 0, "objects": []}
-    # Extra terminals: [{"object": int, "field": str, "name": str}, ...]
-    for term in (params.get("_extra_terminals") or []):
-        try:
-            obj_idx = int(term.get("object", 0))
-            field = str(term.get("field", "x"))
-            name = term.get("name") or f"{field}_{obj_idx}"
-            if 0 <= obj_idx < len(objects):
-                out[name] = objects[obj_idx].get(field, 0.0)
-            else:
-                out[name] = 0.0
-        except Exception:
-            continue
+    _apply_extra_terminals(out, objects, params)
     return out
 
 
@@ -381,13 +413,7 @@ def proc_patmax_align(inputs, params):
     clean = _bgr(img.copy())
     vis = draw_patmax_results(clean, results, model,
                                 show_xy=show_xy, show_bbox=show_bbox)
-    objects = [
-        {"x": r.origin_x, "y": r.origin_y, "score": r.score,
-         "angle": r.angle, "scale": r.scale,
-         "center_x": r.x, "center_y": r.y,
-         "origin_x": r.origin_x, "origin_y": r.origin_y}
-        for r in results
-    ]
+    objects = _build_patmax_objects(results, model)
     if results:
         r = results[0]
         out = {"image": clean, "_display_image": vis,
@@ -400,15 +426,7 @@ def proc_patmax_align(inputs, params):
                "found": False, "score": 0.0,
                "x": 0.0, "y": 0.0, "angle": 0.0, "scale": 1.0,
                "num_found": 0, "objects": []}
-    for term in (params.get("_extra_terminals") or []):
-        try:
-            obj_idx = int(term.get("object", 0))
-            field = str(term.get("field", "x"))
-            name = term.get("name") or f"{field}_{obj_idx}"
-            out[name] = (objects[obj_idx].get(field, 0.0)
-                          if 0 <= obj_idx < len(objects) else 0.0)
-        except Exception:
-            continue
+    _apply_extra_terminals(out, objects, params)
     return out
 
 

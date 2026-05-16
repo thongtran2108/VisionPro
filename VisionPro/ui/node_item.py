@@ -129,10 +129,25 @@ class NodeSignals(QObject):
 # Mapping field từ "objects" list — dùng cho PatMax/PatFind
 PATMAX_FIELDS = ["x", "y", "score", "angle", "scale",
                  "center_x", "center_y", "origin_x", "origin_y"]
+# Field cơ bản dành cho mỗi ref point (origin chính + extra refs)
+PATMAX_REF_FIELDS = ["x", "y", "angle"]
+
+
+def _patmax_ref_options(node) -> list:
+    """Build list (label, ref_idx, name) cho mỗi ref point của node PatMax.
+    ref_idx = 0 → origin chính, ≥1 → extras[ref_idx-1].
+    """
+    out = [("Origin (main)", 0, None)]
+    model = node.params.get("_patmax_model")
+    refs = list(getattr(model, "extra_refs", []) or []) if model else []
+    for j, ref in enumerate(refs, start=1):
+        nm = str(ref.get("name", f"Ref {j}"))
+        out.append((nm, j, nm))
+    return out
 
 
 class AddTerminalDialog(QDialog):
-    """Dialog thêm terminal output — chọn object index + field."""
+    """Dialog thêm terminal output — chọn object index + reference + field."""
 
     def __init__(self, node, parent=None):
         super().__init__(parent)
@@ -159,9 +174,11 @@ class AddTerminalDialog(QDialog):
         lay.setContentsMargins(14, 14, 14, 14); lay.setSpacing(10)
 
         n_obj = len(node.outputs.get("objects") or [])
+        self._ref_options = _patmax_ref_options(node)
         info = QLabel(
-            f"Tool đã tìm <b>{n_obj}</b> object(s).<br>"
-            f"Mỗi terminal map 1 trường của 1 object → 1 output port mới."
+            f"Tool đã tìm <b>{n_obj}</b> object(s)  ·  "
+            f"<b>{len(self._ref_options)}</b> reference point(s).<br>"
+            f"Mỗi terminal map 1 (object, reference, field) → 1 output port."
         )
         info.setWordWrap(True)
         lay.addWidget(info)
@@ -173,12 +190,21 @@ class AddTerminalDialog(QDialog):
         row1.addWidget(self._sp_obj, 1)
         lay.addLayout(row1)
 
+        row_ref = QHBoxLayout()
+        row_ref.addWidget(QLabel("Reference:"))
+        self._cb_ref = QComboBox()
+        for label, _idx, _nm in self._ref_options:
+            self._cb_ref.addItem(label)
+        self._cb_ref.currentIndexChanged.connect(self._on_ref_changed)
+        row_ref.addWidget(self._cb_ref, 1)
+        lay.addLayout(row_ref)
+
         row2 = QHBoxLayout()
         row2.addWidget(QLabel("Field:"))
         self._cb_field = QComboBox()
-        self._cb_field.addItems(PATMAX_FIELDS)
         row2.addWidget(self._cb_field, 1)
         lay.addLayout(row2)
+        self._on_ref_changed(0)  # populate field combo lần đầu
 
         row3 = QHBoxLayout()
         row3.addWidget(QLabel("Port name (optional):"))
@@ -225,10 +251,36 @@ class AddTerminalDialog(QDialog):
             self._removed_indices.append(row)
             self._list.takeItem(row)
 
+    def _on_ref_changed(self, idx: int):
+        """Populate field combo theo reference đang chọn.
+        Origin → toàn bộ PATMAX_FIELDS; extra ref → chỉ x/y/angle.
+        """
+        self._cb_field.clear()
+        if 0 <= idx < len(self._ref_options):
+            ref_idx = self._ref_options[idx][1]
+            if ref_idx == 0:
+                self._cb_field.addItems(PATMAX_FIELDS)
+            else:
+                self._cb_field.addItems(PATMAX_REF_FIELDS)
+        else:
+            self._cb_field.addItems(PATMAX_FIELDS)
+
     def get_new_terminal(self) -> dict:
+        # Map (reference, field) → key trong objects dict:
+        #   Origin (ref_idx=0) → field nguyên gốc (x, y, ...)
+        #   Ref j (ref_idx=j>0) → "ref{j}_{field}" (vd: ref1_x)
+        ref_combo_idx = self._cb_ref.currentIndex()
+        field_basic = self._cb_field.currentText()
+        ref_idx = 0
+        if 0 <= ref_combo_idx < len(self._ref_options):
+            ref_idx = self._ref_options[ref_combo_idx][1]
+        if ref_idx == 0:
+            field_key = field_basic
+        else:
+            field_key = f"ref{ref_idx}_{field_basic}"
         return {
             "object": int(self._sp_obj.value()),
-            "field":  self._cb_field.currentText(),
+            "field":  field_key,
             "name":   self._le_name.text().strip(),
         }
 
