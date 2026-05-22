@@ -172,7 +172,13 @@ class ResultsPanel(QWidget):
 
     # ── Public API ────────────────────────────────────────────────
     def report_run(self, graph: FlowGraph, results: Dict[str, Any], duration_ms: float):
-        """Called after pipeline execution."""
+        """Called after pipeline execution.
+
+        Per-node counts vẫn được tính cho log table. Nếu pipeline có node
+        Yield Statistics, counters PASS/FAIL/TOTAL/Yield Rate hiển thị
+        sẽ được override bằng output của node đó (production yield xuyên
+        qua nhiều run, không phải số node pass/fail trong 1 lần chạy).
+        """
         self._pass_count  = 0
         self._fail_count  = 0
         self._total_count = len(results)
@@ -233,7 +239,24 @@ class ResultsPanel(QWidget):
             self._log_table.setItem(row, 2, dur_item)
             self._log_table.setItem(row, 3, out_item)
 
+        # Nếu pipeline có Yield Statistics tool, override counters bằng
+        # output của nó (production yield xuyên run).
+        yield_out = self._find_yield_stats_output(graph, results)
+        if yield_out is not None:
+            self._pass_count  = int(yield_out.get("pass_count", 0))
+            self._fail_count  = int(yield_out.get("fail_count", 0))
+            self._total_count = int(yield_out.get("total_count", 0))
+
         self._update_stats(duration_ms)
+
+    @staticmethod
+    def _find_yield_stats_output(graph: FlowGraph,
+                                  results: Dict[str, Any]) -> Dict[str, Any] | None:
+        """Tìm node Yield Statistics đầu tiên có output trong results."""
+        for nid, node in graph.nodes.items():
+            if getattr(node, "tool_id", None) == "yield_stats" and nid in results:
+                return results[nid].get("outputs", {}) or {}
+        return None
 
     def _update_stats(self, duration_ms: float):
         self._card_pass.set_value(str(self._pass_count))
@@ -257,3 +280,9 @@ class ResultsPanel(QWidget):
         self._card_total.set_value("0")
         self._yield_bar.setValue(0)
         self._dur_lbl.setText("Last run: —")
+        # Reset accumulator của Yield Statistics tool (nếu có trong pipeline).
+        try:
+            from core.tool_registry import yield_stats_reset
+            yield_stats_reset()
+        except ImportError:
+            pass

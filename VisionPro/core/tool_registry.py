@@ -2645,6 +2645,70 @@ def proc_csv_log(inputs,params):
 
 
 # ═══════════════════════════════════════════════════════════════════
+#  YIELD STATISTICS — production accumulator (pass/fail/total/yield%)
+# ═══════════════════════════════════════════════════════════════════
+# State sống ngoài node để counter cộng dồn qua nhiều run pipeline.
+# UI panel (ResultsPanel) đọc trực tiếp output node để hiển thị.
+_YIELD_STATE: Dict[str, Any] = {
+    "pass": 0, "fail": 0, "total": 0, "last_pass": None,
+}
+
+
+def yield_stats_reset() -> None:
+    """Reset counter về 0 — UI gọi khi nhấn Clear Log."""
+    _YIELD_STATE["pass"] = 0
+    _YIELD_STATE["fail"] = 0
+    _YIELD_STATE["total"] = 0
+    _YIELD_STATE["last_pass"] = None
+
+
+def yield_stats_snapshot() -> Dict[str, Any]:
+    total = _YIELD_STATE["total"]
+    yld = (_YIELD_STATE["pass"] / total * 100.0) if total > 0 else 0.0
+    return {
+        "pass_count":  _YIELD_STATE["pass"],
+        "fail_count":  _YIELD_STATE["fail"],
+        "total_count": total,
+        "yield_rate":  float(yld),
+        "last_pass":   _YIELD_STATE["last_pass"],
+    }
+
+
+def proc_yield_stats(inputs, params):
+    """Yield Statistics — accumulator pass/fail/total/yield% qua nhiều run.
+
+    Mỗi lần pipeline chạy, port `pass` (bool) từ upstream (vd Pass/Fail Judge)
+    được đọc → counter cộng dồn:
+      pass=True  → pass_count += 1, total_count += 1
+      pass=False → fail_count += 1, total_count += 1
+      pass=None  → giữ nguyên (port chưa nối)
+    Tick `reset` rồi Run để xóa counter ngay lần chạy đó.
+    """
+    if params.get("reset", False):
+        yield_stats_reset()
+
+    passed = inputs.get("pass", None)
+    if passed is not None:
+        _YIELD_STATE["total"] += 1
+        if passed:
+            _YIELD_STATE["pass"] += 1
+        else:
+            _YIELD_STATE["fail"] += 1
+        _YIELD_STATE["last_pass"] = bool(passed)
+
+    snap = yield_stats_snapshot()
+    print(f"[YieldStats] pass={snap['pass_count']} fail={snap['fail_count']} "
+          f"total={snap['total_count']} yield={snap['yield_rate']:.1f}%")
+    return {
+        "pass":        bool(snap["last_pass"]) if snap["last_pass"] is not None else False,
+        "pass_count":  snap["pass_count"],
+        "fail_count":  snap["fail_count"],
+        "total_count": snap["total_count"],
+        "yield_rate":  snap["yield_rate"],
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════
 #  REGISTRY
 # ═══════════════════════════════════════════════════════════════════
 P = ParamDef  # shorthand
@@ -3911,6 +3975,22 @@ TOOL_REGISTRY: List[ToolDef] = [
     [PortDef("logged","bool"),PortDef("path","any")],
     [P("csv_path","CSV Path","str","log/results.csv")],
     proc_csv_log,""),
+
+  ToolDef("yield_stats","Yield Statistics","Output & Display",
+    "Tích lũy PASS/FAIL/TOTAL/Yield Rate qua nhiều lần chạy pipeline. "
+    "Nối port pass từ Pass/Fail Judge (hoặc bất kỳ tool nào có output pass) "
+    "→ counter cộng dồn mỗi lần Run. Panel Inspection Results sẽ đọc trực tiếp "
+    "output của tool này nếu có trong pipeline; bấm Clear Log để reset.",
+    "#0d1117","📈",
+    [PortDef("pass","bool",required=False)],
+    [PortDef("pass","bool"),
+     PortDef("pass_count","number"),
+     PortDef("fail_count","number"),
+     PortDef("total_count","number"),
+     PortDef("yield_rate","number")],
+    [P("reset","Reset on Next Run","bool",False,
+       tooltip="Tick + Run pipeline → reset counter về 0 ngay lần chạy đó.")],
+    proc_yield_stats,""),
 
   # ── YOLO DETECTION ─────────────────────────────────────────────
   ToolDef("yolo_detect","YOLO Detect","YOLO",
