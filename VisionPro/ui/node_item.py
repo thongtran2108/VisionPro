@@ -436,21 +436,16 @@ class NodeItem(QGraphicsItem):
         return names
 
     def _visible_input_ports(self):
-        """Tool có param `input_count` (vd Pass/Fail Judge) → chỉ render N port
-        đầu trong tool.inputs. Pipeline cũ chưa có param → dùng default của
-        ParamDef (backward-compatible)."""
+        """Inputs = tool.inputs (static) + `_extra_inputs` (user thêm qua
+        right-click). Tool nào có `extra_input_type` mới cho phép thêm.
+        Port mới mặc định cùng data_type với extra_input_type của tool."""
+        from core.tool_registry import PortDef
         inputs = list(self.node.tool.inputs)
-        pdef = next((p for p in self.node.tool.params
-                     if p.name == "input_count"), None)
-        if pdef is None:
-            return inputs
-        n = self.node.params.get("input_count", pdef.default)
-        try:
-            n = int(n)
-        except (TypeError, ValueError):
-            n = int(pdef.default or len(inputs))
-        n = max(1, min(len(inputs), n))
-        return inputs[:n]
+        extra_type = self.node.tool.extra_input_type or ""
+        if extra_type:
+            for name in (self.node.params.get("_extra_inputs") or []):
+                inputs.append(PortDef(name, extra_type, required=False))
+        return inputs
 
     def _compute_size(self):
         tool = self.node.tool
@@ -566,9 +561,13 @@ class NodeItem(QGraphicsItem):
         # Port labels
         tool = self.node.tool
         painter.setFont(QFont("Segoe UI", 7))
-        for i, port in enumerate(tool.inputs):
+        in_ports = self._visible_input_ports()
+        n_static_in = len(tool.inputs)
+        for i, port in enumerate(in_ports):
             y = NODE_HEADER_H + NODE_PADDING + i * NODE_PORT_ROW + NODE_PORT_ROW // 2
-            painter.setPen(QPen(C_PORT_IN.lighter(120)))
+            # Extra inputs (user thêm) → vàng để phân biệt với static
+            col = C_PORT_IN.lighter(120) if i < n_static_in else QColor(255, 215, 0)
+            painter.setPen(QPen(col))
             painter.drawText(QRectF(10, y - 8, self._w // 2 - 14, 16),
                              Qt.AlignLeft | Qt.AlignVCenter, port.name)
 
@@ -632,6 +631,18 @@ class NodeItem(QGraphicsItem):
         act_run    = menu.addAction("▶  Run this node")
         menu.addSeparator()
         act_viewer = menu.addAction("👁  View output in Image Viewer")
+        # ➕ Add Input — tool có extra_input_type (vd Pass/Fail Judge).
+        # Auto-name = letter kế tiếp chưa dùng.
+        act_add_input = None
+        act_remove_input = None
+        if self.node.tool.extra_input_type:
+            menu.addSeparator()
+            act_add_input = menu.addAction("➕  Add Input Port")
+            extras = self.node.params.get("_extra_inputs") or []
+            act_remove_input = menu.addAction(
+                f"➖  Remove Last Input Port ({extras[-1]})"
+                if extras else "➖  Remove Last Input Port")
+            act_remove_input.setEnabled(bool(extras))
         # Add Terminal — chỉ tools hỗ trợ "objects" output mới có ý nghĩa
         supports_objects = any(p.name == "objects"
                                 for p in self.node.tool.outputs)
@@ -660,10 +671,60 @@ class NodeItem(QGraphicsItem):
         elif chosen == act_viewer:
             if self.scene() and hasattr(self.scene(), "view_in_viewer"):
                 self.scene().view_in_viewer(self.node.node_id)
+        elif act_add_input is not None and chosen == act_add_input:
+            self._add_extra_input()
+        elif act_remove_input is not None and chosen == act_remove_input:
+            self._remove_last_extra_input()
         elif act_add_term is not None and chosen == act_add_term:
             self._open_add_terminal_dialog()
         elif act_manage is not None and chosen == act_manage:
             self._open_manage_outputs_dialog()
+
+    def _add_extra_input(self):
+        """Append 1 port mới với tên = letter chưa dùng (A-Z, rồi AA-ZZ)."""
+        used = {p.name for p in self.node.tool.inputs}
+        extras = list(self.node.params.get("_extra_inputs") or [])
+        used.update(extras)
+        from string import ascii_uppercase
+        new_name = None
+        for c in ascii_uppercase:
+            if c not in used:
+                new_name = c; break
+        if new_name is None:
+            for a in ascii_uppercase:
+                for b in ascii_uppercase:
+                    if (a + b) not in used:
+                        new_name = a + b; break
+                if new_name: break
+        if new_name is None:
+            new_name = f"Extra{len(extras) + 1}"
+        extras.append(new_name)
+        self.node.params["_extra_inputs"] = extras
+        self.refresh_ports()
+
+    def _remove_last_extra_input(self):
+        """Xóa extra port cuối + connection nối tới nó."""
+        extras = list(self.node.params.get("_extra_inputs") or [])
+        if not extras:
+            return
+        removed = extras.pop()
+        self.node.params["_extra_inputs"] = extras
+        # Prune connection dst trỏ tới port vừa xóa
+        scene = self.scene()
+        graph = getattr(scene, "graph", None)
+        if graph is not None:
+            graph.connections = [
+                c for c in graph.connections
+                if not (c.dst_id == self.node.node_id and c.dst_port == removed)
+            ]
+            # Xóa ConnectionItem tương ứng trong scene
+            stale = [cid for cid, ci in getattr(scene, "_conn_items", {}).items()
+                     if not any(c.conn_id == cid for c in graph.connections)]
+            for cid in stale:
+                ci = scene._conn_items.pop(cid, None)
+                if ci is not None and ci.scene() is scene:
+                    scene.removeItem(ci)
+        self.refresh_ports()
 
     def _open_manage_outputs_dialog(self):
         dlg = ManageOutputsDialog(self.node, on_change=self.refresh_ports)

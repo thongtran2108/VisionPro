@@ -382,12 +382,6 @@ class ImagePreviewWidget(QLabel):
 
 class PropertiesPanel(QWidget):
     params_changed = Signal(str)
-    # Phát khi param thay đổi ảnh hưởng cấu trúc port (vd input_count
-    # của Pass/Fail Judge). Listener (MainWindow) sẽ gọi refresh_ports
-    # trên NodeItem tương ứng.
-    ports_need_refresh = Signal(str)
-    # Tên các param khi đổi → trigger rebuild port (số lượng port phụ thuộc).
-    _PORT_PARAMS = {"input_count"}
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -625,8 +619,6 @@ class PropertiesPanel(QWidget):
         node = self._graph.nodes[node_id]
         node.params[name] = value
         self.params_changed.emit(node_id)
-        if name in self._PORT_PARAMS:
-            self.ports_need_refresh.emit(node_id)
         # Nếu có param khác phụ thuộc vào tên này → rebuild để cập nhật visibility.
         # Defer qua event loop: nếu rebuild ngay trong slot sẽ xoá chính widget
         # đang phát signal (vd QComboBox source_mode) → crash C++ deleted object.
