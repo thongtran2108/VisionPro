@@ -8,7 +8,7 @@ import os
 # Ensure project root is in path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QDialog
 from PySide6.QtCore import Qt, QSettings
 from PySide6.QtGui import QIcon, QFont, QPalette, QColor
 from ui.main_window import MainWindow
@@ -212,7 +212,7 @@ def main():
         sys.exit(app.exec())
 
     picker = StartupAOIPicker()
-    if picker.exec() != picker.Accepted:
+    if picker.exec() != QDialog.Accepted:
         sys.exit(0)
 
     window = MainWindow()
