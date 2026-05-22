@@ -1,0 +1,45 @@
+{
+  "nodes": [
+    {
+      "node_id": "b28b9e3e",
+      "tool_id": "acquire_image",
+      "pos_x": -403.0,
+      "pos_y": -198.0,
+      "params": {
+        "source_mode": "File",
+        "folder_path": "",
+        "frame_index": 0,
+        "auto_advance": true,
+        "file_path": "C:/Users/Admin/Downloads/2023_12_10_638378246154314733_hinh-nen-cute-co-chu-18.jpg",
+        "width": 640,
+        "height": 480,
+        "_auto_run": true
+      }
+    },
+    {
+      "node_id": "2252a604",
+      "tool_id": "ocr_max",
+      "pos_x": -160.0,
+      "pos_y": -119.0,
+      "params": {
+        "engine": "auto",
+        "lang": "vie",
+        "psm": 6,
+        "preprocess": "none",
+        "invert": false,
+        "expected_text": "",
+        "min_confidence": 60.0,
+        "_auto_run": true
+      }
+    }
+  ],
+  "connections": [
+    {
+      "conn_id": "411831fc",
+      "src_id": "b28b9e3e",
+      "src_port": "image",
+      "dst_id": "2252a604",
+      "dst_port": "image"
+    }
+  ]
+}
