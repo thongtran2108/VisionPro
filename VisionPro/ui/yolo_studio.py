@@ -1,6 +1,6 @@
 """
 ui/yolo_studio.py
-YOLO Studio — Tích hợp vào AOI Vision Pro
+YOLO Studio — Tích hợp vào Vision Ultimate
 Gồm 3 tab chính:
   1. LABEL  — vẽ polygon/bbox label trên ảnh, lưu YOLO format
   2. DATASET — quản lý dataset, split train/val, xem thống kê

@@ -1,5 +1,5 @@
 """
-core/plc.py — PLC connectivity for AOI Vision Pro
+core/plc.py — PLC connectivity for Vision Ultimate
 
 Hỗ trợ 3 dòng PLC:
   - Omron CP2E      (FINS over TCP, port 9600)

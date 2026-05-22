@@ -231,7 +231,7 @@ class MainWindow(QMainWindow):
             logo_icon.setPixmap(_pm)
             logo_icon.setStyleSheet("background:transparent;")
             hl.addWidget(logo_icon)
-        logo = QLabel("AOI Vision Pro")
+        logo = QLabel("Vision Ultimate")
         logo.setStyleSheet("color:#00d4ff;font-size:15px;font-weight:700;letter-spacing:2px;")
         hl.addWidget(logo)
         hl.addWidget(_sep())
@@ -800,7 +800,7 @@ class MainWindow(QMainWindow):
     def _update_title(self):
         fname = os.path.basename(self._current_file) if self._current_file else "Untitled"
         marker = "• " if self._dirty else ""
-        self.setWindowTitle(f"{marker}AOI Vision Pro — {fname}")
+        self.setWindowTitle(f"{marker}Vision Ultimate — {fname}")
 
     # ── About ─────────────────────────────────────────────────────
     def _open_yolo_studio(self, initial_image=None):
@@ -1007,8 +1007,8 @@ class MainWindow(QMainWindow):
             f"({ok} values{', '+str(err)+' errors' if err else ''})", 4000)
 
     def _about(self):
-        QMessageBox.about(self, "AOI Vision Pro",
-            "<h2 style='color:#00d4ff;'>AOI Vision Pro v1.0</h2>"
+        QMessageBox.about(self, "Vision Ultimate",
+            "<h2 style='color:#00d4ff;'>Vision Ultimate v1.0</h2>"
             "<p>Automated Optical Inspection<br>PySide6 + OpenCV</p>"
             "<ul><li>Drag-drop pipeline</li>"
             "<li>30+ inspection tools</li>"

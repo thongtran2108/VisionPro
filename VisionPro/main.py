@@ -1,5 +1,5 @@
 """
-AOI Vision Pro - Automated Optical Inspection System
+Vision Ultimate - Automated Optical Inspection System
 Entry point
 """
 import sys
@@ -166,7 +166,7 @@ def main():
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     app = QApplication(sys.argv)
-    app.setApplicationName("AOI Vision Pro")
+    app.setApplicationName("Vision Ultimate")
     app.setApplicationVersion("1.0.0")
     app.setOrganizationName("VisionPro")
 

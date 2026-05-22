@@ -1,4 +1,4 @@
-# AOI Vision Pro — PySide6
+# Vision Ultimate — PySide6
 
 ## Cài đặt
 ```bash
