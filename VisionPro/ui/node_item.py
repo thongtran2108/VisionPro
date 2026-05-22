@@ -422,15 +422,20 @@ class NodeItem(QGraphicsItem):
         self.setToolTip(tip)
 
     def _output_port_names(self) -> List[str]:
-        """Tên các output ports = tool.outputs + extra terminals từ params,
-        sau khi lọc bỏ những port nằm trong `_hidden_outputs` (user ẩn qua
-        dialog Manage Output Ports). `image` luôn visible — đó là chain port."""
+        """Tên các output ports = tool.outputs + extra terminals + extra outputs
+        (Script Tool), sau khi lọc bỏ những port nằm trong `_hidden_outputs`
+        (user ẩn qua dialog Manage Output Ports). `image` luôn visible."""
         hidden = set(self.node.params.get("_hidden_outputs") or [])
-        hidden.discard("image")  # image never hidden
+        hidden.discard("image")
         names = [p.name for p in self.node.tool.outputs
                  if p.name not in hidden]
+        # PatMax-style structured terminals (object/field tuples)
         for term in (self.node.params.get("_extra_terminals") or []):
             n = auto_terminal_name(term)
+            if n not in names and n not in hidden:
+                names.append(n)
+        # Script-style simple extra port names (added via right-click)
+        for n in (self.node.params.get("_extra_outputs") or []):
             if n not in names and n not in hidden:
                 names.append(n)
         return names
@@ -643,6 +648,18 @@ class NodeItem(QGraphicsItem):
                 f"➖  Remove Last Input Port ({extras[-1]})"
                 if extras else "➖  Remove Last Input Port")
             act_remove_input.setEnabled(bool(extras))
+        # ➕ Add Output — tool có extra_output_type (vd Script Tool). User nhập
+        # tên port qua QInputDialog (phải là Python identifier hợp lệ).
+        act_add_output = None
+        act_remove_output = None
+        if self.node.tool.extra_output_type:
+            menu.addSeparator()
+            act_add_output = menu.addAction("➕  Add Output Port…")
+            outs = self.node.params.get("_extra_outputs") or []
+            act_remove_output = menu.addAction(
+                f"➖  Remove Last Output Port ({outs[-1]})"
+                if outs else "➖  Remove Last Output Port")
+            act_remove_output.setEnabled(bool(outs))
         # Add Terminal — chỉ tools hỗ trợ "objects" output mới có ý nghĩa
         supports_objects = any(p.name == "objects"
                                 for p in self.node.tool.outputs)
@@ -675,6 +692,10 @@ class NodeItem(QGraphicsItem):
             self._add_extra_input()
         elif act_remove_input is not None and chosen == act_remove_input:
             self._remove_last_extra_input()
+        elif act_add_output is not None and chosen == act_add_output:
+            self._add_extra_output()
+        elif act_remove_output is not None and chosen == act_remove_output:
+            self._remove_last_extra_output()
         elif act_add_term is not None and chosen == act_add_term:
             self._open_add_terminal_dialog()
         elif act_manage is not None and chosen == act_manage:
@@ -709,22 +730,77 @@ class NodeItem(QGraphicsItem):
             return
         removed = extras.pop()
         self.node.params["_extra_inputs"] = extras
-        # Prune connection dst trỏ tới port vừa xóa
+        self._prune_port_connections(removed, is_output=False)
+        self.refresh_ports()
+
+    def _add_extra_output(self):
+        """Prompt user nhập tên port output. Validate identifier hợp lệ +
+        không trùng với output đã có."""
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+        existing = {p.name for p in self.node.tool.outputs}
+        existing.update(self.node.params.get("_extra_outputs") or [])
+        # Suggest tên mặc định: out1, out2, ...
+        suggest = "out1"
+        n = 1
+        while suggest in existing:
+            n += 1
+            suggest = f"out{n}"
+        text, ok = QInputDialog.getText(
+            None, "Add Output Port",
+            "Tên port (Python identifier hợp lệ):", text=suggest)
+        if not ok:
+            return
+        name = text.strip()
+        if not name.isidentifier():
+            QMessageBox.warning(
+                None, "Invalid Name",
+                f"'{name}' không phải Python identifier hợp lệ.\n"
+                "Chỉ dùng a-z, A-Z, 0-9, _ và không bắt đầu bằng số.")
+            return
+        if name in existing:
+            QMessageBox.warning(
+                None, "Duplicate Name",
+                f"Port '{name}' đã tồn tại.")
+            return
+        outs = list(self.node.params.get("_extra_outputs") or [])
+        outs.append(name)
+        self.node.params["_extra_outputs"] = outs
+        self.refresh_ports()
+
+    def _remove_last_extra_output(self):
+        """Xóa output port cuối + connection bắt đầu từ port đó."""
+        outs = list(self.node.params.get("_extra_outputs") or [])
+        if not outs:
+            return
+        removed = outs.pop()
+        self.node.params["_extra_outputs"] = outs
+        self._prune_port_connections(removed, is_output=True)
+        self.refresh_ports()
+
+    def _prune_port_connections(self, port_name: str, is_output: bool):
+        """Xóa connection liên quan đến port vừa bị remove + ConnectionItem
+        tương ứng trong scene."""
         scene = self.scene()
         graph = getattr(scene, "graph", None)
-        if graph is not None:
+        if graph is None:
+            return
+        nid = self.node.node_id
+        if is_output:
             graph.connections = [
                 c for c in graph.connections
-                if not (c.dst_id == self.node.node_id and c.dst_port == removed)
+                if not (c.src_id == nid and c.src_port == port_name)
             ]
-            # Xóa ConnectionItem tương ứng trong scene
-            stale = [cid for cid, ci in getattr(scene, "_conn_items", {}).items()
-                     if not any(c.conn_id == cid for c in graph.connections)]
-            for cid in stale:
-                ci = scene._conn_items.pop(cid, None)
-                if ci is not None and ci.scene() is scene:
-                    scene.removeItem(ci)
-        self.refresh_ports()
+        else:
+            graph.connections = [
+                c for c in graph.connections
+                if not (c.dst_id == nid and c.dst_port == port_name)
+            ]
+        stale = [cid for cid, _ in list(getattr(scene, "_conn_items", {}).items())
+                 if not any(c.conn_id == cid for c in graph.connections)]
+        for cid in stale:
+            ci = scene._conn_items.pop(cid, None)
+            if ci is not None and ci.scene() is scene:
+                scene.removeItem(ci)
 
     def _open_manage_outputs_dialog(self):
         dlg = ManageOutputsDialog(self.node, on_change=self.refresh_ports)

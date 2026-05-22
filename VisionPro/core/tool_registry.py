@@ -56,6 +56,9 @@ class ToolDef:
     # Khi != "" → tool hỗ trợ user thêm input port động qua right-click "Add
     # Input". Giá trị = data_type của port mới (vd "bool" cho Pass/Fail Judge).
     extra_input_type: str = ""
+    # Tương tự cho output: != "" → right-click "Add Output Port" (prompt tên).
+    # Giá trị = data_type của port mới (vd "any" cho Script Tool).
+    extra_output_type: str = ""
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -2500,15 +2503,64 @@ def proc_judge(inputs,params):
     result=(all(conds) if params.get("mode","ALL")=="ALL" else any(conds)) if conds else False
     return {"result":result,"pass":result}
 
-def proc_script(inputs,params):
-    """TScriptTool — Chạy Python expression tùy chỉnh."""
-    expr=params.get("expression","result = True")
-    ctx={"inputs":inputs,"params":params,"result":False,"pass_value":False,**inputs}
-    try: exec(expr,ctx)
-    except Exception as e: ctx["result"]=False; ctx["error"]=str(e)
-    return {"result":bool(ctx.get("result",False)),
-            "pass":bool(ctx.get("pass_value",ctx.get("result",False))),
-            "output":str(ctx.get("output",""))}
+def proc_script(inputs, params):
+    """Script Tool — chạy Python code tùy biến.
+
+    Context cho code:
+      • a, b, c, ...      = inputs['A'], inputs['B'], ... (lowercase)
+      • inputs            = dict đầy đủ tất cả input port (uppercase keys)
+      • params            = dict tham số node
+      • outputs           = dict — gán outputs['name'] = value để set port output
+      • pass_value        = bool — alias cho output 'pass' (vì `pass` là Python keyword)
+      • Hoặc gán biến top-level cùng tên port (vd `result = 100` → port `result`)
+
+    Output ports: declared trong tool.outputs + `_extra_outputs` param.
+    Pipeline status (pass/fail) dùng port `pass`.
+    """
+    code = params.get("expression", "")
+    ctx = {"inputs": inputs, "params": params, "outputs": {}}
+    # Bind inputs vừa uppercase (giữ nguyên key) vừa lowercase (tiện viết code)
+    for k, v in inputs.items():
+        ctx[k] = v
+        if isinstance(k, str) and k != k.lower():
+            ctx[k.lower()] = v
+    try:
+        exec(code, ctx)
+    except Exception as e:
+        import traceback
+        err = f"{type(e).__name__}: {e}"
+        print(f"[Script] ERROR: {err}\n{traceback.format_exc(limit=3)}")
+        ctx["__error"] = err
+
+    # Build output dict — đọc theo tên port đã declared
+    out: Dict[str, Any] = {}
+    extras = list(params.get("_extra_outputs") or [])
+    user_outputs = ctx.get("outputs") if isinstance(ctx.get("outputs"), dict) else {}
+
+    def _read(name):
+        # Ưu tiên outputs[name] → ctx[name] → None
+        if name in user_outputs:
+            return user_outputs[name]
+        return ctx.get(name)
+
+    # Port 'pass' đặc biệt: ưu tiên outputs['pass'] → pass_value → result
+    pass_val = user_outputs.get("pass", ctx.get("pass_value"))
+    if pass_val is None:
+        pass_val = ctx.get("result")
+    out["pass"] = bool(pass_val) if pass_val is not None else False
+
+    # Port 'result' (static)
+    out["result"] = _read("result")
+
+    # Extra output ports
+    for name in extras:
+        if name in ("pass", "result"):
+            continue
+        out[name] = _read(name)
+
+    if ctx.get("__error"):
+        out["__error"] = ctx["__error"]
+    return out
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -3914,13 +3966,22 @@ TOOL_REGISTRY: List[ToolDef] = [
     extra_input_type="bool"),
 
   ToolDef("script","Script Tool","Logic & Flow",
-    "Chạy Python expression tùy chỉnh — TScriptTool","#1c1c2e","🐍",
-    [PortDef("A","any",required=False),PortDef("B","any",required=False),
-     PortDef("C","any",required=False)],
-    [PortDef("result","bool"),PortDef("pass","bool"),PortDef("output","any")],
-    [P("expression","Python Expression","str","result = True",
-       tooltip="Dùng: inputs['A'], inputs['B'], result=True/False, output=value")],
-    proc_script,"TScriptTool"),
+    "Chạy Python code tùy biến với editor có syntax-highlight + gợi ý. "
+    "Right-click node để Add Input / Add Output port. Trong code: input là "
+    "biến lowercase (A→a, B→b...), gán `result = ...`, `pass_value = ...` "
+    "hoặc `outputs['port_name'] = ...` để set output.",
+    "#1c1c2e","🐍",
+    [PortDef("A","any",required=False)],
+    [PortDef("pass","bool"), PortDef("result","any")],
+    [P("expression","Python Code","str",
+       "# Inputs: a, b, c, ... (lowercase của port name)\n"
+       "# Outputs: gán biến cùng tên port, hoặc outputs['name'] = ...\n"
+       "# 'pass' là keyword Python → dùng pass_value\n"
+       "result = a",
+       tooltip="Mở Script Tool detail (double-click node) để dùng editor "
+               "đầy đủ với syntax highlighting + autocomplete.")],
+    proc_script,"TScriptTool",
+    extra_input_type="any", extra_output_type="any"),
 
   # ── OUTPUT / DISPLAY ────────────────────────────────────────────
   ToolDef("display","Display","Output & Display",

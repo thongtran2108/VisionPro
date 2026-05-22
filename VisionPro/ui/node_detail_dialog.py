@@ -1641,9 +1641,32 @@ class NodeDetailDialog(QDialog):
         ll.addWidget(self._status_lbl)
         spl.addWidget(left)
 
-        # RIGHT — image
+        # RIGHT — image preview HOẶC code editor (Script Tool)
         right = QWidget()
         rl = QVBoxLayout(right); rl.setContentsMargins(6, 6, 6, 6); rl.setSpacing(4)
+
+        # Script Tool: thay image panel bằng Python code editor có syntax
+        # highlight + autocomplete. Các attr image-related set None/dummy để
+        # refresh_outputs không cần if/else khắp nơi.
+        if tool.tool_id == "script":
+            self._img_label = None
+            self._img_info = QLabel("")
+            self._hover_bar = QLabel("")
+            self._pixel_bar = QLabel("")
+            self._build_script_editor_panel(rl)
+            spl.addWidget(right)
+            spl.setSizes([300, 800])
+
+            cb = QPushButton("Close")
+            cb.setFixedHeight(30)
+            cb.setStyleSheet(
+                "QPushButton{background:#1e2d45;border:none;border-radius:4px;"
+                "color:#94a3b8;font-size:12px;margin:4px 12px;}"
+                "QPushButton:hover{background:#00d4ff;color:#000;}")
+            cb.clicked.connect(self.close)
+            root.addWidget(cb)
+            self.refresh_outputs()
+            return
 
         img_hdr = QHBoxLayout()
         img_lbl = QLabel("OUTPUT IMAGE")
@@ -1911,6 +1934,89 @@ class NodeDetailDialog(QDialog):
                 if src and "image" in src.outputs:
                     return src.outputs["image"]
         return None
+
+    # ════════════════════════════════════════════════════════════════
+    #  Script Tool: code editor panel
+    # ════════════════════════════════════════════════════════════════
+    def _build_script_editor_panel(self, layout: QVBoxLayout):
+        """Right-pane cho Script Tool: header + Python code editor + hint.
+        Editor 2-way sync với node.params['expression']."""
+        from ui.code_editor import CodeEditor
+        node = self._node
+
+        # Header
+        hdr = QHBoxLayout()
+        lbl = QLabel("🐍  PYTHON SCRIPT")
+        lbl.setStyleSheet(
+            "color:#00d4ff; font-size:10px; font-weight:700; letter-spacing:2px;")
+        hdr.addWidget(lbl); hdr.addStretch()
+        layout.addLayout(hdr)
+
+        # Editor
+        self._code_editor = CodeEditor()
+        self._code_editor.setPlainText(node.params.get("expression", "") or "")
+        self._refresh_script_completions()
+        layout.addWidget(self._code_editor, 1)
+
+        # Save on change — debounce 250ms để giảm dirty-mark spam khi gõ.
+        self._script_save_timer = QTimer(self)
+        self._script_save_timer.setSingleShot(True)
+        self._script_save_timer.setInterval(250)
+        self._script_save_timer.timeout.connect(self._save_script_to_params)
+        self._code_editor.textChanged.connect(self._script_save_timer.start)
+
+        # Hint bar — quick reference
+        hint = QLabel(
+            "<span style='color:#94a3b8'>Inputs:</span> "
+            "<span style='color:#4ec9b0'>a, b, c</span> "
+            "(lowercase của port name) hoặc <span style='color:#4ec9b0'>inputs['A']</span>"
+            "<br><span style='color:#94a3b8'>Outputs:</span> gán biến cùng tên port "
+            "(<span style='color:#dcdcaa'>result = 100</span>), "
+            "<span style='color:#dcdcaa'>pass_value = True</span> cho port pass, "
+            "hoặc <span style='color:#dcdcaa'>outputs['name'] = ...</span>"
+            "<br><span style='color:#94a3b8'>Add port:</span> right-click node → "
+            "Add Input / Add Output. <span style='color:#94a3b8'>Autocomplete:</span> "
+            "<span style='color:#569cd6'>Ctrl+Space</span>")
+        hint.setTextFormat(Qt.RichText)
+        hint.setWordWrap(True)
+        hint.setStyleSheet(
+            "color:#94a3b8; font-size:11px; font-family:'Segoe UI';"
+            "background:#0d1a2a; border:1px solid #1e2d45; border-radius:4px;"
+            "padding:6px 10px;")
+        layout.addWidget(hint)
+
+    def _save_script_to_params(self):
+        """Flush editor content → node.params['expression']. Mark dirty
+        thông qua _on_run cycle hoặc params_changed nếu có."""
+        if not hasattr(self, "_code_editor"):
+            return
+        text = self._code_editor.toPlainText()
+        if self._node.params.get("expression") != text:
+            self._node.params["expression"] = text
+            if self._node.params.get("_auto_run", False):
+                self._auto_run_timer.start()
+
+    def _refresh_script_completions(self):
+        """Reload danh sách autocomplete = port input/output hiện tại + keywords."""
+        if not hasattr(self, "_code_editor"):
+            return
+        node = self._node
+        extra: list = ["inputs", "outputs", "params", "pass_value"]
+        # Input port names (uppercase + lowercase)
+        for p in node.tool.inputs:
+            extra.append(p.name)
+            if p.name != p.name.lower():
+                extra.append(p.name.lower())
+        for name in (node.params.get("_extra_inputs") or []):
+            extra.append(name)
+            if name != name.lower():
+                extra.append(name.lower())
+        # Output port names
+        for p in node.tool.outputs:
+            extra.append(p.name)
+        for name in (node.params.get("_extra_outputs") or []):
+            extra.append(name)
+        self._code_editor.set_completions(extra)
 
     # ════════════════════════════════════════════════════════════════
     #  Build sub-widgets
@@ -2732,7 +2838,8 @@ class NodeDetailDialog(QDialog):
                     f"{w2}×{h2} px  |  {img.dtype}  |  {node.status.upper()}")
                 self._img_info.setStyleSheet(
                     f"color:{sc}; font-size:10px; font-family:'Courier New'; padding:2px;")
-            self._img_label.set_image(img)
+            if self._img_label is not None:
+                self._img_label.set_image(img)
 
             # Cache ảnh nguồn (BGR, không overlay) cho hover color picker.
             if node.tool.tool_id in ("color_segment", "color_picker", "color_match"):
@@ -2807,4 +2914,5 @@ class NodeDetailDialog(QDialog):
                 pass   # PatMaxDialog tự quản lý display
 
         elif not node.error_msg:
-            self._img_label.set_image(None)
+            if self._img_label is not None:
+                self._img_label.set_image(None)
