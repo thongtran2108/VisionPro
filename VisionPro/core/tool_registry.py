@@ -2491,7 +2491,10 @@ def proc_compare(inputs,params):
     return {"result":result,"pass":result}
 
 def proc_judge(inputs,params):
-    conds=[bool(inputs.get(k)) for k in ("A","B","C","D") if inputs.get(k) is not None]
+    n = int(params.get("input_count", 4) or 4)
+    n = max(1, min(16, n))
+    keys = list("ABCDEFGHIJKLMNOP")[:n]
+    conds=[bool(inputs.get(k)) for k in keys if inputs.get(k) is not None]
     result=(all(conds) if params.get("mode","ALL")=="ALL" else any(conds)) if conds else False
     return {"result":result,"pass":result}
 
@@ -3898,11 +3901,14 @@ TOOL_REGISTRY: List[ToolDef] = [
     proc_compare,""),
 
   ToolDef("judge","Pass/Fail Judge","Logic & Flow",
-    "Kết hợp điều kiện → PASS/FAIL cuối cùng","#1c1c2e","🏁",
-    [PortDef("A","bool",required=False),PortDef("B","bool",required=False),
-     PortDef("C","bool",required=False),PortDef("D","bool",required=False)],
+    "Kết hợp điều kiện → PASS/FAIL cuối cùng. Tăng Input Count để thêm input "
+    "ports (A→P, tối đa 16). ALL = tất cả input True; ANY = ít nhất 1 True. "
+    "Input chưa nối được bỏ qua.","#1c1c2e","🏁",
+    [PortDef(ch,"bool",required=False) for ch in "ABCDEFGHIJKLMNOP"],
     [PortDef("result","bool"),PortDef("pass","bool")],
-    [P("mode","Combine Mode","enum","ALL",choices=["ALL","ANY"])],
+    [P("mode","Combine Mode","enum","ALL",choices=["ALL","ANY"]),
+     P("input_count","Input Count","int",4,2,16,use_slider=True,
+       tooltip="Số input port hiển thị (A→P). Kéo lên để thêm điều kiện so sánh.")],
     proc_judge,""),
 
   ToolDef("script","Script Tool","Logic & Flow",

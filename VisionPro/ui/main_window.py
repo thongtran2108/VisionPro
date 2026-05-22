@@ -379,6 +379,15 @@ class MainWindow(QMainWindow):
         scene._signals.selected.connect(self._props.show_node)
 
         self._props.params_changed.connect(self._on_graph_changed)
+        self._props.ports_need_refresh.connect(self._on_ports_need_refresh)
+
+    def _on_ports_need_refresh(self, node_id: str):
+        """Param điều khiển port (vd input_count) thay đổi → rebuild port của
+        NodeItem. Edge tới port đã ẩn sẽ tự ẩn theo `_on_ports_changed` của
+        scene; tăng lại input_count thì edge xuất hiện lại."""
+        ni = self._canvas.aoi_scene._node_items.get(node_id)
+        if ni:
+            ni.refresh_ports()
 
     # ── Node selection ────────────────────────────────────────────
     def _on_node_selected(self, node_id: str):

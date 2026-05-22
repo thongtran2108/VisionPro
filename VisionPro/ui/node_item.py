@@ -435,17 +435,33 @@ class NodeItem(QGraphicsItem):
                 names.append(n)
         return names
 
+    def _visible_input_ports(self):
+        """Tool có param `input_count` (vd Pass/Fail Judge) → chỉ render N port
+        đầu trong tool.inputs. Pipeline cũ chưa có param → dùng default của
+        ParamDef (backward-compatible)."""
+        inputs = list(self.node.tool.inputs)
+        pdef = next((p for p in self.node.tool.params
+                     if p.name == "input_count"), None)
+        if pdef is None:
+            return inputs
+        n = self.node.params.get("input_count", pdef.default)
+        try:
+            n = int(n)
+        except (TypeError, ValueError):
+            n = int(pdef.default or len(inputs))
+        n = max(1, min(len(inputs), n))
+        return inputs[:n]
+
     def _compute_size(self):
         tool = self.node.tool
-        n_in  = len(tool.inputs)
+        n_in  = len(self._visible_input_ports())
         n_out = len(self._output_port_names())
         n_ports = max(n_in, n_out, 1)
         self._w = max(NODE_MIN_W, len(tool.name) * 7 + 60)
         self._h = NODE_HEADER_H + NODE_PADDING + n_ports * NODE_PORT_ROW + NODE_PADDING
 
     def _build_ports(self):
-        tool = self.node.tool
-        for i, port in enumerate(tool.inputs):
+        for i, port in enumerate(self._visible_input_ports()):
             p = PortItem(self, port.name, False, i, self)
             y = NODE_HEADER_H + NODE_PADDING + i * NODE_PORT_ROW + NODE_PORT_ROW // 2
             p.setPos(0, y)
