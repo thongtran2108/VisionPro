@@ -399,37 +399,87 @@ def auto_terminal_name(term: dict) -> str:
     """Auto-generate output port name từ terminal spec.
     Nếu user đặt name → dùng name. Ngược lại: obj 0 (default) → "<field>";
     obj > 0 → "<field>_<obj_idx>" để phân biệt nhiều object.
+    Object selector (string vd "highest", "lowest"): → "<selector>_<field>"
+    (vd: highest_cx, lowest_cy).
     Migration: nếu explicit name khớp đúng pattern legacy "<field>_<obj>"
     (auto-name của bản cũ) → coi như auto, trả về tên ngắn mới.
     """
     field = str(term.get("field", "x"))
+    obj_spec = term.get("object", 0)
+    explicit = (term.get("name") or "").strip()
+    if explicit:
+        # Legacy auto-name migration cho numeric object
+        if isinstance(obj_spec, int) and explicit == f"{field}_{obj_spec}":
+            explicit = ""
+        else:
+            return explicit
+    # String selector: "<selector>_<field>"
+    if isinstance(obj_spec, str):
+        return f"{obj_spec}_{field}"
     try:
-        obj_idx = int(term.get("object", 0) or 0)
+        obj_idx = int(obj_spec or 0)
     except (TypeError, ValueError):
         obj_idx = 0
-    explicit = (term.get("name") or "").strip()
-    if explicit and explicit == f"{field}_{obj_idx}":
-        explicit = ""  # legacy auto-saved name → drop, use new short form
-    if explicit:
-        return explicit
     return field if obj_idx == 0 else f"{field}_{obj_idx}"
+
+
+# Selectors cho per-object lookup khi user không muốn pick index cố định.
+# Resolve qua _select_object — trả 1 dict từ list theo tiêu chí.
+OBJECT_SELECTORS = {
+    "highest":   "Topmost (smallest cy)",
+    "lowest":    "Bottommost (largest cy)",
+    "leftmost":  "Leftmost (smallest cx)",
+    "rightmost": "Rightmost (largest cx)",
+    "center":    "Closest to mean of all objects",
+    "first":     "First detected (index 0)",
+    "last":      "Last detected (index N-1)",
+}
+
+
+def _select_object(objects: list, selector: str):
+    """Pick 1 dict từ objects theo selector. Trả None nếu list rỗng."""
+    if not objects:
+        return None
+    def _cy(o): return o.get("cy", o.get("y1", o.get("y", 0)))
+    def _cx(o): return o.get("cx", o.get("x1", o.get("x", 0)))
+    if selector == "highest":
+        return min(objects, key=_cy)
+    if selector == "lowest":
+        return max(objects, key=_cy)
+    if selector == "leftmost":
+        return min(objects, key=_cx)
+    if selector == "rightmost":
+        return max(objects, key=_cx)
+    if selector == "center":
+        mx = sum(_cx(o) for o in objects) / len(objects)
+        my = sum(_cy(o) for o in objects) / len(objects)
+        return min(objects, key=lambda o: (_cx(o) - mx)**2 + (_cy(o) - my)**2)
+    if selector == "first":
+        return objects[0]
+    if selector == "last":
+        return objects[-1]
+    return None
 
 
 def _apply_extra_terminals(out: dict, objects: list, params: dict):
     """Apply extra output terminals từ params['_extra_terminals'].
-    term = {"object": int, "field": str, "name": str}
-    field có thể là field cơ bản (x, y, angle, score, scale, ...) hoặc
-    ref-aware (ref1_x, ref2_y, ...).
+    term = {"object": int | str, "field": str, "name": str}
+    object có thể là int (index cố định) hoặc str selector (vd "highest",
+    "lowest", "leftmost"...). field là field cơ bản hoặc ref-aware (PatMax).
     """
     for term in (params.get("_extra_terminals") or []):
         try:
-            obj_idx = int(term.get("object", 0))
+            obj_spec = term.get("object", 0)
             field = str(term.get("field", "x"))
             name = auto_terminal_name(term)
-            if 0 <= obj_idx < len(objects):
-                out[name] = objects[obj_idx].get(field, 0.0)
+            obj = None
+            if isinstance(obj_spec, str):
+                obj = _select_object(objects, obj_spec)
             else:
-                out[name] = 0.0
+                obj_idx = int(obj_spec or 0)
+                if 0 <= obj_idx < len(objects):
+                    obj = objects[obj_idx]
+            out[name] = obj.get(field, 0.0) if obj is not None else 0.0
         except Exception:
             continue
 

@@ -16,7 +16,7 @@ from PySide6.QtGui import (QPainter, QColor, QPen, QBrush, QFont,
                             QLinearGradient, QPainterPath, QCursor)
 
 from core.flow_graph import NodeInstance
-from core.tool_registry import ToolDef, auto_terminal_name
+from core.tool_registry import ToolDef, auto_terminal_name, OBJECT_SELECTORS
 
 PORT_R        = 7
 PORT_D        = PORT_R * 2
@@ -210,8 +210,28 @@ class AddTerminalDialog(QDialog):
         row_obj = QHBoxLayout()
         row_obj.addWidget(QLabel("Object:"))
         self._cb_obj = QComboBox()
+        # Selectors (vd: Highest, Lowest, Center, ...) — chỉ show cho non-PatMax,
+        # và ít nhất 1 object phải detect được. Selector resolve runtime ⇒
+        # vẫn hoạt động khi số object thay đổi giữa các run (vd: scene động).
+        self._selector_keys = []
+        if not is_patmax and n_obj_detected > 0:
+            selector_icons = {
+                "highest": "🔼", "lowest": "🔽",
+                "leftmost": "◀", "rightmost": "▶",
+                "center": "⏺", "first": "1️⃣", "last": "🔚",
+            }
+            for key, desc in OBJECT_SELECTORS.items():
+                icon = selector_icons.get(key, "•")
+                label = key.capitalize()
+                self._cb_obj.addItem(f"{icon}  {label}  —  {desc}", key)
+                self._selector_keys.append(key)
+            self._cb_obj.insertSeparator(self._cb_obj.count())
+        # Numbered objects
         for i in range(self._n_obj):
-            self._cb_obj.addItem(f"Object {i+1}")
+            self._cb_obj.addItem(f"Object {i+1}", i)
+        # Default highlight numbered Object 1 (selectors là extra, không phải default)
+        if self._selector_keys:
+            self._cb_obj.setCurrentIndex(len(self._selector_keys) + 1)
         row_obj.addWidget(self._cb_obj, 1)
         lay.addLayout(row_obj)
 
@@ -350,8 +370,13 @@ class AddTerminalDialog(QDialog):
             field_key = field_basic
         else:
             field_key = f"ref{ref_idx}_{field_basic}"
+        # currentData() trả str (selector) hoặc int (object index). Separator
+        # rows trả None → fallback Object 1 (index 0).
+        obj_data = self._cb_obj.currentData()
+        if obj_data is None:
+            obj_data = 0
         return {
-            "object": int(self._cb_obj.currentIndex()),
+            "object": obj_data,
             "field":  field_key,
             "name":   self._le_name.text().strip(),
         }
