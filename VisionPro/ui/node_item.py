@@ -181,15 +181,29 @@ class AddTerminalDialog(QDialog):
         lay.setContentsMargins(14, 14, 14, 14); lay.setSpacing(10)
 
         self._ref_options = _patmax_ref_options(node)
-        # Số object đã detect ở lần chạy gần nhất. Nếu chưa chạy → ít nhất 1
-        # để user vẫn add được terminal trước khi search.
-        n_obj_detected = len(node.outputs.get("objects") or [])
+        # Tool nào có terminal_fields tự khai báo (vd YOLO Detect) → dùng nó
+        # thay PATMAX_FIELDS, ẩn Reference combo (không có khái niệm ref).
+        tool_fields = list(getattr(node.tool, "terminal_fields", []) or [])
+        self._tool_fields = tool_fields
+        # source_key: output port chứa list[dict] objects để đếm.
+        # PatMax → "objects"; YOLO → "detections".
+        src_key = (getattr(node.tool, "terminal_source_key", "") or "objects")
+        n_obj_detected = len(node.outputs.get(src_key) or [])
         self._n_obj = max(1, n_obj_detected)
-        info = QLabel(
-            f"Tool detect <b>{n_obj_detected}</b> object · "
-            f"<b>{len(self._ref_options)}</b> reference point(s).<br>"
-            f"Mỗi terminal map 1 (object, reference, field) → 1 output port."
-        )
+
+        is_patmax = (not tool_fields)  # chỉ PatMax-style mới có Reference rows
+        if is_patmax:
+            info = QLabel(
+                f"Tool detect <b>{n_obj_detected}</b> object · "
+                f"<b>{len(self._ref_options)}</b> reference point(s).<br>"
+                f"Mỗi terminal map 1 (object, reference, field) → 1 output port."
+            )
+        else:
+            info = QLabel(
+                f"Tool detect <b>{n_obj_detected}</b> object.<br>"
+                f"Mỗi terminal map 1 (object, field) → 1 output port. "
+                f"Vd: object 2 + field <i>cx</i> → port <b>cx_2</b>."
+            )
         info.setWordWrap(True)
         lay.addWidget(info)
 
@@ -201,6 +215,7 @@ class AddTerminalDialog(QDialog):
         row_obj.addWidget(self._cb_obj, 1)
         lay.addLayout(row_obj)
 
+        # Reference row — chỉ hiển thị cho PatMax-style (có >1 ref point).
         row_ref = QHBoxLayout()
         row_ref.addWidget(QLabel("Reference:"))
         self._cb_ref = QComboBox()
@@ -208,7 +223,8 @@ class AddTerminalDialog(QDialog):
             self._cb_ref.addItem(label)
         self._cb_ref.currentIndexChanged.connect(self._on_ref_changed)
         row_ref.addWidget(self._cb_ref, 1)
-        lay.addLayout(row_ref)
+        if is_patmax:
+            lay.addLayout(row_ref)
 
         row2 = QHBoxLayout()
         row2.addWidget(QLabel("Field:"))
@@ -216,6 +232,18 @@ class AddTerminalDialog(QDialog):
         row2.addWidget(self._cb_field, 1)
         lay.addLayout(row2)
         self._on_ref_changed(0)  # populate field combo lần đầu
+
+        # "Add for all objects" — bulk-add 1 field × N objects. Tiện khi user
+        # muốn x/y cho hết object trong 1 click thay vì add từng cái.
+        if not is_patmax and self._n_obj > 1:
+            self._btn_bulk = QPushButton(
+                f"➕  Add this field for all {self._n_obj} objects")
+            self._btn_bulk.setStyleSheet(
+                "QPushButton{background:#0f3460;color:#00d4ff;"
+                "border:1px solid #1e2d45;border-radius:3px;padding:5px;}"
+                "QPushButton:hover{background:#00d4ff;color:#000;}")
+            self._btn_bulk.clicked.connect(self._add_bulk_all_objects)
+            lay.addWidget(self._btn_bulk)
 
         row3 = QHBoxLayout()
         row3.addWidget(QLabel("Port name (optional):"))
@@ -270,10 +298,12 @@ class AddTerminalDialog(QDialog):
                 self._on_remove()
 
     def _on_ref_changed(self, idx: int):
-        """Populate field combo theo reference đang chọn.
-        Origin → toàn bộ PATMAX_FIELDS; extra ref → chỉ x/y/angle.
-        """
+        """Populate field combo. Tool có terminal_fields (YOLO) → dùng nó;
+        PatMax: Origin → PATMAX_FIELDS, extra ref → PATMAX_REF_FIELDS."""
         self._cb_field.clear()
+        if self._tool_fields:
+            self._cb_field.addItems(self._tool_fields)
+            return
         if 0 <= idx < len(self._ref_options):
             ref_idx = self._ref_options[idx][1]
             if ref_idx == 0:
@@ -282,6 +312,30 @@ class AddTerminalDialog(QDialog):
                 self._cb_field.addItems(PATMAX_REF_FIELDS)
         else:
             self._cb_field.addItems(PATMAX_FIELDS)
+
+    def _add_bulk_all_objects(self):
+        """Bulk-add: thêm 1 entry cho mỗi object hiện có, dùng field đang
+        chọn ở combo. Sau khi add → close dialog với Accepted state."""
+        field = self._cb_field.currentText()
+        existing = list(self._node.params.get("_extra_terminals") or [])
+        existing_names = ({p.name for p in self._node.tool.outputs}
+                          | {auto_terminal_name(t) for t in existing})
+        added = 0
+        for i in range(self._n_obj):
+            term = {"object": i, "field": field, "name": ""}
+            name = auto_terminal_name(term)
+            if name in existing_names:
+                continue
+            existing.append(term)
+            existing_names.add(name)
+            added += 1
+        if added == 0:
+            return
+        self._node.params["_extra_terminals"] = existing
+        # Trigger refresh callback (rebuild ports trên canvas)
+        if callable(self._on_remove):
+            self._on_remove()
+        self.accept()
 
     def get_new_terminal(self) -> dict:
         # Map (reference, field) → key trong objects dict:
@@ -660,9 +714,9 @@ class NodeItem(QGraphicsItem):
                 f"➖  Remove Last Output Port ({outs[-1]})"
                 if outs else "➖  Remove Last Output Port")
             act_remove_output.setEnabled(bool(outs))
-        # Add Terminal — chỉ tools hỗ trợ "objects" output mới có ý nghĩa
-        supports_objects = any(p.name == "objects"
-                                for p in self.node.tool.outputs)
+        # Add Terminal — tool nào có terminal_fields (PatMax / YOLO / ...)
+        # cho phép thêm per-object output port qua dialog.
+        supports_objects = bool(getattr(self.node.tool, "terminal_fields", None))
         act_add_term = None
         if supports_objects:
             menu.addSeparator()

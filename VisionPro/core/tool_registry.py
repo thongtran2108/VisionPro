@@ -59,6 +59,14 @@ class ToolDef:
     # Tương tự cho output: != "" → right-click "Add Output Port" (prompt tên).
     # Giá trị = data_type của port mới (vd "any" cho Script Tool).
     extra_output_type: str = ""
+    # Khi non-empty: tool hỗ trợ "Add Output Terminal…" để pick (object_idx,
+    # field) → tạo 1 port output. Mỗi field 1 lựa chọn trong combo. Engine
+    # trong proc_* gọi `_apply_extra_terminals(out, objects_list, params)`
+    # để map giá trị vào port.
+    terminal_fields: List[str] = field(default_factory=list)
+    # Output key chứa list[dict] objects để dialog đếm số object detect được.
+    # Default "objects" (PatMax). YOLO dùng "detections".
+    terminal_source_key: str = "objects"
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -3035,9 +3043,12 @@ def _yolo_detect_onnx(img: np.ndarray, onnx_path: str, params: dict,
                         _fs(0.6, s), col, _t(2, s))
         cx = (x1 + x2) // 2
         cy = (y1 + y2) // 2
+        w_ = max(0, x2 - x1); h_ = max(0, y2 - y1)
         detections.append({"class": cls_name, "cls_id": cls_id,
                             "conf": conf_val, "cx": cx, "cy": cy,
-                            "x1": x1, "y1": y1, "x2": x2, "y2": y2})
+                            "x1": x1, "y1": y1, "x2": x2, "y2": y2,
+                            "w": w_, "h": h_,
+                            "x": x1, "y": y1})
     return detections, backend
 
 
@@ -3120,6 +3131,8 @@ def proc_yolo_detect(inputs, params):
             out = {"image": vis, "detections": detections,
                    "count": n, "pass": is_pass}
             out.update(_yolo_best_outputs(detections))
+            # Per-object extra terminals: x_1, cx_2, conf_3, ... do user pick
+            _apply_extra_terminals(out, detections, params)
             return out
         except Exception as e:
             print(f"[YOLO/onnx] {type(e).__name__}: {str(e)[:120]} — "
@@ -3145,6 +3158,12 @@ def proc_yolo_detect(inputs, params):
         show_labels = bool(params.get("show_labels", False))
         detections = []
 
+        # Seg-only: fill mask bằng overlay 30% (mặc định OFF — chỉ vẽ outline).
+        fill_seg = bool(params.get("fill_segments", False))
+        # Vẽ bbox bao polygon cho seg model (mặc định ON — user thường muốn
+        # thấy bbox cleaner thay vì polygon zigzag).
+        seg_show_bbox = bool(params.get("seg_show_bbox", True))
+
         for result in results:
             names = result.names
             # Segmentation masks
@@ -3163,17 +3182,24 @@ def proc_yolo_detect(inputs, params):
                     colors = [(0,220,80),(0,150,255),(255,180,0),
                               (220,80,220),(0,220,220),(255,80,80)]
                     col = colors[int(cls_id) % len(colors)]
-                    cv2.polylines(vis, [pts], True, col, _t(2, s))
-                    overlay = vis.copy()
-                    cv2.fillPoly(overlay, [pts], col)
-                    cv2.addWeighted(vis, 0.7, overlay, 0.3, 0, vis)
+                    if seg_show_bbox:
+                        cv2.rectangle(vis, (x1, y1), (x2, y2), col, _t(2, s))
+                    else:
+                        cv2.polylines(vis, [pts], True, col, _t(2, s))
+                    if fill_seg:
+                        overlay = vis.copy()
+                        cv2.fillPoly(overlay, [pts], col)
+                        cv2.addWeighted(vis, 0.7, overlay, 0.3, 0, vis)
                     if show_labels:
                         cv2.putText(vis, f"{cls_name} {float(conf_val):.2f}",
                                     (cx, cy-int(10*s)), cv2.FONT_HERSHEY_SIMPLEX,
                                     _fs(0.6, s), col, _t(2, s))
+                    w_ = max(0, x2 - x1); h_ = max(0, y2 - y1)
                     detections.append({"class": cls_name, "cls_id": int(cls_id),
                                        "conf": float(conf_val), "cx": cx, "cy": cy,
-                                       "x1": x1, "y1": y1, "x2": x2, "y2": y2})
+                                       "x1": x1, "y1": y1, "x2": x2, "y2": y2,
+                                       "w": w_, "h": h_,
+                                       "x": x1, "y": y1})
             # Bounding boxes
             elif result.boxes is not None:
                 for box, cls_id, conf_val in zip(
@@ -3189,9 +3215,12 @@ def proc_yolo_detect(inputs, params):
                                     (x1, y1-int(8*s)), cv2.FONT_HERSHEY_SIMPLEX,
                                     _fs(0.6, s), col, _t(2, s))
                     cx = (x1+x2)//2; cy = (y1+y2)//2
+                    w_ = max(0, x2 - x1); h_ = max(0, y2 - y1)
                     detections.append({"class": cls_name, "cls_id": int(cls_id),
                                        "conf": float(conf_val), "cx": cx, "cy": cy,
-                                       "x1":x1,"y1":y1,"x2":x2,"y2":y2})
+                                       "x1":x1,"y1":y1,"x2":x2,"y2":y2,
+                                       "w": w_, "h": h_,
+                                       "x": x1, "y": y1})
 
         n = len(detections)
         min_det = params.get("min_count", 1)
@@ -3202,6 +3231,7 @@ def proc_yolo_detect(inputs, params):
         out = {"image": vis, "detections": detections,
                "count": n, "pass": is_pass}
         out.update(_yolo_best_outputs(detections))
+        _apply_extra_terminals(out, detections, params)
         return out
 
     except Exception as e:
@@ -4066,7 +4096,9 @@ TOOL_REGISTRY: List[ToolDef] = [
     "YOLOv8/v11 Object Detection & Segmentation. Add file model train sẵn "
     "(.pt hoặc .onnx) rồi chỉnh threshold predict bên dưới. "
     "Train mới: mở YOLO Studio từ toolbar. Outputs x/y/w/h là best "
-    "detection (max conf) để chain vào Crop ROI / Fixture.",
+    "detection (max conf) để chain vào Crop ROI / Fixture. "
+    "Right-click node → ➕ Add / Manage Output Terminals để thêm port "
+    "x_2, cy_3, conf_5... cho per-object access.",
     "#1a0a3a","🤖",
     [PortDef("image","image")],
     [PortDef("image","image"),PortDef("detections","any"),
@@ -4088,8 +4120,15 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("min_count","Min Objects (PASS)","int",1,0,1000),
      P("max_count","Max Objects (PASS)","int",9999,0,10000),
      P("show_labels","Display: show labels on image","bool",False,
-       tooltip="Bật để vẽ '{class} {conf}' cạnh từng detection lên ảnh output. Mặc định tắt — kết quả vẫn có trong log & detections port.")],
-    proc_yolo_detect,"ultralytics YOLO"),
+       tooltip="Bật để vẽ '{class} {conf}' cạnh từng detection lên ảnh output. Mặc định tắt — kết quả vẫn có trong log & detections port."),
+     P("seg_show_bbox","Seg: draw bbox instead of polygon","bool",True,
+       tooltip="Seg model: vẽ bbox bao polygon (clean) thay vì polyline polygon (zigzag). Bbox detection không bị ảnh hưởng."),
+     P("fill_segments","Seg: fill polygon (30% alpha)","bool",False,
+       tooltip="Seg model: tô màu nửa-trong-suốt bên trong polygon. Mặc định OFF — chỉ vẽ outline cho ảnh sạch.")],
+    proc_yolo_detect,"ultralytics YOLO",
+    terminal_fields=["x","y","w","h","cx","cy","x1","y1","x2","y2",
+                      "conf","class","cls_id"],
+    terminal_source_key="detections"),
 
 ]
 
