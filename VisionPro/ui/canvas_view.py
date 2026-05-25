@@ -7,11 +7,12 @@ from typing import Dict, List, Optional
 import math
 
 from PySide6.QtWidgets import (QGraphicsScene, QGraphicsView, QGraphicsItem,
-                                QGraphicsPathItem)
+                                QGraphicsPathItem, QMenu)
 from PySide6.QtCore import Qt, QPointF, QRectF, Signal
 from PySide6.QtGui import (QPainter, QPen, QBrush, QColor, QPainterPath,
-                            QTransform, QKeyEvent, QWheelEvent,
-                            QDragEnterEvent, QDropEvent, QDragMoveEvent)
+                            QPainterPathStroker, QTransform, QKeyEvent,
+                            QWheelEvent, QDragEnterEvent, QDropEvent,
+                            QDragMoveEvent)
 
 from core.flow_graph import FlowGraph, Connection
 from core.tool_registry import TOOL_BY_ID
@@ -51,6 +52,81 @@ class ConnectionItem(QGraphicsPathItem):
         if change == QGraphicsItem.ItemSelectedHasChanged:
             self._redraw()
         return super().itemChange(change, value)
+
+    def shape(self) -> QPainterPath:
+        """Hitbox rộng hơn nét vẽ (~14px) để dễ trúng dây khi right-click /
+        click chọn — path gốc rất mảnh nên itemAt() hay trượt."""
+        stroker = QPainterPathStroker()
+        stroker.setWidth(14.0)
+        return stroker.createStroke(self.path())
+
+    def contextMenuEvent(self, event):
+        """Right-click trên dây → chọn dây + menu Unlink / Re-link 2 đầu tới
+        một node đang có sẵn trên canvas."""
+        scene = self.scene()
+        if scene is None:
+            return
+        # Right-click = chọn dây (highlight). Honor "chuột phải để chọn".
+        scene.clearSelection()
+        self.setSelected(True)
+
+        menu = QMenu()
+        menu.setStyleSheet(
+            "QMenu{background:#0d1220;color:#e2e8f0;border:1px solid #1e2d45;font-size:12px;}"
+            "QMenu::item:selected{background:#1a2236;color:#00d4ff;}"
+            "QMenu::separator{height:1px;background:#1e2d45;}")
+
+        graph = scene.graph
+        src_node = graph.nodes.get(self.conn.src_id)
+        dst_node = graph.nodes.get(self.conn.dst_id)
+        src_name = src_node.tool.name if src_node else "?"
+        dst_name = dst_node.tool.name if dst_node else "?"
+        hdr = menu.addAction(
+            f"🔗  {src_name}.{self.conn.src_port} → "
+            f"{dst_name}.{self.conn.dst_port}")
+        hdr.setEnabled(False)
+        menu.addSeparator()
+        act_unlink = menu.addAction("✂  Unlink (xoá kết nối)")
+        menu.addSeparator()
+
+        # Re-link: chọn node + port khác để nối lại đầu nguồn / đầu đích.
+        src_menu = menu.addMenu("⬅  Link nguồn tới node…")
+        dst_menu = menu.addMenu("➡  Link đích tới node…")
+        relink: dict = {}   # action -> ("src"|"dst", node_id, port_name)
+        for nid, ni in scene._node_items.items():
+            node = ni.node
+            label = f"{node.tool.icon}  {node.tool.name}"
+            # Nguồn mới = output port của node khác (không phải node đích).
+            if nid != self.conn.dst_id:
+                out_names = ni._output_port_names()
+                if out_names:
+                    sub = src_menu.addMenu(label)
+                    for pn in out_names:
+                        relink[sub.addAction(pn)] = ("src", nid, pn)
+            # Đích mới = input port của node khác (không phải node nguồn).
+            if nid != self.conn.src_id:
+                in_ports = ni._visible_input_ports()
+                if in_ports:
+                    sub = dst_menu.addMenu(label)
+                    for p in in_ports:
+                        relink[sub.addAction(p.name)] = ("dst", nid, p.name)
+        src_menu.setEnabled(not src_menu.isEmpty())
+        dst_menu.setEnabled(not dst_menu.isEmpty())
+
+        chosen = menu.exec(event.screenPos())
+        event.accept()
+        if chosen is None:
+            return
+        if chosen == act_unlink:
+            scene.unlink_connection(self.conn.conn_id)
+        elif chosen in relink:
+            kind, nid, pn = relink[chosen]
+            if kind == "src":
+                scene.relink_connection(self.conn.conn_id,
+                                        new_src_id=nid, new_src_port=pn)
+            else:
+                scene.relink_connection(self.conn.conn_id,
+                                        new_dst_id=nid, new_dst_port=pn)
 
 
 class TempCurve(QGraphicsPathItem):
@@ -253,6 +329,52 @@ class AOIScene(QGraphicsScene):
             self.connection_added.emit()
             self.graph_changed.emit()
 
+    def unlink_connection(self, conn_id: str):
+        """Xoá 1 connection (qua right-click dây → Unlink)."""
+        ci = self._conn_items.pop(conn_id, None)
+        if ci is not None and ci.scene() is self:
+            self.removeItem(ci)
+        self.graph.remove_connection(conn_id)
+        self.graph_changed.emit()
+
+    def relink_connection(self, conn_id: str,
+                          new_src_id: Optional[str] = None,
+                          new_src_port: Optional[str] = None,
+                          new_dst_id: Optional[str] = None,
+                          new_dst_port: Optional[str] = None):
+        """Nối lại 1 đầu của connection sang node/port khác. Giữ nguyên đầu
+        không đổi. Trả về Connection mới (hoặc None nếu invalid)."""
+        conn = next((c for c in self.graph.connections
+                     if c.conn_id == conn_id), None)
+        if conn is None:
+            return None
+        src_id   = new_src_id   if new_src_id   is not None else conn.src_id
+        src_port = new_src_port if new_src_port is not None else conn.src_port
+        dst_id   = new_dst_id   if new_dst_id   is not None else conn.dst_id
+        dst_port = new_dst_port if new_dst_port is not None else conn.dst_port
+        if src_id == dst_id:
+            return None   # không cho self-loop
+
+        # Xoá dây cũ trước khi tạo dây mới.
+        old = self._conn_items.pop(conn_id, None)
+        if old is not None and old.scene() is self:
+            self.removeItem(old)
+        self.graph.remove_connection(conn_id)
+
+        new_conn = self.graph.add_connection(src_id, src_port, dst_id, dst_port)
+        # add_connection dedup theo dst port → connection cũ chiếm port đó (nếu
+        # có) bị xoá khỏi graph; dọn ConnectionItem mồ côi tương ứng.
+        live = {c.conn_id for c in self.graph.connections}
+        for cid in [c for c in self._conn_items if c not in live]:
+            it = self._conn_items.pop(cid, None)
+            if it is not None and it.scene() is self:
+                self.removeItem(it)
+        if new_conn:
+            self._add_conn_item(new_conn)
+            self.connection_added.emit()
+            self.graph_changed.emit()
+        return new_conn
+
     def keyPressEvent(self, event: QKeyEvent):
         if event.key() in (Qt.Key_Delete, Qt.Key_Backspace):
             for item in self.selectedItems():
@@ -340,15 +462,9 @@ class AOICanvas(QGraphicsView):
             self.setCursor(Qt.ClosedHandCursor)
             event.accept()
             return
-        # Right-click trên vùng trống → pan canvas. Trên node (hoặc bất kỳ
-        # item nào) thì để default propagation chạy → node tự show context menu.
-        if event.button() == Qt.RightButton:
-            if self.itemAt(event.pos()) is None:
-                self._panning   = True
-                self._pan_start = event.pos()
-                self.setCursor(Qt.ClosedHandCursor)
-                event.accept()
-                return
+        # Chuột phải = CHỌN (node tự show context menu, dây show Unlink/Re-link
+        # qua contextMenuEvent). Không còn pan bằng chuột phải — pan dùng chuột
+        # giữa, hoặc chuột trái trên vùng trống.
         # Left-click trên vùng trống (không trúng node nào) → pan canvas
         # thay vì rubber-band select, giống Figma/Photoshop.
         if event.button() == Qt.LeftButton:
@@ -375,7 +491,7 @@ class AOICanvas(QGraphicsView):
 
     def mouseReleaseEvent(self, event):
         if self._panning and event.button() in (
-                Qt.MiddleButton, Qt.LeftButton, Qt.RightButton):
+                Qt.MiddleButton, Qt.LeftButton):
             self._panning = False
             self._pan_start = None
             self.setCursor(Qt.ArrowCursor)
@@ -384,8 +500,8 @@ class AOICanvas(QGraphicsView):
         super().mouseReleaseEvent(event)
 
     def contextMenuEvent(self, event):
-        """Chặn context menu mặc định của QGraphicsView trên vùng trống —
-        right-click ở đó là pan, không muốn pop menu rỗng sau khi release."""
+        """Vùng trống: chặn menu rỗng (không có gì để chọn). Trên node/dây:
+        forward để item tự show context menu (Properties / Unlink / Re-link…)."""
         if self.itemAt(event.pos()) is None:
             event.accept()
             return

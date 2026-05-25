@@ -706,6 +706,13 @@ class NodeItem(QGraphicsItem):
         super().mouseDoubleClickEvent(event)
 
     def contextMenuEvent(self, event):
+        # Chuột phải = chọn node (highlight + sync properties panel) rồi mới
+        # show menu. Nếu node đã nằm trong selection nhiều node thì giữ nguyên.
+        if not self.isSelected():
+            if self.scene():
+                self.scene().clearSelection()
+            self.setSelected(True)
+        self.signals.selected.emit(self.node.node_id)
         menu = QMenu()
         menu.setStyleSheet(
             "QMenu{background:#0d1220;color:#e2e8f0;border:1px solid #1e2d45;font-size:12px;}"

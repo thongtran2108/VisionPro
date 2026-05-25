@@ -1275,6 +1275,96 @@ def proc_find_line(inputs, params):
     return {"image": vis, "found": found, "angle": angle, "distance": dist,
             "point_x": px, "point_y": py, "pass": is_pass}
 
+
+def proc_line_2pt(inputs, params):
+    """Dựng 1 đường thẳng từ 2 điểm.
+
+    2 điểm lấy từ input port (x1,y1) & (x2,y2) nếu được nối — ví dụ nối
+    centroid 2 Blob, hoặc x/y của 2 PatMax/Find Circle — else dùng giá trị
+    params. Xuất cả endpoint (x1..y2 + midpoint) lẫn `angle`/`length` để
+    chain thẳng vào Distance Point-Line (Point + Angle), Angle Line-Line,
+    hoặc dùng làm ROI cho Caliper. Label kéo được trên ảnh (label_dx/dy).
+    """
+    def _num(key, default):
+        # Unconnected optional port → inputs[key] = None (port.default).
+        # Ưu tiên giá trị port khi != None, else fallback params.
+        v = inputs.get(key)
+        if v is None:
+            v = params.get(key, default)
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return float(default)
+
+    img = inputs.get("image")
+    x1 = _num("x1", 0);   y1 = _num("y1", 0)
+    x2 = _num("x2", 100); y2 = _num("y2", 0)
+    dx = x2 - x1; dy = y2 - y1
+    length_px = math.hypot(dx, dy)
+    found = length_px > 1e-6
+    angle = math.degrees(math.atan2(dy, dx)) if found else 0.0
+    length = length_px * float(params.get("pixel_to_mm", 1.0))
+    mx, my = (x1 + x2) / 2.0, (y1 + y2) / 2.0
+
+    vis = _bgr(img.copy()) if img is not None else \
+        np.zeros((300, 400, 3), dtype=np.uint8)
+    s = _draw_scale(vis)
+    _color_map = {"Yellow":(0,200,255),"Cyan":(255,255,0),
+                  "Green":(0,255,80),"Red":(0,0,255),
+                  "White":(255,255,255),"Magenta":(255,0,255),
+                  "Orange":(0,140,255),"Blue":(255,80,0)}
+    line_color = _color_map.get(params.get("line_color", "Green"), (0,255,80))
+    line_thick = int(params.get("line_thickness", 2))
+
+    # Extend = vẽ đường thẳng kéo dài qua 2 điểm hết khung ảnh (vô tận),
+    # thay vì chỉ đoạn thẳng giữa 2 điểm.
+    if found and bool(params.get("extend_line", False)):
+        ux, uy = dx / length_px, dy / length_px
+        h, w = vis.shape[:2]
+        tr = (w + h) * 2
+        cv2.line(vis, (int(mx - ux*tr), int(my - uy*tr)),
+                 (int(mx + ux*tr), int(my + uy*tr)),
+                 line_color, _t(line_thick, s))
+
+    cv2.line(vis, (int(x1), int(y1)), (int(x2), int(y2)),
+             line_color, _t(line_thick, s))
+    cv2.circle(vis, (int(x1), int(y1)), _t(5, s), (0, 200, 255), -1)
+    cv2.circle(vis, (int(x2), int(y2)), _t(5, s), (0, 200, 255), -1)
+
+    label_rects = []
+    if bool(params.get("show_labels", True)):
+        label_color = _color_map.get(params.get("label_color", "Yellow"),
+                                     (0, 200, 255))
+        label_font  = {"Simplex":cv2.FONT_HERSHEY_SIMPLEX,
+                       "Plain":cv2.FONT_HERSHEY_PLAIN,
+                       "Duplex":cv2.FONT_HERSHEY_DUPLEX,
+                       "Complex":cv2.FONT_HERSHEY_COMPLEX,
+                       "Triplex":cv2.FONT_HERSHEY_TRIPLEX,
+                      }.get(params.get("label_font", "Simplex"),
+                            cv2.FONT_HERSHEY_SIMPLEX)
+        label_size  = float(params.get("label_size", 0.6))
+        label_thick = int(params.get("label_thickness", 2))
+        label_dx    = int(params.get("label_dx", 0))
+        label_dy    = int(params.get("label_dy", -10))
+        text = f"L={length:.2f}  {angle:.1f}deg"
+        tx = int(mx) + int(label_dx * s)
+        ty = int(my) + int(label_dy * s)
+        fs_val = _fs(label_size, s); th_val = _t(label_thick, s)
+        cv2.putText(vis, text, (tx, ty), label_font, fs_val, label_color,
+                    th_val, cv2.LINE_AA)
+        (tw, th), bl = cv2.getTextSize(text, label_font, fs_val, th_val)
+        label_rects.append((tx, ty - th - bl, tw, th + bl))
+
+    print(f"[Line2pt] ({x1:.1f},{y1:.1f})->({x2:.1f},{y2:.1f}) "
+          f"len={length_px:.2f}px angle={angle:.2f}deg")
+    return {"image": vis, "found": found,
+            "x1": x1, "y1": y1, "x2": x2, "y2": y2,
+            "angle": angle, "length": length, "length_px": length_px,
+            "mid_x": mx, "mid_y": my,
+            "_label_rects": label_rects,
+            "_label_centroids": [(float(mx), float(my))] if label_rects else []}
+
+
 def proc_find_circle(inputs, params):
     """TFindCircleTool — Tìm & fit đường tròn chính xác."""
     img = inputs.get("image")
@@ -3595,6 +3685,45 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("show_labels","Display: show labels on image","bool",False,
        tooltip="Bật để vẽ label 'R=…mm cx=… cy=…' lên ảnh output. Mặc định tắt — vẫn được log.")],
     proc_find_circle, "TFindCircleTool"),
+
+  ToolDef("line_2pt","Line (2 Points)","Edge & Geometry",
+    "Dựng đường thẳng từ 2 điểm — nối x/y của 2 tool (Blob, PatMax, "
+    "Find Circle…) vào port (x1,y1) & (x2,y2), hoặc nhập toạ độ tay. "
+    "Xuất angle / length / midpoint để chain vào Distance Point-Line, "
+    "Angle Line-Line, hoặc làm ROI cho Caliper.","#134074","📏",
+    [PortDef("image","image",required=False),
+     PortDef("x1","number",required=False), PortDef("y1","number",required=False),
+     PortDef("x2","number",required=False), PortDef("y2","number",required=False)],
+    [PortDef("image","image"),PortDef("found","bool"),
+     PortDef("x1","number"),PortDef("y1","number"),
+     PortDef("x2","number"),PortDef("y2","number"),
+     PortDef("angle","number"),PortDef("length","number"),
+     PortDef("length_px","number"),
+     PortDef("mid_x","number"),PortDef("mid_y","number")],
+    [P("x1","Point 1 X","int",100,0,8192,
+       tooltip="Điểm đầu — bị override nếu port x1 được nối."),
+     P("y1","Point 1 Y","int",100,0,8192),
+     P("x2","Point 2 X","int",400,0,8192,
+       tooltip="Điểm cuối — bị override nếu port x2 được nối."),
+     P("y2","Point 2 Y","int",300,0,8192),
+     P("pixel_to_mm","Pixel→mm","float",1.0,0.0001,1000,step=0.0001,
+       tooltip="length(mm) = length(px) × pixel_to_mm."),
+     P("extend_line","Extend to infinite line","bool",False,
+       tooltip="Vẽ đường thẳng kéo dài hết ảnh qua 2 điểm thay vì chỉ đoạn thẳng."),
+     P("line_color","Line Color","enum","Green",
+       choices=["Yellow","Cyan","Green","Red","White","Magenta","Orange","Blue"]),
+     P("line_thickness","Line Thickness","int",2,1,12,use_slider=True),
+     P("show_labels","Show label on image","bool",True,
+       tooltip="Vẽ label 'L=… angle=…' tại trung điểm — kéo được trên ảnh."),
+     P("label_dx","Label Offset X","int",0,-500,500,use_slider=True),
+     P("label_dy","Label Offset Y","int",-10,-500,500,use_slider=True),
+     P("label_color","Label Color","enum","Yellow",
+       choices=["Yellow","Cyan","Green","Red","White","Magenta","Orange","Blue"]),
+     P("label_font","Label Font","enum","Simplex",
+       choices=["Simplex","Plain","Duplex","Complex","Triplex"]),
+     P("label_size","Label Size","float",0.6,0.2,3.0,step=0.05,use_slider=True),
+     P("label_thickness","Label Thickness","int",2,1,8,use_slider=True)],
+    proc_line_2pt, "TLineSegmentTool"),
 
   # ── COLOR ───────────────────────────────────────────────────────
   ToolDef("color_picker","Color Picker","Color Analysis",
