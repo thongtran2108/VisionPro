@@ -20,13 +20,18 @@ from ui.node_item import NodeItem, NodeSignals, PortItem
 
 
 class ConnectionItem(QGraphicsPathItem):
+    Z_NORMAL = 5
+    Z_HOVER  = 9     # trên các dây khác (vẫn dưới node z=10) để dễ truy vết
+
     def __init__(self, conn: Connection, src_pos: QPointF, dst_pos: QPointF):
         super().__init__()
         self.conn    = conn
         self.src_pos = src_pos
         self.dst_pos = dst_pos
-        self.setZValue(5)
+        self._hovered = False
+        self.setZValue(self.Z_NORMAL)
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+        self.setAcceptHoverEvents(True)
         self._redraw()
 
     def _redraw(self):
@@ -37,7 +42,9 @@ class ConnectionItem(QGraphicsPathItem):
         path.cubicTo(QPointF(s.x() + ctrl, s.y()),
                      QPointF(d.x() - ctrl, d.y()), d)
         self.setPath(path)
-        if self.isSelected():
+        if self._hovered:
+            pen = QPen(QColor(255, 235, 80), 3.5)   # vàng sáng, dày — nổi bật
+        elif self.isSelected():
             pen = QPen(QColor(255, 100, 50), 2.5)
         else:
             pen = QPen(QColor(0, 212, 255), 2.2)
@@ -52,6 +59,32 @@ class ConnectionItem(QGraphicsPathItem):
         if change == QGraphicsItem.ItemSelectedHasChanged:
             self._redraw()
         return super().itemChange(change, value)
+
+    def endpoint_label(self) -> str:
+        """'NodeNguồn · port  →  NodeĐích · port' — để tooltip/nhận diện dây."""
+        scene = self.scene()
+        graph = getattr(scene, "graph", None)
+        if graph is None:
+            return f"{self.conn.src_port} → {self.conn.dst_port}"
+        sn = graph.nodes.get(self.conn.src_id)
+        dn = graph.nodes.get(self.conn.dst_id)
+        sname = sn.tool.name if sn else "?"
+        dname = dn.tool.name if dn else "?"
+        return (f"{sname} · {self.conn.src_port}  →  "
+                f"{dname} · {self.conn.dst_port}")
+
+    def hoverEnterEvent(self, event):
+        self._hovered = True
+        self.setZValue(self.Z_HOVER)
+        self.setToolTip(self.endpoint_label())
+        self._redraw()
+        super().hoverEnterEvent(event)
+
+    def hoverLeaveEvent(self, event):
+        self._hovered = False
+        self.setZValue(self.Z_NORMAL)
+        self._redraw()
+        super().hoverLeaveEvent(event)
 
     def shape(self) -> QPainterPath:
         """Hitbox rộng hơn nét vẽ (~14px) để dễ trúng dây khi right-click /
