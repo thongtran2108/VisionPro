@@ -746,9 +746,13 @@ class NodeItem(QGraphicsItem):
                 f"➖  Remove Last Output Port ({outs[-1]})"
                 if outs else "➖  Remove Last Output Port")
             act_remove_output.setEnabled(bool(outs))
-        # Add Terminal — tool nào có terminal_fields (PatMax / YOLO / ...)
-        # cho phép thêm per-object output port qua dialog.
-        supports_objects = bool(getattr(self.node.tool, "terminal_fields", None))
+        # Add Terminal — tool tạo list object cho phép thêm per-object output
+        # port qua dialog. Nhận diện theo terminal_source_key (PatMax→"objects",
+        # YOLO→"detections"); KHÔNG chỉ dựa terminal_fields, nếu không PatMax
+        # (không khai báo terminal_fields) sẽ mất mục này.
+        src_key = getattr(self.node.tool, "terminal_source_key", "objects") or "objects"
+        supports_objects = (any(p.name == src_key for p in self.node.tool.outputs)
+                            or bool(getattr(self.node.tool, "terminal_fields", None)))
         act_add_term = None
         if supports_objects:
             menu.addSeparator()
