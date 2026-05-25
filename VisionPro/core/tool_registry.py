@@ -397,30 +397,31 @@ def _build_patmax_objects(results, model, obj_origin_overrides=None):
 
 def auto_terminal_name(term: dict) -> str:
     """Auto-generate output port name từ terminal spec.
-    Nếu user đặt name → dùng name. Ngược lại: obj 0 (default) → "<field>";
-    obj > 0 → "<field>_<obj_idx>" để phân biệt nhiều object.
-    Object selector (string vd "highest", "lowest"): → "<selector>_<field>"
-    (vd: highest_cx, lowest_cy).
-    Migration: nếu explicit name khớp đúng pattern legacy "<field>_<obj>"
-    (auto-name của bản cũ) → coi như auto, trả về tên ngắn mới.
+
+    Numbered object (index 0-based) → "<field>_obj<N>" với N = index + 1
+    (1-based, khớp nhãn "Object N" trong dialog). Vd: object index 0 → x_obj1,
+    index 7 → x_obj8. Object selector (string vd "highest") → "<field>_<selector>"
+    (vd: cx_highest). User đặt name riêng → giữ nguyên, trừ khi name khớp đúng
+    pattern auto của bản cũ ("<field>" cho obj0, "<field>_<idx>", hoặc
+    "<selector>_<field>") → migrate sang tên mới.
     """
     field = str(term.get("field", "x"))
     obj_spec = term.get("object", 0)
     explicit = (term.get("name") or "").strip()
-    if explicit:
-        # Legacy auto-name migration cho numeric object
-        if isinstance(obj_spec, int) and explicit == f"{field}_{obj_spec}":
-            explicit = ""
-        else:
-            return explicit
-    # String selector: "<selector>_<field>"
     if isinstance(obj_spec, str):
-        return f"{obj_spec}_{field}"
-    try:
-        obj_idx = int(obj_spec or 0)
-    except (TypeError, ValueError):
-        obj_idx = 0
-    return field if obj_idx == 0 else f"{field}_{obj_idx}"
+        auto   = f"{field}_{obj_spec}"          # vd cx_highest
+        legacy = {f"{obj_spec}_{field}"}        # auto-name bản cũ: highest_cx
+    else:
+        try:
+            obj_idx = int(obj_spec or 0)
+        except (TypeError, ValueError):
+            obj_idx = 0
+        auto   = f"{field}_obj{obj_idx + 1}"    # vd x_obj1
+        legacy = {field if obj_idx == 0 else f"{field}_{obj_idx}"}
+    # explicit custom → giữ; explicit == auto cũ/mới → coi như auto (migrate).
+    if explicit and explicit != auto and explicit not in legacy:
+        return explicit
+    return auto
 
 
 # Selectors cho per-object lookup khi user không muốn pick index cố định.
