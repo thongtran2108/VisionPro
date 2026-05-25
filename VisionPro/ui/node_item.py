@@ -24,6 +24,12 @@ NODE_MIN_W    = 190
 NODE_HEADER_H = 42
 NODE_PORT_ROW = 22
 NODE_PADDING  = 8
+# Khi port (input hoặc output) > MAX_PORT_ROWS, wrap xuống cột kế tiếp thay vì
+# kéo node cao mãi (vd YOLO add x,y cho 8 object → 16+ port). Node rộng ra,
+# thấp lại nên thấy & nối được hết port.
+PORT_COL_W    = 104    # bề rộng 1 cột port (label + nub)
+PORT_COL_GAP  = 34     # khoảng giữa block input và block output khi multi-col
+MAX_PORT_ROWS = 16     # số port tối đa mỗi cột
 
 C_BG       = QColor(13, 18, 30)
 C_BORDER   = QColor(30, 45, 69)
@@ -535,20 +541,45 @@ class NodeItem(QGraphicsItem):
         tool = self.node.tool
         n_in  = len(self._visible_input_ports())
         n_out = len(self._output_port_names())
-        n_ports = max(n_in, n_out, 1)
-        self._w = max(NODE_MIN_W, len(tool.name) * 7 + 60)
-        self._h = NODE_HEADER_H + NODE_PADDING + n_ports * NODE_PORT_ROW + NODE_PADDING
+        R = MAX_PORT_ROWS
+        self._port_rows = R
+        # Số cột mỗi bên (ceil). Input mở rộng từ cạnh trái sang phải, output
+        # từ cạnh phải sang trái → cột cuối của output luôn nằm ở cạnh phải.
+        self._in_cols  = max(1, (n_in  + R - 1) // R)
+        self._out_cols = max(1, (n_out + R - 1) // R)
+        rows = max(min(n_in, R), min(n_out, R), 1)
+        w_base = max(NODE_MIN_W, len(tool.name) * 7 + 60)
+        if self._in_cols == 1 and self._out_cols == 1:
+            self._w = w_base
+        else:
+            self._w = max(w_base,
+                          self._in_cols * PORT_COL_W
+                          + self._out_cols * PORT_COL_W + PORT_COL_GAP)
+        self._h = NODE_HEADER_H + NODE_PADDING + rows * NODE_PORT_ROW + NODE_PADDING
+
+    def _port_xy(self, index: int, is_output: bool):
+        """Toạ độ (x, y_center) của port thứ `index` theo layout nhiều cột."""
+        R = self._port_rows
+        col = index // R
+        row = index % R
+        y = NODE_HEADER_H + NODE_PADDING + row * NODE_PORT_ROW + NODE_PORT_ROW // 2
+        if is_output:
+            # col 0 = trong cùng (trái), cột cuối = cạnh phải (x = _w)
+            x = self._w - (self._out_cols - 1 - col) * PORT_COL_W
+        else:
+            x = col * PORT_COL_W
+        return x, y
 
     def _build_ports(self):
         for i, port in enumerate(self._visible_input_ports()):
             p = PortItem(self, port.name, False, i, self)
-            y = NODE_HEADER_H + NODE_PADDING + i * NODE_PORT_ROW + NODE_PORT_ROW // 2
-            p.setPos(0, y)
+            x, y = self._port_xy(i, False)
+            p.setPos(x, y)
             self._in_ports.append(p)
         for i, name in enumerate(self._output_port_names()):
             p = PortItem(self, name, True, i, self)
-            y = NODE_HEADER_H + NODE_PADDING + i * NODE_PORT_ROW + NODE_PORT_ROW // 2
-            p.setPos(self._w, y)
+            x, y = self._port_xy(i, True)
+            p.setPos(x, y)
             self._out_ports.append(p)
 
     def refresh_ports(self):
@@ -642,31 +673,38 @@ class NodeItem(QGraphicsItem):
             painter.drawText(QRectF(0, self._h - 18, self._w - 6, 14),
                              Qt.AlignRight | Qt.AlignVCenter, badge_txt)
 
-        # Port labels
+        # Port labels (wrap nhiều cột khi port nhiều)
         tool = self.node.tool
         painter.setFont(QFont("Segoe UI", 7))
+        single = (self._in_cols == 1 and self._out_cols == 1)
         in_ports = self._visible_input_ports()
         n_static_in = len(tool.inputs)
         for i, port in enumerate(in_ports):
-            y = NODE_HEADER_H + NODE_PADDING + i * NODE_PORT_ROW + NODE_PORT_ROW // 2
+            x, y = self._port_xy(i, False)
             # Extra inputs (user thêm) → vàng để phân biệt với static
             col = C_PORT_IN.lighter(120) if i < n_static_in else QColor(255, 215, 0)
             painter.setPen(QPen(col))
-            painter.drawText(QRectF(10, y - 8, self._w // 2 - 14, 16),
+            lw = (self._w // 2 - 14) if single else (PORT_COL_W - PORT_D - 6)
+            painter.drawText(QRectF(x + 10, y - 8, lw, 16),
                              Qt.AlignLeft | Qt.AlignVCenter, port.name)
 
         out_names = self._output_port_names()
         n_static = len(tool.outputs)
         for i, name in enumerate(out_names):
-            y = NODE_HEADER_H + NODE_PADDING + i * NODE_PORT_ROW + NODE_PORT_ROW // 2
+            x, y = self._port_xy(i, True)
             # Extra terminals → màu khác để phân biệt
             col = C_PORT_OUT.lighter(120) if i < n_static else QColor(255, 215, 0)
             painter.setPen(QPen(col))
-            painter.drawText(QRectF(self._w // 2, y - 8, self._w // 2 - 12, 16),
-                             Qt.AlignRight | Qt.AlignVCenter, name)
+            if single:
+                rect = QRectF(self._w // 2, y - 8, self._w // 2 - 12, 16)
+            else:
+                # Text kết thúc trước nub (gap = PORT_R+3) để không bị nub đè.
+                lw = PORT_COL_W - PORT_D - 6
+                rect = QRectF(x - (PORT_R + 3) - lw, y - 8, lw, 16)
+            painter.drawText(rect, Qt.AlignRight | Qt.AlignVCenter, name)
 
-        # Output value previews
-        if self.node.outputs:
+        # Output value previews — ẩn khi multi-column để khỏi đè lên cột port.
+        if self.node.outputs and single:
             painter.setFont(QFont("Courier New", 7))
             painter.setPen(QPen(C_DIM))
             y_off = NODE_HEADER_H + NODE_PADDING + 2
