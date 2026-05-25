@@ -2246,9 +2246,10 @@ def proc_area(inputs, params):
 # ═══════════════════════════════════════════════════════════════════
 
 def proc_image_convert(inputs, params):
-    """TImageConvertTool — Chuyển đổi định dạng ảnh.
+    """TImageConvertTool — Chuyển đổi định dạng ảnh + resize tuỳ chọn.
     Grayscale mode trả ảnh 1-channel (downstream _gray/_bgr xử lý được);
-    bỏ double-convert BGR→GRAY→BGR thừa của bản cũ.
+    bỏ double-convert BGR→GRAY→BGR thừa của bản cũ. Resize (nếu bật) chạy
+    SAU convert nên áp dụng cho mọi mode màu, kể cả grayscale.
     """
     img = inputs.get("image")
     if img is None:
@@ -2265,6 +2266,39 @@ def proc_image_convert(inputs, params):
         elif mode == "LAB":        out = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
         elif mode == "YCrCb":      out = cv2.cvtColor(bgr, cv2.COLOR_BGR2YCrCb)
         else:                       out = bgr
+
+    # ── Resize (optional) ───────────────────────────────────────────
+    rmode = params.get("resize_mode", "Off")
+    if rmode != "Off":
+        h, w = out.shape[:2]
+        if rmode == "Scale":
+            sc = float(params.get("scale", 0.5))
+            nw, nh = max(1, round(w * sc)), max(1, round(h * sc))
+        elif rmode == "Width x Height":
+            nw = max(1, int(params.get("resize_w", w)))
+            nh = max(1, int(params.get("resize_h", h)))
+        else:   # "Fit (keep aspect)" — khớp 1 cạnh, cạnh kia scale theo tỉ lệ
+            axis = params.get("fit_axis", "Width")
+            tgt  = max(1, int(params.get("fit_size", max(w, h))))
+            if   axis == "Long side":  axis = "Width" if w >= h else "Height"
+            elif axis == "Short side": axis = "Width" if w <= h else "Height"
+            if axis == "Width":
+                nw, nh = tgt, max(1, round(h * tgt / w))
+            else:
+                nh, nw = tgt, max(1, round(w * tgt / h))
+        if (nw, nh) != (w, h):
+            interp_name = params.get("interpolation", "Auto")
+            if interp_name == "Auto":
+                # Thu nhỏ → INTER_AREA (chống răng cưa); phóng to → LINEAR.
+                interp = cv2.INTER_AREA if nw * nh < w * h else cv2.INTER_LINEAR
+            else:
+                interp = {"Nearest": cv2.INTER_NEAREST,
+                          "Linear":  cv2.INTER_LINEAR,
+                          "Cubic":   cv2.INTER_CUBIC,
+                          "Area":    cv2.INTER_AREA,
+                          "Lanczos4":cv2.INTER_LANCZOS4}.get(
+                              interp_name, cv2.INTER_LINEAR)
+            out = cv2.resize(out, (nw, nh), interpolation=interp)
     return {"image": out}
 
 
@@ -4034,10 +4068,33 @@ TOOL_REGISTRY: List[ToolDef] = [
 
   # ── IMAGE PROCESSING ────────────────────────────────────────────
   ToolDef("image_convert","Image Convert","Image Processing",
-    "Chuyển đổi format ảnh — TImageConvertTool","#2c3e50","🔄",
+    "Chuyển đổi format ảnh + resize tuỳ chọn — TImageConvertTool","#2c3e50","🔄",
     [PortDef("image","image")],[PortDef("image","image")],
     [P("mode","Mode","enum","Grayscale",
-       choices=["Grayscale","BGR to RGB","Invert","HSV","LAB","YCrCb"])],
+       choices=["Grayscale","BGR to RGB","Invert","HSV","LAB","YCrCb"]),
+     P("resize_mode","Resize","enum","Off",
+       choices=["Off","Scale","Width x Height","Fit (keep aspect)"],
+       tooltip="Off: không resize.\n"
+               "Scale: nhân tỉ lệ.\n"
+               "Width x Height: kích thước cố định (có thể méo tỉ lệ).\n"
+               "Fit (keep aspect): khớp 1 cạnh, giữ nguyên tỉ lệ."),
+     P("scale","Scale Factor","float",0.5,0.01,16.0,step=0.05,use_slider=True,
+       tooltip="0.5 = thu 1/2, 2.0 = phóng gấp đôi.",
+       visible_if={"resize_mode":"Scale"}),
+     P("resize_w","Width (px)","int",640,1,16384,
+       visible_if={"resize_mode":"Width x Height"}),
+     P("resize_h","Height (px)","int",480,1,16384,
+       visible_if={"resize_mode":"Width x Height"}),
+     P("fit_axis","Fit Axis","enum","Width",
+       choices=["Width","Height","Long side","Short side"],
+       tooltip="Cạnh khớp Fit Size; cạnh còn lại scale theo tỉ lệ gốc.",
+       visible_if={"resize_mode":"Fit (keep aspect)"}),
+     P("fit_size","Fit Size (px)","int",640,1,16384,
+       visible_if={"resize_mode":"Fit (keep aspect)"}),
+     P("interpolation","Interpolation","enum","Auto",
+       choices=["Auto","Nearest","Linear","Cubic","Area","Lanczos4"],
+       tooltip="Thuật toán nội suy (chỉ dùng khi Resize ≠ Off). "
+               "Auto = Area khi thu nhỏ, Linear khi phóng to.")],
     proc_image_convert, "TImageConvertTool"),
 
   ToolDef("crop_roi","Crop ROI","Image Processing",
