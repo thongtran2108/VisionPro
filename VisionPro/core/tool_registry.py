@@ -2962,6 +2962,39 @@ P = ParamDef  # shorthand
 # backend: "onnxruntime" | "cv2dnn"
 _YOLO_ONNX_CACHE: Dict[str, Tuple[Any, List[str], str, float]] = {}
 
+# Cache model PyTorch (.pt): {path: (YOLO_model, mtime)}. Tránh nạp lại file
+# 20MB+ mỗi lần run / mỗi lần đọc metadata — nguyên nhân lag + memory churn.
+_YOLO_PT_CACHE: Dict[str, Tuple[Any, float]] = {}
+_TORCH_THREADS_CAPPED = False
+
+
+def _cap_torch_threads():
+    """Giới hạn intra-op threads của torch để chừa core cho UI thread (Qt) →
+    canvas/kéo-thả không bị đơ khi đang inference. Chỉ set 1 lần."""
+    global _TORCH_THREADS_CAPPED
+    if _TORCH_THREADS_CAPPED:
+        return
+    try:
+        import torch
+        torch.set_num_threads(max(1, (os.cpu_count() or 2) - 1))
+    except Exception:
+        pass
+    _TORCH_THREADS_CAPPED = True
+
+
+def _yolo_load_pt(path: str):
+    """Lazy-load + cache model ultralytics .pt theo (path, mtime). Tái dùng
+    cho cả inference (proc) lẫn đọc metadata (yolo_inspect_model)."""
+    mtime = os.path.getmtime(path)
+    cached = _YOLO_PT_CACHE.get(path)
+    if cached and cached[1] == mtime:
+        return cached[0]
+    _cap_torch_threads()
+    from ultralytics import YOLO as _YOLO
+    model = _YOLO(path)
+    _YOLO_PT_CACHE[path] = (model, mtime)
+    return model
+
 
 def yolo_inspect_model(path: str) -> Dict[str, Any]:
     """Đọc metadata 1 file .pt hoặc .onnx YOLO mà KHÔNG chạy inference.
@@ -3001,8 +3034,7 @@ def yolo_inspect_model(path: str) -> Dict[str, Any]:
                 pass
             info["ok"] = True
         elif ext == ".pt":
-            from ultralytics import YOLO as _YOLO
-            model = _YOLO(path)
+            model = _yolo_load_pt(path)
             raw_names = getattr(model, "names", None) or {}
             if isinstance(raw_names, dict):
                 names = [raw_names[k] for k in sorted(
@@ -3393,8 +3425,7 @@ def proc_yolo_detect(inputs, params):
 
     # ── Fallback path: ultralytics PyTorch (.pt hoặc seg) ──────────
     try:
-        from ultralytics import YOLO as _YOLO
-        model = _YOLO(model_path)
+        model = _yolo_load_pt(model_path)   # cached → không nạp lại 20MB mỗi run
         conf  = params.get("confidence", 0.5)
         iou   = params.get("iou", 0.45)
         imgsz = params.get("imgsz", 640)
