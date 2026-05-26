@@ -2451,7 +2451,10 @@ def proc_image_convert(inputs, params):
     if img is None:
         return {"image": None}
     mode = params.get("mode", "Grayscale")
-    if mode == "Grayscale":
+    if mode == "Off":
+        # Passthrough — giữ nguyên format màu, chỉ áp dụng resize (nếu bật).
+        out = img
+    elif mode == "Grayscale":
         # Single channel — Image Viewer dùng Format_Grayscale8 trực tiếp
         out = _gray(img) if len(img.shape) == 3 else img
     else:
@@ -4472,7 +4475,8 @@ TOOL_REGISTRY: List[ToolDef] = [
     "Chuyển đổi format ảnh + resize tuỳ chọn — TImageConvertTool","#2c3e50","🔄",
     [PortDef("image","image")],[PortDef("image","image")],
     [P("mode","Mode","enum","Grayscale",
-       choices=["Grayscale","BGR to RGB","Invert","HSV","LAB","YCrCb"]),
+       choices=["Off","Grayscale","BGR to RGB","Invert","HSV","LAB","YCrCb"],
+       tooltip="Off: giữ nguyên ảnh (không đổi format màu), chỉ resize nếu bật."),
      P("resize_mode","Resize","enum","Off",
        choices=["Off","Scale","Width x Height","Fit (keep aspect)"],
        tooltip="Off: không resize.\n"
