@@ -196,7 +196,7 @@ class ResultsPanel(QWidget):
             row = self._log_table.rowCount()
             self._log_table.insertRow(row)
 
-            name_item = QTableWidgetItem(node.tool.name if node else nid)
+            name_item = QTableWidgetItem(node.name if node else nid)
             name_item.setForeground(QBrush(QColor("#e2e8f0")))
 
             status_colors = {

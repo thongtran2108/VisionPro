@@ -318,9 +318,7 @@ class PLCDialog(QDialog):
             return []
         opts = []
         for nid, node in self._graph.nodes.items():
-            tool = TOOL_BY_ID.get(node.tool_id)
-            label = tool.name if tool else node.tool_id
-            opts.append((f"{label}  [{nid}]", nid))
+            opts.append((f"{node.name}  [{nid}]", nid))
         return opts
 
     def _acquire_node_options(self) -> list:
@@ -333,7 +331,7 @@ class PLCDialog(QDialog):
             tool = TOOL_BY_ID.get(node.tool_id)
             if not tool or getattr(tool, "category", "") != "Acquire Image":
                 continue
-            opts.append((f"{tool.name}  [{nid}]", nid))
+            opts.append((f"{node.name}  [{nid}]", nid))
         return opts
 
     def _judge_node_options(self) -> list:
@@ -348,7 +346,7 @@ class PLCDialog(QDialog):
                 continue
             has_pass = any(p.name == "pass" for p in tool.outputs)
             if has_pass:
-                opts.append((f"{tool.name}  [{nid}]", nid))
+                opts.append((f"{node.name}  [{nid}]", nid))
         return opts
 
     def _output_options(self, node_id: str) -> list:

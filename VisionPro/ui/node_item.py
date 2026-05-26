@@ -142,6 +142,7 @@ class NodeSignals(QObject):
     delete_req = Signal(str)
     open_props = Signal(str)
     ports_changed = Signal(str)   # node_id — phát khi thay đổi extra terminals
+    renamed    = Signal(str)      # node_id — phát khi đổi tên hiển thị node
 
 
 # Mapping field từ "objects" list — dùng cho PatMax/PatFind
@@ -502,7 +503,7 @@ class NodeItem(QGraphicsItem):
         tool: ToolDef = node.tool
         self._color       = QColor(tool.color)
         self._icon        = tool.icon
-        self._name        = tool.name
+        self._name        = node.name   # tên custom (mặc định = tool.name)
         self._T_name = tool.T_equiv
 
         self._in_ports:  List[PortItem] = []
@@ -512,7 +513,9 @@ class NodeItem(QGraphicsItem):
         self._build_ports()
 
         # Tooltip
-        tip = f"<b>{tool.name}</b>"
+        tip = f"<b>{node.name}</b>"
+        if node.name != tool.name:
+            tip += f"<br><span style='color:#94a3b8'>{tool.name}</span>"
         if tool.T_equiv:
             tip += f"<br><span style='color:#00d4ff'>{tool.T_equiv}</span>"
         tip += f"<br>{tool.description}"
@@ -577,7 +580,7 @@ class NodeItem(QGraphicsItem):
         self._in_cols  = max(1, (n_in  + R - 1) // R)
         self._out_cols = max(1, (n_out + R - 1) // R)
         rows = max(min(n_in, R), min(n_out, R), 1)
-        w_base = max(NODE_MIN_W, len(tool.name) * 7 + 60)
+        w_base = max(NODE_MIN_W, len(self.node.name) * 7 + 60)
         if self._in_cols == 1 and self._out_cols == 1:
             self._w = w_base
         else:
@@ -789,6 +792,7 @@ class NodeItem(QGraphicsItem):
             "QMenu::item:selected{background:#1a2236;color:#00d4ff;}"
             "QMenu::separator{height:1px;background:#1e2d45;}")
         act_props  = menu.addAction(f"{self.node.tool.icon}  Properties / Detail")
+        act_rename = menu.addAction("✏  Rename…")
         act_run    = menu.addAction("▶  Run this node")
         menu.addSeparator()
         act_viewer = menu.addAction("👁  View output in Image Viewer")
@@ -840,6 +844,8 @@ class NodeItem(QGraphicsItem):
         chosen = menu.exec(event.screenPos())
         if chosen == act_props:
             self.signals.open_props.emit(self.node.node_id)
+        elif chosen == act_rename:
+            self._rename_node()
         elif chosen == act_del:
             self.signals.delete_req.emit(self.node.node_id)
         elif chosen == act_run:
@@ -860,6 +866,37 @@ class NodeItem(QGraphicsItem):
             self._open_add_terminal_dialog()
         elif act_manage is not None and chosen == act_manage:
             self._open_manage_outputs_dialog()
+
+    def _rename_node(self):
+        """Đổi tên hiển thị node. Tên để trống → reset về tool.name."""
+        from PySide6.QtWidgets import QInputDialog
+        cur = self.node.name
+        text, ok = QInputDialog.getText(
+            None, "Rename Node",
+            "Tên hiển thị (để trống = về mặc định):", text=cur)
+        if not ok:
+            return
+        new_name = text.strip() or self.node.tool.name
+        if new_name == cur:
+            return
+        self.node.name = new_name
+        self._sync_name()
+        self.signals.renamed.emit(self.node.node_id)
+
+    def _sync_name(self):
+        """Cập nhật tên đã đổi vào item: resize theo độ dài tên + repaint."""
+        self._name = self.node.name
+        tool = self.node.tool
+        tip = f"<b>{self.node.name}</b>"
+        if self.node.name != tool.name:
+            tip += f"<br><span style='color:#94a3b8'>{tool.name}</span>"
+        if tool.T_equiv:
+            tip += f"<br><span style='color:#00d4ff'>{tool.T_equiv}</span>"
+        tip += f"<br>{tool.description}"
+        self.setToolTip(tip)
+        # refresh_ports() lo _compute_size + reposition ports theo width mới
+        # (output ports neo theo cạnh phải) + repaint.
+        self.refresh_ports()
 
     def _add_extra_input(self):
         """Append 1 port mới với tên = letter chưa dùng (A-Z, rồi AA-ZZ)."""

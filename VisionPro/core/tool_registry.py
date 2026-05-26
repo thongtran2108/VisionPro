@@ -1562,6 +1562,201 @@ def _draw_shape_outline(vis: np.ndarray, shape_type: str,
         pass
 
 
+# ═══════════════════════════════════════════════════════════════════
+#  SHAPE CREATION TOOLS (Edge & Geometry) — vẽ hình bằng tham số hoặc
+#  kéo chuột trên ảnh (qua NodeDetailDialog). Hình cố định + xuất
+#  geometry (center / area / perimeter) để chain hoặc làm region.
+# ═══════════════════════════════════════════════════════════════════
+_SHAPE_BGR = {"Yellow":(0,200,255),"Cyan":(255,255,0),"Green":(0,255,80),
+              "Red":(0,0,255),"White":(255,255,255),"Magenta":(255,0,255),
+              "Orange":(0,140,255),"Blue":(255,80,0)}
+
+
+def _shape_canvas(img, w=640, h=480):
+    """Ảnh nền để vẽ: copy input (BGR) nếu có, else canvas đen mặc định."""
+    if img is not None:
+        return _bgr(img.copy())
+    return np.zeros((h, w, 3), dtype=np.uint8)
+
+
+def _poly_metrics(pts):
+    """(area_px, perimeter_px, cx, cy) của polygon (toạ độ ảnh) — shoelace."""
+    n = len(pts)
+    if n == 0:
+        return 0.0, 0.0, 0.0, 0.0
+    if n < 3:
+        cx = sum(p[0] for p in pts) / n
+        cy = sum(p[1] for p in pts) / n
+        perim = math.hypot(pts[-1][0]-pts[0][0], pts[-1][1]-pts[0][1]) if n == 2 else 0.0
+        return 0.0, perim, cx, cy
+    a2 = 0.0; perim = 0.0; cxs = 0.0; cys = 0.0
+    for i in range(n):
+        x1, y1 = pts[i]; x2, y2 = pts[(i + 1) % n]
+        cross = x1 * y2 - x2 * y1
+        a2 += cross
+        cxs += (x1 + x2) * cross
+        cys += (y1 + y2) * cross
+        perim += math.hypot(x2 - x1, y2 - y1)
+    area = abs(a2) / 2.0
+    if abs(a2) > 1e-9:
+        cx = cxs / (3.0 * a2); cy = cys / (3.0 * a2)
+    else:
+        cx = sum(p[0] for p in pts) / n; cy = sum(p[1] for p in pts) / n
+    return area, perim, cx, cy
+
+
+def _trapezoid_pts(x, y, w, h, top_ratio):
+    """4 điểm hình thang cân: đáy = w, cạnh trên = w*top_ratio (canh giữa)."""
+    tw = max(0.0, min(1.0, float(top_ratio))) * w
+    off = (w - tw) / 2.0
+    return [(x + off, y), (x + w - off, y), (x + w, y + h), (x, y + h)]  # TL,TR,BR,BL
+
+
+def _regular_poly_pts(cx, cy, r, n):
+    """N điểm đa giác đều quanh tâm (cx,cy) bán kính r, đỉnh đầu hướng lên."""
+    n = max(3, int(n))
+    return [(cx + r * math.cos(2 * math.pi * i / n - math.pi / 2),
+             cy + r * math.sin(2 * math.pi * i / n - math.pi / 2))
+            for i in range(n)]
+
+
+def _shape_outputs(vis, params, cx, cy, w, h, area_px, perim_px, label, extra=None):
+    """Vẽ label tại tâm (tuỳ chọn) + build dict output chung cho shape tools."""
+    ptm = float(params.get("pixel_to_mm", 1.0) or 1.0)
+    if bool(params.get("show_labels", True)) and label:
+        s = _draw_scale(vis)
+        lc = _SHAPE_BGR.get(params.get("label_color", "Yellow"), (0, 200, 255))
+        cv2.circle(vis, (int(cx), int(cy)), _t(3, s), lc, -1)
+        cv2.putText(vis, label, (int(cx) + _t(8, s), int(cy) - _t(8, s)),
+                    cv2.FONT_HERSHEY_SIMPLEX, _fs(0.5, s), lc,
+                    _t(1, s), cv2.LINE_AA)
+    out = {"image": vis, "found": True, "pass": True,
+           "cx": float(cx), "cy": float(cy),
+           "width": float(w), "height": float(h),
+           "area_px": float(area_px), "perimeter_px": float(perim_px),
+           "area": float(area_px) * ptm * ptm,
+           "perimeter": float(perim_px) * ptm}
+    if extra:
+        out.update(extra)
+    return out
+
+
+def _fill_poly(vis, arr, col, alpha=0.35):
+    ov = vis.copy()
+    cv2.fillPoly(ov, [arr], col)
+    cv2.addWeighted(ov, alpha, vis, 1.0 - alpha, 0, vis)
+
+
+def proc_create_rectangle(inputs, params):
+    """Vẽ hình chữ nhật từ bbox (x,y,w,h). Xuất center + area + perimeter."""
+    vis = _shape_canvas(inputs.get("image"))
+    x = int(params.get("x", 100)); y = int(params.get("y", 100))
+    w = max(1, int(params.get("w", 200))); h = max(1, int(params.get("h", 150)))
+    col = _SHAPE_BGR.get(params.get("shape_color", "Green"), (0, 255, 80))
+    th = _t(int(params.get("thickness", 2)), _draw_scale(vis))
+    if bool(params.get("fill", False)):
+        _fill_poly(vis, np.array([[x, y], [x+w, y], [x+w, y+h], [x, y+h]],
+                                 dtype=np.int32), col)
+    cv2.rectangle(vis, (x, y), (x + w, y + h), col, th)
+    cx, cy = x + w / 2.0, y + h / 2.0
+    area_px = float(w * h); perim_px = 2.0 * (w + h)
+    ptm = float(params.get("pixel_to_mm", 1.0) or 1.0)
+    print(f"[CreateRect] x={x} y={y} w={w} h={h} area={area_px:.0f}px")
+    return _shape_outputs(vis, params, cx, cy, w, h, area_px, perim_px,
+                          f"{w}x{h} A={area_px*ptm*ptm:.1f}")
+
+
+def proc_create_ellipse(inputs, params):
+    """Vẽ ellipse nội tiếp bbox (x,y,w,h). Perimeter ~ xấp xỉ Ramanujan."""
+    vis = _shape_canvas(inputs.get("image"))
+    x = int(params.get("x", 100)); y = int(params.get("y", 100))
+    w = max(1, int(params.get("w", 200))); h = max(1, int(params.get("h", 150)))
+    col = _SHAPE_BGR.get(params.get("shape_color", "Green"), (0, 255, 80))
+    th = _t(int(params.get("thickness", 2)), _draw_scale(vis))
+    cxi, cyi = x + w // 2, y + h // 2
+    ax, ay = max(1, w // 2), max(1, h // 2)
+    if bool(params.get("fill", False)):
+        ov = vis.copy()
+        cv2.ellipse(ov, (cxi, cyi), (ax, ay), 0, 0, 360, col, -1)
+        cv2.addWeighted(ov, 0.35, vis, 0.65, 0, vis)
+    cv2.ellipse(vis, (cxi, cyi), (ax, ay), 0, 0, 360, col, th)
+    a = w / 2.0; b = h / 2.0
+    area_px = math.pi * a * b
+    perim_px = math.pi * (3.0 * (a + b) - math.sqrt((3.0*a + b) * (a + 3.0*b)))
+    ptm = float(params.get("pixel_to_mm", 1.0) or 1.0)
+    print(f"[CreateEllipse] c=({cxi},{cyi}) a={a:.1f} b={b:.1f}")
+    return _shape_outputs(vis, params, cxi, cyi, w, h, area_px, perim_px,
+                          f"a={a:.0f} b={b:.0f} A={area_px*ptm*ptm:.1f}")
+
+
+def proc_create_circle(inputs, params):
+    """Vẽ hình tròn từ tâm (cx,cy) + bán kính r."""
+    vis = _shape_canvas(inputs.get("image"))
+    cx = int(params.get("cx", 320)); cy = int(params.get("cy", 240))
+    r = max(1, int(params.get("r", 100)))
+    col = _SHAPE_BGR.get(params.get("shape_color", "Green"), (0, 255, 80))
+    th = _t(int(params.get("thickness", 2)), _draw_scale(vis))
+    if bool(params.get("fill", False)):
+        ov = vis.copy(); cv2.circle(ov, (cx, cy), r, col, -1)
+        cv2.addWeighted(ov, 0.35, vis, 0.65, 0, vis)
+    cv2.circle(vis, (cx, cy), r, col, th)
+    area_px = math.pi * r * r; perim_px = 2.0 * math.pi * r
+    ptm = float(params.get("pixel_to_mm", 1.0) or 1.0)
+    print(f"[CreateCircle] c=({cx},{cy}) r={r}")
+    return _shape_outputs(vis, params, cx, cy, 2*r, 2*r, area_px, perim_px,
+                          f"R={r} A={area_px*ptm*ptm:.1f}",
+                          extra={"radius": float(r), "radius_mm": float(r) * ptm})
+
+
+def proc_create_trapezoid(inputs, params):
+    """Vẽ hình thang cân nội tiếp bbox (x,y,w,h) với cạnh trên = w*top_ratio."""
+    vis = _shape_canvas(inputs.get("image"))
+    x = int(params.get("x", 100)); y = int(params.get("y", 100))
+    w = max(1, int(params.get("w", 240))); h = max(1, int(params.get("h", 150)))
+    top_ratio = float(params.get("top_ratio", 0.5))
+    col = _SHAPE_BGR.get(params.get("shape_color", "Green"), (0, 255, 80))
+    th = _t(int(params.get("thickness", 2)), _draw_scale(vis))
+    pts = _trapezoid_pts(x, y, w, h, top_ratio)
+    arr = np.array([[int(px), int(py)] for px, py in pts], dtype=np.int32)
+    if bool(params.get("fill", False)):
+        _fill_poly(vis, arr, col)
+    cv2.polylines(vis, [arr], True, col, th)
+    area_px, perim_px, cx, cy = _poly_metrics(pts)
+    tw = max(0.0, min(1.0, top_ratio)) * w
+    ptm = float(params.get("pixel_to_mm", 1.0) or 1.0)
+    print(f"[CreateTrapezoid] x={x} y={y} w={w} h={h} top={tw:.0f}")
+    return _shape_outputs(vis, params, cx, cy, w, h, area_px, perim_px,
+                          f"A={area_px*ptm*ptm:.1f}",
+                          extra={"top_width": float(tw), "bottom_width": float(w)})
+
+
+def proc_create_polygon(inputs, params):
+    """Vẽ đa giác. Dùng `_poly_pts` (vẽ tay) nếu có; else đa giác đều từ
+    (cx,cy,r,n_sides)."""
+    vis = _shape_canvas(inputs.get("image"))
+    raw = params.get("_poly_pts")
+    if isinstance(raw, (list, tuple)) and len(raw) >= 3:
+        pts = [(float(p[0]), float(p[1])) for p in raw]
+    else:
+        cx0 = int(params.get("cx", 320)); cy0 = int(params.get("cy", 240))
+        r0 = max(1, int(params.get("r", 100))); n0 = int(params.get("n_sides", 6))
+        pts = _regular_poly_pts(cx0, cy0, r0, n0)
+    col = _SHAPE_BGR.get(params.get("shape_color", "Green"), (0, 255, 80))
+    th = _t(int(params.get("thickness", 2)), _draw_scale(vis))
+    arr = np.array([[int(px), int(py)] for px, py in pts], dtype=np.int32)
+    if bool(params.get("fill", False)):
+        _fill_poly(vis, arr, col)
+    cv2.polylines(vis, [arr], True, col, th)
+    area_px, perim_px, cx, cy = _poly_metrics(pts)
+    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+    w = max(xs) - min(xs); h = max(ys) - min(ys)
+    ptm = float(params.get("pixel_to_mm", 1.0) or 1.0)
+    print(f"[CreatePolygon] n={len(pts)} area={area_px:.0f}px")
+    return _shape_outputs(vis, params, cx, cy, w, h, area_px, perim_px,
+                          f"n={len(pts)} A={area_px*ptm*ptm:.1f}",
+                          extra={"num_points": int(len(pts))})
+
+
 def proc_color_segment(inputs, params):
     """TColorSegmenterTool — Phân đoạn theo không gian màu, xuất mask + ratio.
 
@@ -2953,6 +3148,25 @@ def proc_yield_stats(inputs, params):
 # ═══════════════════════════════════════════════════════════════════
 P = ParamDef  # shorthand
 
+_SHAPE_COLOR_CHOICES = ["Yellow", "Cyan", "Green", "Red", "White",
+                        "Magenta", "Orange", "Blue"]
+
+
+def _shape_style_params():
+    """Param style chung cho các Create Shape tool (trả list mới mỗi lần
+    gọi để mỗi ToolDef sở hữu ParamDef riêng)."""
+    return [
+        P("shape_color", "Shape Color", "enum", "Green",
+          choices=list(_SHAPE_COLOR_CHOICES)),
+        P("thickness", "Line Thickness", "int", 2, 1, 12, use_slider=True),
+        P("fill", "Fill shape (35% alpha)", "bool", False),
+        P("pixel_to_mm", "Pixel→mm", "float", 1.0, 0.0001, 1000, step=0.0001,
+          tooltip="area(mm²)=area(px)×ptm²,  perimeter(mm)=perimeter(px)×ptm."),
+        P("show_labels", "Show label on image", "bool", True),
+        P("label_color", "Label Color", "enum", "Yellow",
+          choices=list(_SHAPE_COLOR_CHOICES)),
+    ]
+
 
 # ═══════════════════════════════════════════════════════════════
 #  YOLO DETECTION
@@ -3870,6 +4084,81 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("label_size","Label Size","float",0.6,0.2,3.0,step=0.05,use_slider=True),
      P("label_thickness","Label Thickness","int",2,1,8,use_slider=True)],
     proc_line_2pt, "TLineSegmentTool"),
+
+  # ── SHAPE CREATION ──────────────────────────────────────────────
+  ToolDef("create_rectangle","Create Rectangle","Edge & Geometry",
+    "Tạo hình chữ nhật cố định trên ảnh. Nhập toạ độ (x,y,w,h) ở Params "
+    "hoặc double-click node → kéo chuột vẽ trực tiếp. Xuất center / area / "
+    "perimeter để chain hoặc làm region annotation.","#134074","▭",
+    [PortDef("image","image",required=False)],
+    [PortDef("image","image"),PortDef("found","bool"),
+     PortDef("cx","number"),PortDef("cy","number"),
+     PortDef("width","number"),PortDef("height","number"),
+     PortDef("area","number"),PortDef("perimeter","number"),PortDef("pass","bool")],
+    [P("x","X","int",100,0,8192),P("y","Y","int",100,0,8192),
+     P("w","Width","int",200,1,8192),P("h","Height","int",150,1,8192)]
+    + _shape_style_params(),
+    proc_create_rectangle, ""),
+
+  ToolDef("create_circle","Create Circle","Edge & Geometry",
+    "Tạo hình tròn cố định trên ảnh. Nhập tâm (cx,cy) + bán kính r ở Params "
+    "hoặc double-click node → kéo chuột vẽ. Xuất center / radius / area / "
+    "perimeter.","#134074","⬤",
+    [PortDef("image","image",required=False)],
+    [PortDef("image","image"),PortDef("found","bool"),
+     PortDef("cx","number"),PortDef("cy","number"),PortDef("radius","number"),
+     PortDef("area","number"),PortDef("perimeter","number"),PortDef("pass","bool")],
+    [P("cx","Center X","int",320,0,8192),P("cy","Center Y","int",240,0,8192),
+     P("r","Radius (px)","int",100,1,8192)]
+    + _shape_style_params(),
+    proc_create_circle, ""),
+
+  ToolDef("create_ellipse","Create Ellipse","Edge & Geometry",
+    "Tạo hình elip nội tiếp bbox (x,y,w,h). Nhập tham số ở Params hoặc "
+    "double-click node → kéo chuột vẽ. Xuất center / area / perimeter "
+    "(perimeter xấp xỉ Ramanujan).","#134074","⬭",
+    [PortDef("image","image",required=False)],
+    [PortDef("image","image"),PortDef("found","bool"),
+     PortDef("cx","number"),PortDef("cy","number"),
+     PortDef("width","number"),PortDef("height","number"),
+     PortDef("area","number"),PortDef("perimeter","number"),PortDef("pass","bool")],
+    [P("x","X","int",100,0,8192),P("y","Y","int",100,0,8192),
+     P("w","Width","int",200,1,8192),P("h","Height","int",120,1,8192)]
+    + _shape_style_params(),
+    proc_create_ellipse, ""),
+
+  ToolDef("create_trapezoid","Create Trapezoid","Edge & Geometry",
+    "Tạo hình thang cân nội tiếp bbox (x,y,w,h); cạnh trên = Width×Top Ratio "
+    "(canh giữa). Nhập tham số ở Params hoặc double-click node → kéo chuột vẽ "
+    "bbox. Xuất center / area / perimeter.","#134074","⏢",
+    [PortDef("image","image",required=False)],
+    [PortDef("image","image"),PortDef("found","bool"),
+     PortDef("cx","number"),PortDef("cy","number"),
+     PortDef("width","number"),PortDef("height","number"),
+     PortDef("area","number"),PortDef("perimeter","number"),PortDef("pass","bool")],
+    [P("x","X","int",100,0,8192),P("y","Y","int",100,0,8192),
+     P("w","Bottom Width","int",240,1,8192),P("h","Height","int",150,1,8192),
+     P("top_ratio","Top Ratio (0..1)","float",0.5,0.0,1.0,step=0.05,use_slider=True,
+       tooltip="Tỉ lệ cạnh trên so với đáy. 1.0 = chữ nhật, 0 = tam giác.")]
+    + _shape_style_params(),
+    proc_create_trapezoid, ""),
+
+  ToolDef("create_polygon","Create Polygon","Edge & Geometry",
+    "Tạo đa giác. Double-click node → click từng đỉnh trên ảnh, double-click "
+    "để chốt (≥3 điểm). Không vẽ tay → dùng đa giác đều từ (cx,cy,r,Sides). "
+    "Xuất center / area / perimeter / số đỉnh.","#134074","⬡",
+    [PortDef("image","image",required=False)],
+    [PortDef("image","image"),PortDef("found","bool"),
+     PortDef("cx","number"),PortDef("cy","number"),
+     PortDef("width","number"),PortDef("height","number"),
+     PortDef("area","number"),PortDef("perimeter","number"),
+     PortDef("num_points","number"),PortDef("pass","bool")],
+    [P("cx","Center X","int",320,0,8192),P("cy","Center Y","int",240,0,8192),
+     P("r","Radius (px)","int",100,1,8192),
+     P("n_sides","Regular Sides","int",6,3,32,
+       tooltip="Số cạnh đa giác đều khi chưa vẽ tay.")]
+    + _shape_style_params(),
+    proc_create_polygon, ""),
 
   # ── COLOR ───────────────────────────────────────────────────────
   ToolDef("color_picker","Color Picker","Color Analysis",

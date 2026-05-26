@@ -377,6 +377,7 @@ class MainWindow(QMainWindow):
         scene._signals.open_props.connect(self._open_node_detail)
         # single select only updates props panel
         scene._signals.selected.connect(self._props.show_node)
+        scene._signals.renamed.connect(self._on_node_renamed)
 
         self._props.params_changed.connect(self._on_graph_changed)
 
@@ -395,6 +396,16 @@ class MainWindow(QMainWindow):
         # Refresh image viewer node list
         self._img_viewer.refresh_node_list()
         self._mark_dirty()
+
+    def _on_node_renamed(self, node_id: str):
+        """Đổi tên node → cập nhật props panel, viewer dropdown, detail dialog
+        đang mở; mark dirty để nhắc lưu."""
+        self._on_graph_changed()
+        if self._graph and node_id in self._graph.nodes:
+            self._props.show_node(node_id)
+        dlg = self._detail_dialogs.get(node_id)
+        if dlg and dlg.isVisible() and hasattr(dlg, "refresh_title"):
+            dlg.refresh_title()
 
     def _mark_dirty(self):
         """Đánh dấu pipeline có thay đổi chưa lưu. Title hiện "•" prefix
@@ -521,7 +532,7 @@ class MainWindow(QMainWindow):
         self._set_status("PASS", "#39ff14")
         # Per-node breakdown — giúp xác định node nào chậm
         breakdown = sorted(
-            [(self._graph.nodes[nid].tool.name if nid in self._graph.nodes else nid,
+            [(self._graph.nodes[nid].name if nid in self._graph.nodes else nid,
               r.get("elapsed_ms", 0.0))
              for nid, r in results.items()],
             key=lambda x: -x[1])[:3]
@@ -617,6 +628,7 @@ class MainWindow(QMainWindow):
         scene.run_single.connect(self._run_single_node)
         scene._signals.open_props.connect(self._open_node_detail)
         scene._signals.selected.connect(self._props.show_node)
+        scene._signals.renamed.connect(self._on_node_renamed)
         self._center_tabs.removeTab(idx)
         self._center_tabs.insertTab(idx, self._canvas, "🔧  Pipeline Canvas")
         # Sau khi load file/new blank → land trên Image Viewer (user thấy

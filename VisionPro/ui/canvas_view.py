@@ -82,8 +82,8 @@ class ConnectionItem(QGraphicsPathItem):
             return f"{self.conn.src_port} → {self.conn.dst_port}"
         sn = graph.nodes.get(self.conn.src_id)
         dn = graph.nodes.get(self.conn.dst_id)
-        sname = sn.tool.name if sn else "?"
-        dname = dn.tool.name if dn else "?"
+        sname = sn.name if sn else "?"
+        dname = dn.name if dn else "?"
         return (f"{sname} · {self.conn.src_port}  →  "
                 f"{dname} · {self.conn.dst_port}")
 
@@ -128,8 +128,8 @@ class ConnectionItem(QGraphicsPathItem):
         graph = scene.graph
         src_node = graph.nodes.get(self.conn.src_id)
         dst_node = graph.nodes.get(self.conn.dst_id)
-        src_name = src_node.tool.name if src_node else "?"
-        dst_name = dst_node.tool.name if dst_node else "?"
+        src_name = src_node.name if src_node else "?"
+        dst_name = dst_node.name if dst_node else "?"
         hdr = menu.addAction(
             f"🔗  {src_name}.{self.conn.src_port} → "
             f"{dst_name}.{self.conn.dst_port}")
@@ -144,7 +144,7 @@ class ConnectionItem(QGraphicsPathItem):
         relink: dict = {}   # action -> ("src"|"dst", node_id, port_name)
         for nid, ni in scene._node_items.items():
             node = ni.node
-            label = f"{node.tool.icon}  {node.tool.name}"
+            label = f"{node.tool.icon}  {node.name}"
             # Nguồn mới = output port của node khác (không phải node đích).
             if nid != self.conn.dst_id:
                 out_names = ni._output_port_names()

@@ -441,7 +441,7 @@ class SfcDialog(QDialog):
         self.cb_node_pick.addItem("(builtin) api_get.text", "api_get.text")
         if self._graph is not None:
             for nid, n in self._graph.nodes.items():
-                label = f"{n.tool.name}  [{nid}]"
+                label = f"{n.name}  [{nid}]"
                 self.cb_node_pick.addItem(label, nid)
         self.cb_node_pick.blockSignals(False)
         self._on_node_pick_changed()
@@ -476,7 +476,7 @@ class SfcDialog(QDialog):
                     items.append(f"{n.tool_id}{_LABEL_SEP}{n.tool.name}")
                 # node_id (8-char) — phòng trường hợp pipeline có >1 node cùng tool_id
                 for nid, n in self._graph.nodes.items():
-                    items.append(f"{nid}{_LABEL_SEP}{n.tool.name} [{nid}]")
+                    items.append(f"{nid}{_LABEL_SEP}{n.name} [{nid}]")
             return items
 
         if ctx.startswith("@port:"):

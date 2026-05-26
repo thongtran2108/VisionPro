@@ -223,9 +223,11 @@ class NodeInfoWidget(QWidget):
         top.addWidget(icon_lbl)
 
         info_lay = QVBoxLayout()
-        name_lbl = QLabel(tool.name)
+        name_lbl = QLabel(node.name)
         name_lbl.setStyleSheet("color:#e2e8f0; font-size:14px; font-weight:700;")
-        cat_lbl = QLabel(f"Category: {tool.category}")
+        cat_txt = (f"{tool.name}  ·  {tool.category}"
+                   if node.name != tool.name else f"Category: {tool.category}")
+        cat_lbl = QLabel(cat_txt)
         cat_lbl.setStyleSheet("color:#64748b; font-size:11px;")
         id_lbl = QLabel(f"Node ID: {node.node_id}")
         id_lbl.setStyleSheet("color:#1e2d45; font-size:10px; font-family:'Courier New';")
@@ -466,7 +468,7 @@ class PropertiesPanel(QWidget):
             return
         self._current_node_id = node_id
         node = self._graph.nodes[node_id]
-        self._title.setText(f"⚙  {node.tool.name}")
+        self._title.setText(f"⚙  {node.name}")
         self._empty_lbl.hide()
 
         self._info_scroll.setWidget(NodeInfoWidget(node))

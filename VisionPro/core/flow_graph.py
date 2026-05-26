@@ -30,6 +30,10 @@ class NodeInstance:
         self.pos_y: float = pos_y
 
         tool: ToolDef = TOOL_BY_ID[tool_id]
+        # Tên hiển thị (custom). Mặc định = tool.name; FlowGraph.add_node gắn
+        # hậu tố thứ tự để không trùng (vd "Distance Point-Line1"). User đổi
+        # tự do qua right-click → Rename; mọi panel hiển thị theo tên này.
+        self.name: str = tool.name
         # Init params from defaults
         self.params: Dict[str, Any] = {p.name: p.default for p in tool.params}
         hidden = _DEFAULT_HIDDEN_OUTPUTS.get(tool_id)
@@ -79,6 +83,7 @@ class NodeInstance:
         return {
             "node_id":  self.node_id,
             "tool_id":  self.tool_id,
+            "name":     self.name,
             "pos_x":    self.pos_x,
             "pos_y":    self.pos_y,
             "params":   safe_params,
@@ -88,6 +93,7 @@ class NodeInstance:
     def from_dict(cls, d: dict) -> "NodeInstance":
         n = cls(d["tool_id"], d["pos_x"], d["pos_y"])
         n.node_id = d["node_id"]
+        n.name    = d.get("name") or n.name   # .aoi cũ không có → giữ tool.name
         n.params  = d["params"]
         # Reconstruct embedded PatMaxModel(s). Fallback: load từ
         # `_patmax_model_file` (đường dẫn) nếu không có embed.
@@ -161,8 +167,21 @@ class FlowGraph:
     # ── Node CRUD ──────────────────────────────────
     def add_node(self, tool_id: str, x: float, y: float) -> NodeInstance:
         node = NodeInstance(tool_id, x, y)
+        node.name = self._unique_name(node.name)
         self.nodes[node.node_id] = node
         return node
+
+    def _unique_name(self, base: str) -> str:
+        """Trả về tên không trùng với node hiện có. Lần đầu giữ nguyên base;
+        các lần sau gắn hậu tố số tăng dần: base, base1, base2, …
+        (vd "Distance Point-Line" → "Distance Point-Line1")."""
+        existing = {n.name for n in self.nodes.values()}
+        if base not in existing:
+            return base
+        i = 1
+        while f"{base}{i}" in existing:
+            i += 1
+        return f"{base}{i}"
 
     def remove_node(self, node_id: str):
         self.nodes.pop(node_id, None)

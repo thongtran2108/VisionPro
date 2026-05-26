@@ -59,7 +59,7 @@ class PatMaxDialog(QDialog):
         # Multi-pattern models (chỉ dùng khi roi_mode == "multi_pattern")
         self._models: List[PatMaxModel] = node.params.get("_patmax_models") or []
 
-        self.setWindowTitle(f"🎯  PatMax Pattern Align Tool  —  {node.tool.name}")
+        self.setWindowTitle(f"🎯  PatMax Pattern Align Tool  —  {node.name}")
         self.setMinimumSize(1100, 720)
         self.resize(1280, 820)
         self.setModal(False)

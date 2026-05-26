@@ -561,7 +561,7 @@ class ImageViewerPanel(QWidget):
         for nid, node in self._graph.nodes.items():
             has_img_output = any(p.name == "image" for p in node.tool.outputs)
             if has_img_output:
-                label = f"{node.tool.icon} {node.tool.name}  [{nid}]"
+                label = f"{node.tool.icon} {node.name}  [{nid}]"
                 self._node_combo.addItem(label, nid)
                 self._node_map[label] = nid
 
@@ -684,7 +684,7 @@ class ImageViewerPanel(QWidget):
             return "Camera Image"
         if node.tool.tool_id == self._FILE_ACQUIRE_ID:
             return "Acquire Image"
-        return node.tool.name
+        return node.name
 
     def _node_pipeline_root(self, node_id: str) -> Optional[str]:
         """Tìm Acquire/Camera root mà node thuộc về (đi ngược upstream theo
@@ -1032,7 +1032,7 @@ class ImageViewerPanel(QWidget):
                 node = self._graph.nodes.get(nid)
                 if not node:
                     continue
-                cb.addItem(f"  {node.tool.icon} {node.tool.name}", nid)
+                cb.addItem(f"  {node.tool.icon} {node.name}", nid)
         # Default select
         if default_nid is not None:
             for j in range(cb.count()):
@@ -1162,7 +1162,7 @@ class ImageViewerPanel(QWidget):
         else:
             for nid, node in tools:
                 wa = QWidgetAction(menu)
-                cb = QCheckBox(f"  {node.tool.icon}  {node.tool.name}  "
+                cb = QCheckBox(f"  {node.tool.icon}  {node.name}  "
                                 f"({node.tool.tool_id})")
                 cb.setChecked(entry['cell_overlays'].get(nid, False))
                 cb.setStyleSheet(
@@ -1447,7 +1447,7 @@ class ImageViewerPanel(QWidget):
                 menu.addAction(wa_sec)
                 for nid, node in items:
                     wa = QWidgetAction(menu)
-                    cb = QCheckBox(f"  {node.tool.icon}  {node.tool.name}  "
+                    cb = QCheckBox(f"  {node.tool.icon}  {node.name}  "
                                     f"({node.tool.tool_id})")
                     cb.setChecked(self._selected_overlays.get(nid, False))
                     cb.setStyleSheet(

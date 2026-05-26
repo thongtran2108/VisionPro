@@ -1525,7 +1525,7 @@ class NodeDetailDialog(QDialog):
         self._graph = graph
         tool: ToolDef = node.tool
 
-        self.setWindowTitle(f"{tool.icon}  {tool.name}  —  Detail")
+        self.setWindowTitle(f"{tool.icon}  {node.name}  —  Detail")
         self.setMinimumSize(1000, 650)
         self.resize(1120, 740)
         self.setModal(False)
@@ -1561,10 +1561,12 @@ class NodeDetailDialog(QDialog):
         hl.addWidget(icon_l)
 
         tc = QVBoxLayout()
-        t1 = QLabel(tool.name)
+        self._title_lbl = QLabel(node.name)
+        t1 = self._title_lbl
         t1.setStyleSheet("color:#fff; font-size:16px; font-weight:700; background:transparent;")
         T = f"  {tool.T_equiv}" if tool.T_equiv else ""
-        t2 = QLabel(f"{tool.category}{T}  •  {tool.description}")
+        name_pfx = f"{tool.name}  •  " if node.name != tool.name else ""
+        t2 = QLabel(f"{name_pfx}{tool.category}{T}  •  {tool.description}")
         t2.setStyleSheet("color:#ffffff88; font-size:11px; background:transparent;")
         tc.addWidget(t1); tc.addWidget(t2)
         hl.addLayout(tc, 1)
@@ -1849,6 +1851,31 @@ class NodeDetailDialog(QDialog):
             else:
                 # Full Image → khoá vẽ shape
                 self._img_label.set_roi_locked(True)
+
+        elif tool.tool_id in ("create_rectangle", "create_circle",
+                              "create_ellipse", "create_trapezoid",
+                              "create_polygon"):
+            # Create Shape tools — vẽ hình bằng kéo chuột (rect/circle/ellipse/
+            # polygon). Trapezoid vẽ bằng bbox (shape "rect") → proc_ dựng hình
+            # thang theo top_ratio. Vẽ xong → ghi geometry vào params + rerun.
+            self._create_shape_key = {
+                "create_rectangle": "rect", "create_circle": "circle",
+                "create_ellipse": "ellipse", "create_trapezoid": "rect",
+                "create_polygon": "polygon"}[tool.tool_id]
+            if self._create_shape_key == "polygon":
+                hint = ("✏  Click từng đỉnh trên ảnh, double-click để chốt "
+                        "(≥3 điểm). Hoặc nhập cx/cy/r/Sides ở Params.")
+            else:
+                hint = ("✏  Kéo chuột vẽ hình trên ảnh — vẽ xong kéo thân để "
+                        "di chuyển, kéo góc để resize. Hoặc nhập toạ độ ở Params.")
+            self._mode_hint.setText(hint)
+            self._mode_hint.show()
+            self._img_label = InteractiveImageLabel(mode="roi")
+            self._img_label.shape_drawn.connect(self._on_create_shape_drawn)
+            self._img_label.set_shape_mode(self._create_shape_key)
+            # Nền + overlay handle dựng ở 120ms (sau refresh_outputs cuối __init__,
+            # vốn clear ảnh khi node chưa chạy).
+            QTimer.singleShot(120, self._restore_create_shape_overlay)
 
         else:
             self._img_label = InteractiveImageLabel(mode="view")
@@ -2627,6 +2654,74 @@ class NodeDetailDialog(QDialog):
         self._pixel_bar.show()
         self._on_run()
 
+    # ── Create Shape tools ─────────────────────────────────────────
+    def _restore_create_shape_overlay(self):
+        """Dựng nền + overlay shape (handle chỉnh sửa) từ params hiện tại.
+        Params là source-of-truth; overlay chỉ để xem/kéo."""
+        if not getattr(self, "_create_shape_key", None) or self._img_label is None:
+            return
+        node = self._node
+        # Nền: nếu node đã chạy → giữ ảnh output (đã có hình); else dùng ảnh
+        # upstream hoặc canvas đen để có chỗ vẽ.
+        if not isinstance(node.outputs.get("image"), np.ndarray):
+            base = self._get_input_image()
+            if base is None or not isinstance(base, np.ndarray):
+                base = np.zeros((480, 640, 3), dtype=np.uint8)
+            self._img_label.set_image(base)
+        key = self._create_shape_key
+        if key == "circle":
+            d = {"cx": int(node.params.get("cx", 320)),
+                 "cy": int(node.params.get("cy", 240)),
+                 "r":  int(node.params.get("r", 100))}
+        elif key == "polygon":
+            pts = node.params.get("_poly_pts")
+            if isinstance(pts, (list, tuple)) and len(pts) >= 3:
+                d = {"pts": [(int(px), int(py)) for px, py in pts]}
+            else:
+                # Chưa vẽ tay → preview đa giác đều từ (cx,cy,r,n_sides).
+                cx0 = int(node.params.get("cx", 320))
+                cy0 = int(node.params.get("cy", 240))
+                r0 = max(1, int(node.params.get("r", 100)))
+                n0 = max(3, int(node.params.get("n_sides", 6)))
+                ang = np.arange(n0) * 2 * np.pi / n0 - np.pi / 2
+                xs = cx0 + r0 * np.cos(ang); ys = cy0 + r0 * np.sin(ang)
+                d = {"pts": [(int(x), int(y)) for x, y in zip(xs, ys)]}
+        else:  # rect / ellipse / trapezoid-bbox
+            d = {"x": int(node.params.get("x", 100)),
+                 "y": int(node.params.get("y", 100)),
+                 "w": int(node.params.get("w", 200)),
+                 "h": int(node.params.get("h", 150))}
+        if d:
+            self._img_label.set_shape_data(key, d)
+
+    def _on_create_shape_drawn(self, shape_type: str, data: dict):
+        """Vẽ xong shape → ghi geometry vào params + rerun (vẽ hình cố định)."""
+        node = self._node
+        d = dict(data or {})
+        updates = {}
+        if shape_type in ("rect", "ellipse"):
+            for k in ("x", "y", "w", "h"):
+                if k in d:
+                    updates[k] = int(d[k])
+        elif shape_type == "circle":
+            for k in ("cx", "cy", "r"):
+                if k in d:
+                    updates[k] = int(d[k])
+        elif shape_type == "polygon":
+            pts = d.get("pts") or []
+            node.params["_poly_pts"] = [[int(px), int(py)] for px, py in pts]
+        for nm, v in updates.items():
+            node.params[nm] = v
+            pr = getattr(self, "_param_rows", {}).get(nm)
+            if pr is not None and hasattr(pr._editor, "setValue"):
+                pr._editor.blockSignals(True)
+                pr._editor.setValue(v)
+                pr._editor.blockSignals(False)
+        if getattr(self, "_auto_run_cb", None) and self._auto_run_cb.isChecked():
+            self._auto_run_timer.start()
+        else:
+            self._on_run()
+
     def _color_seg_shape_key(self, label: str) -> Optional[str]:
         return {"Rectangle": "rect", "Circle": "circle",
                 "Ellipse": "ellipse", "Polygon": "polygon"}.get(label)
@@ -2662,6 +2757,13 @@ class NodeDetailDialog(QDialog):
         if (node.tool.tool_id == "yolo_detect" and name == "model_path"
                 and hasattr(self, "_yolo_info_lbl")):
             self._refresh_yolo_info()
+
+        # Create Shape: chỉnh toạ độ tay → đồng bộ overlay (handle) ngay, kể cả
+        # khi Auto Run tắt (ảnh output cập nhật khi Run).
+        if (getattr(self, "_create_shape_key", None)
+                and name in ("x", "y", "w", "h", "cx", "cy", "r",
+                             "top_ratio", "n_sides")):
+            QTimer.singleShot(0, self._restore_create_shape_overlay)
 
         # color_segment: đổi Color Space qua params panel → đồng bộ
         # combobox trên header (giữ 2 widget cùng giá trị).
@@ -2771,6 +2873,13 @@ class NodeDetailDialog(QDialog):
     # ════════════════════════════════════════════════════════════════
     #  Refresh
     # ════════════════════════════════════════════════════════════════
+    def refresh_title(self):
+        """Cập nhật tiêu đề cửa sổ + header khi node bị đổi tên."""
+        node = self._node
+        self.setWindowTitle(f"{node.tool.icon}  {node.name}  —  Detail")
+        if hasattr(self, "_title_lbl"):
+            self._title_lbl.setText(node.name)
+
     def refresh_outputs(self):
         node = self._node
         sc = {"pass":"#39ff14","fail":"#ff3860","error":"#ff3860",
