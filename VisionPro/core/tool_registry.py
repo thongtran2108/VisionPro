@@ -3235,14 +3235,45 @@ def _yolo_empty_outputs(vis=None) -> dict:
             "confidence": 0.0, "class": "", "cls_id": -1}
 
 
-def _yolo_best_outputs(detections: list) -> dict:
-    """Pick detection có conf cao nhất → scalar outputs x/y/w/h/cx/cy/
-    confidence/class/cls_id. Polygon (seg) detection không có x1..x2 thì
-    fallback bbox quanh polygon (đã có cx/cy)."""
+# Cách chọn 1 detection cấp giá trị cho port scalar x/y/w/h/cx/cy/conf/…
+# Label khớp vocabulary blob tool (selection_mode) để nhất quán toàn app.
+YOLO_XY_MODES = ["Best (max conf)", "Highest (topmost)", "Lowest (bottommost)",
+                 "First (leftmost)", "Last (rightmost)"]
+
+
+def _select_detection(detections: list, mode: str):
+    """Pick 1 detection dict theo `mode`. None nếu list rỗng.
+       Best    → conf cao nhất (default)
+       Highest → trên cùng ảnh (cy nhỏ nhất)
+       Lowest  → dưới cùng ảnh (cy lớn nhất)
+       First   → trái nhất     (cx nhỏ nhất)
+       Last    → phải nhất     (cx lớn nhất)
+    Semantic First=trái / Last=phải khớp blob tool selection_mode."""
+    if not detections:
+        return None
+    def _cx(d): return d.get("cx", d.get("x1", d.get("x", 0)))
+    def _cy(d): return d.get("cy", d.get("y1", d.get("y", 0)))
+    m = str(mode or "").lower()
+    if m.startswith("highest"):
+        return min(detections, key=_cy)
+    if m.startswith("lowest"):
+        return max(detections, key=_cy)
+    if m.startswith("first"):
+        return min(detections, key=_cx)
+    if m.startswith("last"):
+        return max(detections, key=_cx)
+    return max(detections, key=lambda d: float(d.get("conf", 0.0)))
+
+
+def _yolo_xy_outputs(detections: list, mode: str = "Best (max conf)") -> dict:
+    """Pick 1 detection theo `mode` → scalar outputs x/y/w/h/cx/cy/
+    confidence/class/cls_id. Mặc định 'Best' = conf cao nhất (giữ nguyên
+    hành vi cũ để không phá chain Crop ROI / Fixture). Polygon (seg)
+    detection không có x1..x2 thì fallback bbox quanh polygon (đã có cx/cy)."""
     if not detections:
         return {"x": 0, "y": 0, "w": 0, "h": 0, "cx": 0, "cy": 0,
                 "confidence": 0.0, "class": "", "cls_id": -1}
-    best = max(detections, key=lambda d: float(d.get("conf", 0.0)))
+    best = _select_detection(detections, mode)
     x1 = int(best.get("x1", best.get("cx", 0)))
     y1 = int(best.get("y1", best.get("cy", 0)))
     x2 = int(best.get("x2", x1))
@@ -3256,6 +3287,19 @@ def _yolo_best_outputs(detections: list) -> dict:
         "class": str(best.get("class", "")),
         "cls_id": int(best.get("cls_id", -1)),
     }
+
+
+def _draw_xy_marker(vis, out: dict, mode: str, detections: list, s: float):
+    """Ring magenta tại detection được chọn cho x,y output — user thấy rõ
+    detection nào đang cấp giá trị cho port. Chỉ vẽ khi mode != Best (giữ
+    ảnh của flow cũ không đổi) và có detection."""
+    if vis is None or not detections:
+        return
+    if str(mode or "").lower().startswith("best"):
+        return
+    cx = int(out.get("cx", 0)); cy = int(out.get("cy", 0))
+    cv2.circle(vis, (cx, cy), _t(5, s), (255, 0, 255), -1)
+    cv2.circle(vis, (cx, cy), _t(14, s), (255, 0, 255), _t(2, s))
 
 
 def proc_yolo_detect(inputs, params):
@@ -3305,7 +3349,9 @@ def proc_yolo_detect(inputs, params):
                   f"{'PASS' if is_pass else 'FAIL'}")
             out = {"image": vis, "detections": detections,
                    "count": n, "pass": is_pass}
-            out.update(_yolo_best_outputs(detections))
+            sel_mode = params.get("xy_select", "Best (max conf)")
+            out.update(_yolo_xy_outputs(detections, sel_mode))
+            _draw_xy_marker(vis, out, sel_mode, detections, s)
             # Per-object extra terminals: x_1, cx_2, conf_3, ... do user pick
             _apply_extra_terminals(out, detections, params)
             return out
@@ -3405,7 +3451,9 @@ def proc_yolo_detect(inputs, params):
         print(f"[YOLO/torch] {n} detected {'PASS' if is_pass else 'FAIL'}")
         out = {"image": vis, "detections": detections,
                "count": n, "pass": is_pass}
-        out.update(_yolo_best_outputs(detections))
+        sel_mode = params.get("xy_select", "Best (max conf)")
+        out.update(_yolo_xy_outputs(detections, sel_mode))
+        _draw_xy_marker(vis, out, sel_mode, detections, s)
         _apply_extra_terminals(out, detections, params)
         return out
 
@@ -4332,8 +4380,9 @@ TOOL_REGISTRY: List[ToolDef] = [
   ToolDef("yolo_detect","YOLO Detect","YOLO",
     "YOLOv8/v11 Object Detection & Segmentation. Add file model train sẵn "
     "(.pt hoặc .onnx) rồi chỉnh threshold predict bên dưới. "
-    "Train mới: mở YOLO Studio từ toolbar. Outputs x/y/w/h là best "
-    "detection (max conf) để chain vào Crop ROI / Fixture. "
+    "Train mới: mở YOLO Studio từ toolbar. Outputs x/y/w/h mặc định là best "
+    "detection (max conf); đổi 'Output x,y from' để lấy detection trên/dưới/"
+    "trái/phải cùng. Chain vào Crop ROI / Fixture. "
     "Right-click node → ➕ Add / Manage Output Terminals để thêm port "
     "x_2, cy_3, conf_5... cho per-object access.",
     "#1a0a3a","🤖",
@@ -4356,6 +4405,15 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("max_det","Max Detections","int",300,1,1000),
      P("min_count","Min Objects (PASS)","int",1,0,1000),
      P("max_count","Max Objects (PASS)","int",9999,0,10000),
+     P("xy_select","Output x,y from","enum","Best (max conf)",
+       choices=YOLO_XY_MODES,
+       tooltip="Chọn detection nào cấp giá trị cho port x/y/w/h/cx/cy/"
+               "confidence/class/cls_id. Mặc định 'Best' = conf cao nhất.\n"
+               "• Highest: trên cùng ảnh (cy nhỏ nhất)\n"
+               "• Lowest:  dưới cùng ảnh (cy lớn nhất)\n"
+               "• First:   trái nhất (cx nhỏ nhất)\n"
+               "• Last:    phải nhất (cx lớn nhất)\n"
+               "Khi != Best, ring magenta đánh dấu detection được chọn."),
      P("show_labels","Display: show labels on image","bool",False,
        tooltip="Bật để vẽ '{class} {conf}' cạnh từng detection lên ảnh output. Mặc định tắt — kết quả vẫn có trong log & detections port."),
      P("seg_show_bbox","Seg: draw bbox instead of polygon","bool",True,
