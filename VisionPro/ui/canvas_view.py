@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 import math
 
 from PySide6.QtWidgets import (QGraphicsScene, QGraphicsView, QGraphicsItem,
-                                QGraphicsPathItem, QMenu)
+                                QGraphicsPathItem, QMenu, QStyle)
 from PySide6.QtCore import Qt, QPointF, QRectF, Signal
 from PySide6.QtGui import (QPainter, QPen, QBrush, QColor, QPainterPath,
                             QPainterPathStroker, QTransform, QKeyEvent,
@@ -51,6 +51,12 @@ class ConnectionItem(QGraphicsPathItem):
         pen.setCapStyle(Qt.RoundCap)
         self.setPen(pen)
 
+    def paint(self, painter, option, widget=None):
+        # Bỏ khung chọn nét đứt mặc định của Qt — đã có pen cam (selected) +
+        # node sáng viền làm tín hiệu, khung đứt chỉ gây rối.
+        option.state &= ~QStyle.State_Selected
+        super().paint(painter, option, widget)
+
     def update_positions(self, src: QPointF, dst: QPointF):
         self.src_pos, self.dst_pos = src, dst
         self._redraw()
@@ -58,7 +64,15 @@ class ConnectionItem(QGraphicsPathItem):
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemSelectedHasChanged:
             self._redraw()
+            self._notify_highlight()
         return super().itemChange(change, value)
+
+    def _notify_highlight(self):
+        """Báo scene tính lại node nào cần sáng (endpoint của dây đang
+        chọn/hover)."""
+        scene = self.scene()
+        if scene is not None and hasattr(scene, "_refresh_node_highlights"):
+            scene._refresh_node_highlights()
 
     def endpoint_label(self) -> str:
         """'NodeNguồn · port  →  NodeĐích · port' — để tooltip/nhận diện dây."""
@@ -78,12 +92,14 @@ class ConnectionItem(QGraphicsPathItem):
         self.setZValue(self.Z_HOVER)
         self.setToolTip(self.endpoint_label())
         self._redraw()
+        self._notify_highlight()
         super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event):
         self._hovered = False
         self.setZValue(self.Z_NORMAL)
         self._redraw()
+        self._notify_highlight()
         super().hoverLeaveEvent(event)
 
     def shape(self) -> QPainterPath:
@@ -362,12 +378,25 @@ class AOIScene(QGraphicsScene):
             self.connection_added.emit()
             self.graph_changed.emit()
 
+    def _refresh_node_highlights(self):
+        """Node nào là endpoint của 1 dây đang được chọn hoặc hover → sáng
+        viền. Tính tập trung để node nối nhiều dây vẫn đúng (sáng nếu có ÍT
+        NHẤT 1 dây active)."""
+        active = set()
+        for ci in self._conn_items.values():
+            if ci.isSelected() or getattr(ci, "_hovered", False):
+                active.add(ci.conn.src_id)
+                active.add(ci.conn.dst_id)
+        for nid, ni in self._node_items.items():
+            ni.set_highlight(nid in active)
+
     def unlink_connection(self, conn_id: str):
         """Xoá 1 connection (qua right-click dây → Unlink)."""
         ci = self._conn_items.pop(conn_id, None)
         if ci is not None and ci.scene() is self:
             self.removeItem(ci)
         self.graph.remove_connection(conn_id)
+        self._refresh_node_highlights()
         self.graph_changed.emit()
 
     def relink_connection(self, conn_id: str,
@@ -406,6 +435,7 @@ class AOIScene(QGraphicsScene):
             self._add_conn_item(new_conn)
             self.connection_added.emit()
             self.graph_changed.emit()
+        self._refresh_node_highlights()
         return new_conn
 
     def keyPressEvent(self, event: QKeyEvent):
@@ -418,6 +448,7 @@ class AOIScene(QGraphicsScene):
                     self.graph.remove_connection(item.conn.conn_id)
                     self.removeItem(item)
                     self.graph_changed.emit()
+            self._refresh_node_highlights()
         super().keyPressEvent(event)
 
     def run_single_node(self, node_id: str):

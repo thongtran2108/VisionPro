@@ -496,6 +496,7 @@ class NodeItem(QGraphicsItem):
 
         self._in_ports:  List[PortItem] = []
         self._out_ports: List[PortItem] = []
+        self._highlight = False   # sáng viền khi 1 dây nối tới node được chọn/hover
         self._compute_size()
         self._build_ports()
 
@@ -505,6 +506,14 @@ class NodeItem(QGraphicsItem):
             tip += f"<br><span style='color:#00d4ff'>{tool.T_equiv}</span>"
         tip += f"<br>{tool.description}"
         self.setToolTip(tip)
+
+    def set_highlight(self, on: bool):
+        """Bật/tắt viền sáng (gọi từ scene khi 1 dây nối tới node được chọn
+        hoặc hover) — giúp biết dây đó nối những node nào."""
+        on = bool(on)
+        if on != self._highlight:
+            self._highlight = on
+            self.update()
 
     def _output_port_names(self) -> List[str]:
         """Tên các output ports = tool.outputs + extra terminals + extra outputs
@@ -610,6 +619,9 @@ class NodeItem(QGraphicsItem):
 
         if self.isSelected():
             border_col, border_w = C_SEL, 2.5
+        elif self._highlight:
+            # Dây nối tới node này đang được chọn/hover → viền cam sáng.
+            border_col, border_w = QColor(255, 170, 40), 3.0
         elif status == "pass":
             border_col, border_w = C_PASS, 2.0
         elif status == "fail":
