@@ -976,20 +976,14 @@ class NodeItem(QGraphicsItem):
         # Thêm mới (nếu user nhập)
         new = dlg.get_new_terminal()
         if new and (new.get("field") or new.get("name")):
-            # Đảm bảo tên duy nhất. Chỉ ghi đè name khi clash; giữ name rỗng
-            # nếu auto-name không trùng để display dùng auto_terminal_name().
+            # Tên trùng → bỏ qua (chỉ giữ 1 port), không tạo bản _2.
             explicit = (new.get("name") or "").strip()
             base = explicit or auto_terminal_name(new)
             existing_names = ([p.name for p in self.node.tool.outputs] +
                                 [auto_terminal_name(t) for t in terminals])
-            if base in existing_names:
-                name = base; n = 1
-                while name in existing_names:
-                    n += 1; name = f"{base}_{n}"
-                new["name"] = name
-            else:
+            if base not in existing_names:
                 new["name"] = explicit  # giữ rỗng → fallback auto-name
-            terminals.append(new)
+                terminals.append(new)
         self.node.params["_extra_terminals"] = terminals
         self.refresh_ports()
 
