@@ -393,8 +393,9 @@ class MainWindow(QMainWindow):
         c = len(self._graph.connections)
         self._node_count.setText(f"{n} nodes")
         self.statusBar().clearMessage()
-        # Refresh image viewer node list
-        self._img_viewer.refresh_node_list()
+        # Structure-only change → rebuild combo nhưng KHÔNG re-render ảnh (tránh
+        # giật khi kéo node vào pipeline). Re-render chỉ chạy sau Run.
+        self._img_viewer.refresh_node_list(redisplay=False)
         self._mark_dirty()
 
     def _on_node_renamed(self, node_id: str):

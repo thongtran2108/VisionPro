@@ -548,12 +548,18 @@ class ImageViewerPanel(QWidget):
             ui.pop("selected_overlays", None)
         self.state_changed.emit()
 
-    def refresh_node_list(self):
-        """Cập nhật dropdown list các node có output image."""
+    def refresh_node_list(self, redisplay: bool = True):
+        """Cập nhật dropdown list các node có output image.
+
+        redisplay=False (structure-only change như thêm/nối node): chỉ rebuild
+        combo, KHÔNG re-render ảnh — tránh copy QPixmap ảnh lớn (20MP) trên mỗi
+        lần kéo node vào pipeline gây giật 1-2s. Vẫn re-render khi node đang xem
+        đã bị xoá (ảnh cũ stale)."""
         if not self._graph:
             return
         self._node_combo.blockSignals(True)
         prev = self._current_node_id
+        prev_exists = bool(prev) and prev in self._graph.nodes
         self._node_combo.clear()
         self._node_map = {}
         self._node_combo.addItem("— Select node —", None)
@@ -597,6 +603,11 @@ class ImageViewerPanel(QWidget):
             self._current_node_id = self._node_combo.itemData(target_idx)
 
         self._node_combo.blockSignals(False)
+        # Structure-only change (thêm/nối node) không đổi ảnh đang hiển thị →
+        # bỏ qua re-render nặng. Node đang xem bị xoá (prev_exists=False) thì
+        # vẫn phải re-render để bỏ ảnh stale.
+        if not redisplay and prev_exists:
+            return
         if self._btn_multi.isChecked():
             self._rebuild_multi_grid()
         elif self._current_node_id:
