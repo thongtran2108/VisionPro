@@ -379,16 +379,20 @@ class AOIScene(QGraphicsScene):
             self.graph_changed.emit()
 
     def _refresh_node_highlights(self):
-        """Node nào là endpoint của 1 dây đang được chọn hoặc hover → sáng
-        viền. Tính tập trung để node nối nhiều dây vẫn đúng (sáng nếu có ÍT
-        NHẤT 1 dây active)."""
-        active = set()
+        """Node + nub port là endpoint của 1 dây đang được chọn hoặc hover →
+        sáng lên. Tính tập trung để node/port nối nhiều dây vẫn đúng (sáng nếu
+        có ÍT NHẤT 1 dây active)."""
+        active_nodes = set()
+        active_ports = set()   # (node_id, port_name, is_output)
         for ci in self._conn_items.values():
             if ci.isSelected() or getattr(ci, "_hovered", False):
-                active.add(ci.conn.src_id)
-                active.add(ci.conn.dst_id)
+                active_nodes.add(ci.conn.src_id)
+                active_nodes.add(ci.conn.dst_id)
+                active_ports.add((ci.conn.src_id, ci.conn.src_port, True))
+                active_ports.add((ci.conn.dst_id, ci.conn.dst_port, False))
         for nid, ni in self._node_items.items():
-            ni.set_highlight(nid in active)
+            ni.set_highlight(nid in active_nodes)
+            ni.apply_port_highlights(active_ports)
 
     def unlink_connection(self, conn_id: str):
         """Xoá 1 connection (qua right-click dây → Unlink)."""

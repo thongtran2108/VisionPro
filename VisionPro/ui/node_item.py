@@ -52,6 +52,7 @@ class PortItem(QGraphicsEllipseItem):
         self.is_output  = is_output
         self.port_index = index
         self._hovered   = False
+        self._highlight = False   # sáng khi dây nối tới port này được chọn/hover
 
         self.setAcceptHoverEvents(True)
         self.setCursor(QCursor(Qt.CrossCursor))
@@ -61,12 +62,22 @@ class PortItem(QGraphicsEllipseItem):
 
     def _update_brush(self):
         base = C_PORT_OUT if self.is_output else C_PORT_IN
-        if self._hovered:
+        if self._highlight:
+            # Endpoint của dây đang chọn/hover → nub vàng sáng, viền cam đậm.
+            self.setBrush(QBrush(QColor(255, 235, 80)))
+            self.setPen(QPen(QColor(255, 170, 40), 2.5))
+        elif self._hovered:
             self.setBrush(QBrush(base))
             self.setPen(QPen(Qt.white, 2))
         else:
             self.setBrush(QBrush(base.darker(200)))
             self.setPen(QPen(base, 1.5))
+
+    def set_highlight(self, on: bool):
+        on = bool(on)
+        if on != self._highlight:
+            self._highlight = on
+            self._update_brush()
 
     def hoverEnterEvent(self, event):
         self._hovered = True
@@ -508,12 +519,21 @@ class NodeItem(QGraphicsItem):
         self.setToolTip(tip)
 
     def set_highlight(self, on: bool):
-        """Bật/tắt viền sáng (gọi từ scene khi 1 dây nối tới node được chọn
-        hoặc hover) — giúp biết dây đó nối những node nào."""
+        """Bat/tat vien sang khi 1 day noi toi node dang duoc chon/hover —
+        giup biet day do noi nhung node nao."""
         on = bool(on)
         if on != self._highlight:
             self._highlight = on
             self.update()
+
+    def apply_port_highlights(self, active_ports: set):
+        """Sáng riêng các nub port là endpoint của dây active.
+        active_ports = set of (node_id, port_name, is_output)."""
+        nid = self.node.node_id
+        for p in self._out_ports:
+            p.set_highlight((nid, p.port_name, True) in active_ports)
+        for p in self._in_ports:
+            p.set_highlight((nid, p.port_name, False) in active_ports)
 
     def _output_port_names(self) -> List[str]:
         """Tên các output ports = tool.outputs + extra terminals + extra outputs
