@@ -3567,7 +3567,7 @@ TOOL_REGISTRY: List[ToolDef] = [
        tooltip="Tìm kiếm trong ±angle_range độ. 0=không xoay"),
      P("angle_step","Angle Step (°)","float",5,1,45,step=1),
      P("num_results","Max Results","int",1,1,20),
-     P("coarse_downscale","Coarse downscale","enum","1",
+     P("coarse_downscale","Coarse downscale","enum","2",
        choices=["1","2","4"],
        tooltip="Speed-up: search ở 1/ds resolution. 2 ≈ 4× nhanh, 4 ≈ 16× nhanh. "
                "Độ chính xác ±ds pixel"),
@@ -3602,7 +3602,7 @@ TOOL_REGISTRY: List[ToolDef] = [
        tooltip="Tìm kiếm trong ±angle_range độ. 0=không xoay"),
      P("angle_step","Angle Step (°)","float",5,1,45,step=1),
      P("num_results","Max Results","int",1,1,20),
-     P("coarse_downscale","Coarse downscale","enum","1",
+     P("coarse_downscale","Coarse downscale","enum","2",
        choices=["1","2","4"],
        tooltip="Speed-up: search ở 1/ds resolution. 2 ≈ 4× nhanh, 4 ≈ 16× nhanh. "
                "Vị trí ±ds pixel; Perspective/PatFlex tự refine ở full-res"),

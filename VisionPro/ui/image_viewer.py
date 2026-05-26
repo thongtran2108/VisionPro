@@ -39,6 +39,22 @@ class ZoomableImageWidget(QWidget):
         self._show_grid = False
         self._zoom_text = ""
 
+        # Pan/zoom mượt với ảnh lớn (20MP): vẽ nhanh (FastTransformation)
+        # trong lúc tương tác, hẹn 1 lần repaint smooth sau khi dừng ~120ms.
+        self._interacting = False
+        self._smooth_timer = QTimer(self)
+        self._smooth_timer.setSingleShot(True)
+        self._smooth_timer.setInterval(120)
+        self._smooth_timer.timeout.connect(self._end_interaction)
+
+    def _begin_interaction(self):
+        self._interacting = True
+        self._smooth_timer.start()   # restart → smooth lại sau khi dừng
+
+    def _end_interaction(self):
+        self._interacting = False
+        self.update()
+
     # ── Image ───────────────────────────────────────────────────
     def set_image(self, arr: Optional[np.ndarray]):
         if arr is None:
@@ -103,12 +119,15 @@ class ZoomableImageWidget(QWidget):
         self._offset = QPointF(cx - img_cx * self._scale,
                                cy - img_cy * self._scale)
         self._zoom_text = f"{self._scale * 100:.0f}%"
+        self._begin_interaction()
         self.update()
 
     # ── Paint ───────────────────────────────────────────────────
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        # Smooth chỉ khi đứng yên; lúc pan/zoom dùng fast → không giật ảnh 20MP.
+        painter.setRenderHint(QPainter.SmoothPixmapTransform,
+                              not self._interacting)
         painter.fillRect(self.rect(), QColor(5, 8, 16))
 
         if not self._pixmap:
@@ -161,6 +180,7 @@ class ZoomableImageWidget(QWidget):
         self._offset = QPointF(pos.x() - img_x * self._scale,
                                pos.y() - img_y * self._scale)
         self._zoom_text = f"{self._scale * 100:.0f}%"
+        self._begin_interaction()
         self.update()
         event.accept()
 
@@ -176,6 +196,7 @@ class ZoomableImageWidget(QWidget):
             d = pos - self._pan_start
             self._pan_start = pos
             self._offset += QPointF(d.x(), d.y())
+            self._begin_interaction()
             self.update()
 
         # Pixel info
