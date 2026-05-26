@@ -3235,14 +3235,43 @@ def _yolo_empty_outputs(vis=None) -> dict:
             "confidence": 0.0, "class": "", "cls_id": -1}
 
 
-# Cách chọn 1 detection cấp giá trị cho port scalar x/y/w/h/cx/cy/conf/…
-# Label khớp vocabulary blob tool (selection_mode) để nhất quán toàn app.
+# `xy_select` xác định 1 ĐIỂM trên bbox của MỖI detection (point type),
+# giống Output Selection của blob tool nhưng áp dụng per-object. Mỗi
+# detection lưu thêm px,py = điểm này (vào port `detections` + dùng được
+# cho per-object Output Terminals). Top-level x,y = px,py của primary object.
+# Label khớp vocabulary blob tool để nhất quán toàn app.
 YOLO_XY_MODES = ["Best (max conf)", "Highest (topmost)", "Lowest (bottommost)",
                  "First (leftmost)", "Last (rightmost)"]
 
 
+def _selection_point(d: dict, mode: str):
+    """(px,py) trên bbox của 1 detection theo `mode`:
+       Best    → góc trên-trái (x1,y1)  [giữ semantic x,y gốc]
+       Highest → giữa cạnh trên  (cx,y1)
+       Lowest  → giữa cạnh dưới  (cx,y2)
+       First   → giữa cạnh trái  (x1,cy)
+       Last    → giữa cạnh phải  (x2,cy)"""
+    x1 = int(d.get("x1", d.get("x", d.get("cx", 0))))
+    y1 = int(d.get("y1", d.get("y", d.get("cy", 0))))
+    x2 = int(d.get("x2", x1)); y2 = int(d.get("y2", y1))
+    cx = int(d.get("cx", (x1 + x2) // 2)); cy = int(d.get("cy", (y1 + y2) // 2))
+    m = str(mode or "").lower()
+    if m.startswith("highest"): return cx, y1
+    if m.startswith("lowest"):  return cx, y2
+    if m.startswith("first"):   return x1, cy
+    if m.startswith("last"):    return x2, cy
+    return x1, y1   # Best / default → góc trên-trái
+
+
+def _apply_selection_points(detections: list, mode: str):
+    """Set px,py cho MỖI detection theo `mode` (per-object selection point).
+    Đổ vào port `detections` + cho per-object Output Terminals dùng."""
+    for d in detections:
+        d["px"], d["py"] = _selection_point(d, mode)
+
+
 def _select_detection(detections: list, mode: str):
-    """Pick 1 detection dict theo `mode`. None nếu list rỗng.
+    """Pick primary detection (cấp scalar top-level) theo `mode`. None nếu rỗng.
        Best    → conf cao nhất (default)
        Highest → trên cùng ảnh (cy nhỏ nhất)
        Lowest  → dưới cùng ảnh (cy lớn nhất)
@@ -3266,10 +3295,11 @@ def _select_detection(detections: list, mode: str):
 
 
 def _yolo_xy_outputs(detections: list, mode: str = "Best (max conf)") -> dict:
-    """Pick 1 detection theo `mode` → scalar outputs x/y/w/h/cx/cy/
-    confidence/class/cls_id. Mặc định 'Best' = conf cao nhất (giữ nguyên
-    hành vi cũ để không phá chain Crop ROI / Fixture). Polygon (seg)
-    detection không có x1..x2 thì fallback bbox quanh polygon (đã có cx/cy)."""
+    """Top-level scalar outputs = primary detection theo `mode`. x,y =
+    selection point (px,py) của primary; w/h/cx/cy/conf/class = bbox của
+    primary. Mặc định 'Best' = max conf + góc trên-trái (giữ nguyên hành vi
+    cũ để không phá chain Crop ROI / Fixture). Per-object points ở port
+    `detections` (px,py mỗi dict)."""
     if not detections:
         return {"x": 0, "y": 0, "w": 0, "h": 0, "cx": 0, "cy": 0,
                 "confidence": 0.0, "class": "", "cls_id": -1}
@@ -3278,8 +3308,9 @@ def _yolo_xy_outputs(detections: list, mode: str = "Best (max conf)") -> dict:
     y1 = int(best.get("y1", best.get("cy", 0)))
     x2 = int(best.get("x2", x1))
     y2 = int(best.get("y2", y1))
+    px, py = _selection_point(best, mode)
     return {
-        "x": x1, "y": y1,
+        "x": int(px), "y": int(py),
         "w": max(0, x2 - x1), "h": max(0, y2 - y1),
         "cx": int(best.get("cx", (x1 + x2) // 2)),
         "cy": int(best.get("cy", (y1 + y2) // 2)),
@@ -3289,17 +3320,21 @@ def _yolo_xy_outputs(detections: list, mode: str = "Best (max conf)") -> dict:
     }
 
 
-def _draw_xy_marker(vis, out: dict, mode: str, detections: list, s: float):
-    """Ring magenta tại detection được chọn cho x,y output — user thấy rõ
-    detection nào đang cấp giá trị cho port. Chỉ vẽ khi mode != Best (giữ
-    ảnh của flow cũ không đổi) và có detection."""
+def _draw_sel_markers(vis, detections: list, mode: str, s: float):
+    """Chấm magenta tại selection point (px,py) của MỖI detection + ring to
+    tại primary (cấp top-level x,y). Skip khi mode = Best để giữ ảnh mặc
+    định sạch như cũ."""
     if vis is None or not detections:
         return
     if str(mode or "").lower().startswith("best"):
         return
-    cx = int(out.get("cx", 0)); cy = int(out.get("cy", 0))
-    cv2.circle(vis, (cx, cy), _t(5, s), (255, 0, 255), -1)
-    cv2.circle(vis, (cx, cy), _t(14, s), (255, 0, 255), _t(2, s))
+    for d in detections:
+        px = int(d.get("px", d.get("cx", 0))); py = int(d.get("py", d.get("cy", 0)))
+        cv2.circle(vis, (px, py), _t(4, s), (255, 0, 255), -1)
+    primary = _select_detection(detections, mode)
+    if primary is not None:
+        px = int(primary.get("px", 0)); py = int(primary.get("py", 0))
+        cv2.circle(vis, (px, py), _t(13, s), (255, 0, 255), _t(2, s))
 
 
 def proc_yolo_detect(inputs, params):
@@ -3350,9 +3385,10 @@ def proc_yolo_detect(inputs, params):
             out = {"image": vis, "detections": detections,
                    "count": n, "pass": is_pass}
             sel_mode = params.get("xy_select", "Best (max conf)")
+            _apply_selection_points(detections, sel_mode)  # px,py mỗi object
             out.update(_yolo_xy_outputs(detections, sel_mode))
-            _draw_xy_marker(vis, out, sel_mode, detections, s)
-            # Per-object extra terminals: x_1, cx_2, conf_3, ... do user pick
+            _draw_sel_markers(vis, detections, sel_mode, s)
+            # Per-object extra terminals: px_obj1, py_obj2, conf_3... do user pick
             _apply_extra_terminals(out, detections, params)
             return out
         except Exception as e:
@@ -3452,8 +3488,9 @@ def proc_yolo_detect(inputs, params):
         out = {"image": vis, "detections": detections,
                "count": n, "pass": is_pass}
         sel_mode = params.get("xy_select", "Best (max conf)")
+        _apply_selection_points(detections, sel_mode)  # px,py mỗi object
         out.update(_yolo_xy_outputs(detections, sel_mode))
-        _draw_xy_marker(vis, out, sel_mode, detections, s)
+        _draw_sel_markers(vis, detections, sel_mode, s)
         _apply_extra_terminals(out, detections, params)
         return out
 
@@ -4380,11 +4417,11 @@ TOOL_REGISTRY: List[ToolDef] = [
   ToolDef("yolo_detect","YOLO Detect","YOLO",
     "YOLOv8/v11 Object Detection & Segmentation. Add file model train sẵn "
     "(.pt hoặc .onnx) rồi chỉnh threshold predict bên dưới. "
-    "Train mới: mở YOLO Studio từ toolbar. Outputs x/y/w/h mặc định là best "
-    "detection (max conf); đổi 'Output x,y from' để lấy detection trên/dưới/"
-    "trái/phải cùng. Chain vào Crop ROI / Fixture. "
+    "Train mới: mở YOLO Studio từ toolbar. 'Output Selection' chọn 1 điểm "
+    "(px,py) trên MỖI vật thể (góc/giữa cạnh trên/dưới/trái/phải); top-level "
+    "x/y = điểm của primary object để chain vào Crop ROI / Fixture. "
     "Right-click node → ➕ Add / Manage Output Terminals để thêm port "
-    "x_2, cy_3, conf_5... cho per-object access.",
+    "px_obj1, py_obj2, conf_3... cho per-object access.",
     "#1a0a3a","🤖",
     [PortDef("image","image")],
     [PortDef("image","image"),PortDef("detections","any"),
@@ -4405,15 +4442,17 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("max_det","Max Detections","int",300,1,1000),
      P("min_count","Min Objects (PASS)","int",1,0,1000),
      P("max_count","Max Objects (PASS)","int",9999,0,10000),
-     P("xy_select","Output x,y from","enum","Best (max conf)",
+     P("xy_select","Output Selection","enum","Best (max conf)",
        choices=YOLO_XY_MODES,
-       tooltip="Chọn detection nào cấp giá trị cho port x/y/w/h/cx/cy/"
-               "confidence/class/cls_id. Mặc định 'Best' = conf cao nhất.\n"
-               "• Highest: trên cùng ảnh (cy nhỏ nhất)\n"
-               "• Lowest:  dưới cùng ảnh (cy lớn nhất)\n"
-               "• First:   trái nhất (cx nhỏ nhất)\n"
-               "• Last:    phải nhất (cx lớn nhất)\n"
-               "Khi != Best, ring magenta đánh dấu detection được chọn."),
+       tooltip="Chọn 1 ĐIỂM trên bbox của MỖI vật thể → lưu px,py vào port "
+               "'detections' + dùng cho per-object Output Terminals (px_obj1, "
+               "py_obj2...). Top-level x,y = điểm của primary object.\n"
+               "• Best:    góc trên-trái, primary = conf cao nhất (mặc định)\n"
+               "• Highest: giữa cạnh trên  (cx,y1)\n"
+               "• Lowest:  giữa cạnh dưới  (cx,y2)\n"
+               "• First:   giữa cạnh trái  (x1,cy)\n"
+               "• Last:    giữa cạnh phải  (x2,cy)\n"
+               "Khi != Best: chấm magenta trên mỗi vật thể, ring to ở primary."),
      P("show_labels","Display: show labels on image","bool",False,
        tooltip="Bật để vẽ '{class} {conf}' cạnh từng detection lên ảnh output. Mặc định tắt — kết quả vẫn có trong log & detections port."),
      P("seg_show_bbox","Seg: draw bbox instead of polygon","bool",True,
@@ -4421,7 +4460,7 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("fill_segments","Seg: fill polygon (30% alpha)","bool",False,
        tooltip="Seg model: tô màu nửa-trong-suốt bên trong polygon. Mặc định OFF — chỉ vẽ outline cho ảnh sạch.")],
     proc_yolo_detect,"ultralytics YOLO",
-    terminal_fields=["x","y","w","h","cx","cy","x1","y1","x2","y2",
+    terminal_fields=["px","py","x","y","w","h","cx","cy","x1","y1","x2","y2",
                       "conf","class","cls_id"],
     terminal_source_key="detections"),
 
