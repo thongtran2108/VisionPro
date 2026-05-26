@@ -3321,9 +3321,8 @@ def _yolo_xy_outputs(detections: list, mode: str = "Best (max conf)") -> dict:
 
 
 def _draw_sel_markers(vis, detections: list, mode: str, s: float):
-    """Chấm magenta tại selection point (px,py) của MỖI detection + ring to
-    tại primary (cấp top-level x,y). Skip khi mode = Best để giữ ảnh mặc
-    định sạch như cũ."""
+    """Chấm magenta tại selection point (px,py) của MỖI detection. Skip khi
+    mode = Best để giữ ảnh mặc định sạch như cũ."""
     if vis is None or not detections:
         return
     if str(mode or "").lower().startswith("best"):
@@ -3331,10 +3330,6 @@ def _draw_sel_markers(vis, detections: list, mode: str, s: float):
     for d in detections:
         px = int(d.get("px", d.get("cx", 0))); py = int(d.get("py", d.get("cy", 0)))
         cv2.circle(vis, (px, py), _t(4, s), (255, 0, 255), -1)
-    primary = _select_detection(detections, mode)
-    if primary is not None:
-        px = int(primary.get("px", 0)); py = int(primary.get("py", 0))
-        cv2.circle(vis, (px, py), _t(13, s), (255, 0, 255), _t(2, s))
 
 
 def proc_yolo_detect(inputs, params):
