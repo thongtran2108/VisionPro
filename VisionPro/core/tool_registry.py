@@ -2244,13 +2244,18 @@ def proc_distance_point(inputs, params):
     vis=_bgr(img.copy()) if img is not None else np.zeros((200,400,3),dtype=np.uint8)
     s = _draw_scale(vis)
     show_labels = bool(params.get("show_labels", True))
-    # Fail → đỏ cho cả line + 2 điểm + label, dễ thấy NG trên ảnh output.
+    # Fail → đỏ cho cả mũi tên + label, dễ thấy NG trên ảnh output.
     fail_color = (0, 0, 255)
     line_color = fail_color if not is_pass else (0, 220, 255)
-    pt_color   = fail_color if not is_pass else (0, 200, 255)
-    cv2.line(vis,(int(x1),int(y1)),(int(x2),int(y2)),line_color,_t(2,s))
-    cv2.circle(vis,(int(x1),int(y1)),_t(5,s),pt_color,-1)
-    cv2.circle(vis,(int(x2),int(y2)),_t(5,s),pt_color,-1)
+    p1 = (int(x1), int(y1))
+    p2 = (int(x2), int(y2))
+    # 2 đầu là mũi tên (dimension-line) thay vì chấm tròn. tipLength tính
+    # theo px cố định → đầu mũi tên không phình/teo theo độ dài đoạn.
+    head = min(0.45, (14.0 * s) / dist_px) if dist_px > 1e-6 else 0.45
+    cv2.arrowedLine(vis, p2, p1, line_color, _t(2, s),
+                    line_type=cv2.LINE_AA, tipLength=head)
+    cv2.arrowedLine(vis, p1, p2, line_color, _t(2, s),
+                    line_type=cv2.LINE_AA, tipLength=head)
     mx,my=int((x1+x2)/2),int((y1+y2)/2)
     label_rects = []
     if show_labels:
