@@ -130,6 +130,32 @@ def _fs(base, s):
     """Scaled font scale for cv2.putText."""
     return float(base) * s
 
+def _arrowhead(img, tip, tail, color, size):
+    """Vẽ đầu mũi tên dạng tam giác ĐẶC tại `tip`, hướng (tail→tip).
+    `size` = chiều dài đầu mũi tên (px). Khác cv2.arrowedLine (vốn vẽ
+    đầu hở dạng 2 nét chữ V)."""
+    dx = tip[0] - tail[0]; dy = tip[1] - tail[1]
+    L = math.hypot(dx, dy)
+    if L < 1e-6:
+        return
+    ux, uy = dx / L, dy / L      # hướng tail→tip
+    nx, ny = -uy, ux             # vuông góc
+    bx = tip[0] - ux * size; by = tip[1] - uy * size
+    half = size * 0.55
+    pts = np.array([[int(tip[0]), int(tip[1])],
+                    [int(bx + nx * half), int(by + ny * half)],
+                    [int(bx - nx * half), int(by - ny * half)]],
+                   dtype=np.int32)
+    cv2.fillConvexPoly(img, pts, color, cv2.LINE_AA)
+
+def _draw_dim_arrow(img, p1, p2, color, s, thickness=2):
+    """Đường đo với mũi tên tam giác đặc ở cả 2 đầu (dimension-line)."""
+    q1 = (int(p1[0]), int(p1[1])); q2 = (int(p2[0]), int(p2[1]))
+    cv2.line(img, q1, q2, color, _t(thickness, s), cv2.LINE_AA)
+    size = max(7.0, 15.0 * s)
+    _arrowhead(img, q1, q2, color, size)
+    _arrowhead(img, q2, q1, color, size)
+
 def _draw_pass_fail(img, is_pass, text=""):
     vis = _bgr(img.copy())
     # Summary log only — không vẽ banner PASS/FAIL lên ảnh.
@@ -2247,15 +2273,8 @@ def proc_distance_point(inputs, params):
     # Fail → đỏ cho cả mũi tên + label, dễ thấy NG trên ảnh output.
     fail_color = (0, 0, 255)
     line_color = fail_color if not is_pass else (0, 220, 255)
-    p1 = (int(x1), int(y1))
-    p2 = (int(x2), int(y2))
-    # 2 đầu là mũi tên (dimension-line) thay vì chấm tròn. tipLength tính
-    # theo px cố định → đầu mũi tên không phình/teo theo độ dài đoạn.
-    head = min(0.45, (14.0 * s) / dist_px) if dist_px > 1e-6 else 0.45
-    cv2.arrowedLine(vis, p2, p1, line_color, _t(2, s),
-                    line_type=cv2.LINE_AA, tipLength=head)
-    cv2.arrowedLine(vis, p1, p2, line_color, _t(2, s),
-                    line_type=cv2.LINE_AA, tipLength=head)
+    # 2 đầu là mũi tên tam giác đặc (dimension-line) thay vì chấm tròn.
+    _draw_dim_arrow(vis, (x1, y1), (x2, y2), line_color, s)
     mx,my=int((x1+x2)/2),int((y1+y2)/2)
     label_rects = []
     if show_labels:
@@ -2369,14 +2388,8 @@ def proc_distance_point_line(inputs, params):
         # Endpoints của segment định nghĩa line
         cv2.circle(vis, (int(lx1), int(ly1)), _t(5, s), (255, 180, 0), -1)
         cv2.circle(vis, (int(lx2), int(ly2)), _t(5, s), (255, 180, 0), -1)
-    # Đoạn vuông góc điểm→chân: mũi tên 2 đầu thay vì chấm tròn.
-    # tipLength chuẩn hóa theo px → đầu mũi tên không phình/teo theo độ dài.
-    pp = (int(px), int(py)); pf = (int(fx), int(fy))
-    head = min(0.45, (14.0 * s) / dist_px) if dist_px > 1e-6 else 0.45
-    cv2.arrowedLine(vis, pf, pp, (0, 220, 255), _t(2, s),
-                    line_type=cv2.LINE_AA, tipLength=head)
-    cv2.arrowedLine(vis, pp, pf, (0, 220, 255), _t(2, s),
-                    line_type=cv2.LINE_AA, tipLength=head)
+    # Đoạn vuông góc điểm→chân: mũi tên tam giác đặc 2 đầu thay vì chấm.
+    _draw_dim_arrow(vis, (px, py), (fx, fy), (0, 220, 255), s)
 
     if show_labels:
         midx = int((px + fx) / 2); midy = int((py + fy) / 2)
