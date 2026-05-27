@@ -152,10 +152,10 @@ def _draw_dim_arrow(img, p1, p2, color, s, thickness=2):
     """Đường đo với mũi tên tam giác đặc ở cả 2 đầu (dimension-line)."""
     q1 = (int(p1[0]), int(p1[1])); q2 = (int(p2[0]), int(p2[1]))
     cv2.line(img, q1, q2, color, _t(thickness, s), cv2.LINE_AA)
-    # Đầu mũi tên ~18% đoạn đo, kẹp [4px, 8px×scale] → không quá to,
-    # đoạn ngắn cũng không bị đầu mũi tên lấn hết.
+    # Đầu mũi tên = 20% chiều dài đoạn đo (mẫu C). Floor 4px để đoạn rất
+    # ngắn vẫn thấy, trần 50% để đầu không lấn hết đoạn.
     seg = math.hypot(q2[0] - q1[0], q2[1] - q1[1])
-    size = max(4.0, min(8.0 * s, seg * 0.18))
+    size = min(seg * 0.5, max(4.0, seg * 0.20))
     _arrowhead(img, q1, q2, color, size)
     _arrowhead(img, q2, q1, color, size)
 
