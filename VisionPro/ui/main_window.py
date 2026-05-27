@@ -672,6 +672,7 @@ class MainWindow(QMainWindow):
             self._graph = FlowGraph.load(path)
             self._current_file = path
             self._rebuild_canvas()
+            self._kick_yolo_warmup()
             self._add_recent_file(path)
             # _rebuild_canvas → _on_graph_changed → _mark_dirty (false
             # positive vì đó là load chứ không phải edit). Reset lại.
@@ -682,6 +683,19 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Cannot load:\n{e}")
             return False
+
+    def _kick_yolo_warmup(self):
+        """Sau khi load pipeline: warm up model YOLO ở thread nền để lần mở node
+        config / RUN đầu không phải đợi ~4s (import torch + build model)."""
+        try:
+            from core.tool_registry import yolo_prefetch_model
+        except Exception:
+            return
+        for node in self._graph.nodes.values():
+            if getattr(node.tool, "tool_id", "") == "yolo_detect":
+                p = node.params.get("model_path", "")
+                if p:
+                    yolo_prefetch_model(p)
 
     @staticmethod
     def _get_recent_files() -> list:

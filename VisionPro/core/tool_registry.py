@@ -2967,6 +2967,11 @@ _YOLO_ONNX_CACHE: Dict[str, Tuple[Any, List[str], str, float]] = {}
 _YOLO_PT_CACHE: Dict[str, Tuple[Any, float]] = {}
 _TORCH_THREADS_CAPPED = False
 
+# Warmup: nạp torch + model ở thread nền ngay khi load .aoi / chọn model →
+# lần mở node config hoặc RUN đầu là cache hit thay vì đợi ~4s import torch.
+_YOLO_WARMUP_LOCK = _threading.Lock()
+_YOLO_WARMUP_THREADS: Dict[str, "Optional[_threading.Thread]"] = {}
+
 
 def _cap_torch_threads():
     """Giới hạn intra-op threads của torch để chừa core cho UI thread (Qt) →
@@ -3147,6 +3152,64 @@ def _yolo_load_onnx(onnx_path: str) -> Tuple[Any, List[str], str]:
     return sess, names, backend
 
 
+def _yolo_onnx_input_size(sess, backend: str) -> Optional[int]:
+    """Square input size (H==W) của ONNX nếu là static shape, else None.
+    Export dynamic=False khoá input ở size lúc export → phải letterbox đúng
+    size đó (không thì onnxruntime lỗi shape / cv2.dnn cho kết quả sai)."""
+    if backend != "onnxruntime":
+        return None
+    try:
+        shp = sess.get_inputs()[0].shape  # [N, C, H, W]
+        if len(shp) == 4:
+            h, w = shp[2], shp[3]
+            if isinstance(h, int) and isinstance(w, int) and h == w > 0:
+                return int(h)
+    except Exception:
+        pass
+    return None
+
+
+def _yolo_warmup_target(model_path: str):
+    """Nạp đúng backend mà proc_yolo_detect sẽ dùng vào cache (mirror logic
+    fast-path). Chạy trong thread nền qua yolo_prefetch_model."""
+    ext = os.path.splitext(model_path)[1].lower()
+    is_seg = "-seg" in os.path.basename(model_path).lower()
+    if ext == ".onnx":
+        _yolo_load_onnx(model_path)
+        return
+    onnx_sib = os.path.splitext(model_path)[0] + ".onnx"
+    if (not is_seg) and os.path.exists(onnx_sib):
+        try:
+            if os.path.getmtime(onnx_sib) >= os.path.getmtime(model_path):
+                _yolo_load_onnx(onnx_sib)
+                return
+        except OSError:
+            pass
+    _yolo_load_pt(model_path)
+
+
+def yolo_prefetch_model(path: str):
+    """Warm up model YOLO ở thread daemon nền → lần mở node config / RUN đầu là
+    cache hit thay vì đợi ~4s (import torch + build model) trên UI/run path.
+    Idempotent + thread-safe: bỏ qua nếu warmup cùng path đang chạy."""
+    if not path or not os.path.exists(path):
+        return
+    with _YOLO_WARMUP_LOCK:
+        t = _YOLO_WARMUP_THREADS.get(path)
+        if t is not None and t.is_alive():
+            return
+
+        def _work():
+            try:
+                _yolo_warmup_target(path)
+            except Exception:
+                pass
+
+        t = _threading.Thread(target=_work, daemon=True, name="yolo-warmup")
+        _YOLO_WARMUP_THREADS[path] = t
+    t.start()
+
+
 def _yolo_onnx_predict(sess, backend: str, blob: np.ndarray) -> np.ndarray:
     """Run inference. Trả về output[0] dạng (1, 4+nc, N) hoặc (1, N, 4+nc).
     YOLOv8 export default = (1, 4+nc, N)."""
@@ -3222,6 +3285,14 @@ def _yolo_detect_onnx(img: np.ndarray, onnx_path: str, params: dict,
     """ONNX/cv2dnn detect path — vẽ box lên vis, trả về (detections, backend)."""
     sess, names, backend = _yolo_load_onnx(onnx_path)
     imgsz = int(params.get("imgsz", 640))
+    # ONNX export dynamic=False có input CỐ ĐỊNH theo imgsz lúc export. Phải
+    # letterbox đúng size đó — nếu lệch param thì onnxruntime lỗi shape (fallback
+    # torch) hoặc cv2.dnn cho box sai. Ưu tiên size thật của model.
+    model_sz = _yolo_onnx_input_size(sess, backend)
+    if model_sz and model_sz != imgsz:
+        print(f"[YOLO/onnx] imgsz param={imgsz} ≠ model input={model_sz} "
+              f"→ dùng {model_sz}")
+        imgsz = model_sz
     canvas, scale, pad_x, pad_y = _yolo_letterbox(_bgr(img), imgsz)
     blob = cv2.dnn.blobFromImage(canvas, scalefactor=1 / 255.0,
                                   size=(imgsz, imgsz), swapRB=True,
@@ -3399,7 +3470,23 @@ def proc_yolo_detect(inputs, params):
                       else os.path.splitext(model_path)[0] + ".onnx")
     is_seg = "-seg" in os.path.basename(model_path).lower()
 
-    if (not is_seg) and os.path.exists(onnx_candidate):
+    use_onnx = False
+    if ext == ".onnx":
+        use_onnx = os.path.exists(onnx_candidate)
+    elif (not is_seg) and os.path.exists(onnx_candidate):
+        # User chọn .pt nhưng cạnh đó có sibling .onnx. Chỉ auto-switch nếu .onnx
+        # KHÔNG cũ hơn .pt — sibling stale (sót lại từ lần train trước) sẽ chạy
+        # sai weights mà user tưởng đang chạy .pt.
+        try:
+            use_onnx = (os.path.getmtime(onnx_candidate)
+                        >= os.path.getmtime(model_path))
+            if not use_onnx:
+                print(f"[YOLO] {os.path.basename(onnx_candidate)} cũ hơn "
+                      f"{os.path.basename(model_path)} → bỏ qua ONNX, dùng .pt")
+        except OSError:
+            use_onnx = False
+
+    if use_onnx:
         try:
             detections, backend = _yolo_detect_onnx(
                 img, onnx_candidate, params, vis, s)
