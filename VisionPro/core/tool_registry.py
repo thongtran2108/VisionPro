@@ -141,7 +141,7 @@ def _arrowhead(img, tip, tail, color, size):
     ux, uy = dx / L, dy / L      # hướng tail→tip
     nx, ny = -uy, ux             # vuông góc
     bx = tip[0] - ux * size; by = tip[1] - uy * size
-    half = size * 0.55
+    half = size * 0.45
     pts = np.array([[int(tip[0]), int(tip[1])],
                     [int(bx + nx * half), int(by + ny * half)],
                     [int(bx - nx * half), int(by - ny * half)]],
@@ -152,7 +152,10 @@ def _draw_dim_arrow(img, p1, p2, color, s, thickness=2):
     """Đường đo với mũi tên tam giác đặc ở cả 2 đầu (dimension-line)."""
     q1 = (int(p1[0]), int(p1[1])); q2 = (int(p2[0]), int(p2[1]))
     cv2.line(img, q1, q2, color, _t(thickness, s), cv2.LINE_AA)
-    size = max(7.0, 15.0 * s)
+    # Đầu mũi tên ~18% đoạn đo, kẹp [4px, 8px×scale] → không quá to,
+    # đoạn ngắn cũng không bị đầu mũi tên lấn hết.
+    seg = math.hypot(q2[0] - q1[0], q2[1] - q1[1])
+    size = max(4.0, min(8.0 * s, seg * 0.18))
     _arrowhead(img, q1, q2, color, size)
     _arrowhead(img, q2, q1, color, size)
 
