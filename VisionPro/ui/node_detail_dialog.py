@@ -2096,8 +2096,9 @@ class NodeDetailDialog(QDialog):
         lay.addWidget(note); lay.addStretch()
         return w
 
-    def _refresh_yolo_info(self):
-        """Đọc metadata model file → đổ vào panel info."""
+    def _refresh_yolo_info(self, autofill: bool = False):
+        """Đọc metadata model file → đổ vào panel info. autofill=True (khi user
+        vừa chọn model mới) → tự set 'Image Size' theo imgsz model train."""
         lbl = getattr(self, "_yolo_info_lbl", None)
         if lbl is None:
             return
@@ -2147,9 +2148,19 @@ class NodeDetailDialog(QDialog):
         else:
             backend_hint = "  • Chậm: PyTorch CPU (export .onnx để tăng tốc 3-4x)"
 
+        # Tự đề xuất 'Image Size' theo imgsz model đã train. Chỉ áp dụng khi
+        # user vừa chọn model mới (autofill) để không đè giá trị user tự chỉnh.
+        autofilled = False
+        if isinstance(imgsz, int) and imgsz > 0:
+            if autofill and self._node.params.get("imgsz") != imgsz:
+                autofilled = self._set_param_value("imgsz", int(imgsz))
+
+        imgsz_line = f"   Imgsz:   {imgsz}"
+        if autofilled:
+            imgsz_line += "   ← auto-set vào Image Size"
         text = (f"📦  {_os.path.basename(path)}  ({fmt}, {size_mb} MB)\n"
                 f"   Task:    {task}\n"
-                f"   Imgsz:   {imgsz}\n"
+                f"{imgsz_line}\n"
                 f"   Classes ({nc}): {names_preview}\n"
                 f"{backend_hint}")
         lbl.setText(text)
@@ -2158,6 +2169,21 @@ class NodeDetailDialog(QDialog):
             "color:#39ff14; font-size:11px; background:#0a0e1a;"
             "border:1px solid #1b4332; border-radius:4px;"
             "padding:8px; font-family:'Courier New';")
+
+    def _set_param_value(self, name: str, value) -> bool:
+        """Set 1 param + đồng bộ widget ParamRow (block signal tránh loop).
+        Trả True nếu đã đổi. Dùng cho auto-fill (vd YOLO imgsz theo model)."""
+        self._node.params[name] = value
+        pr = getattr(self, "_param_rows", {}).get(name)
+        if pr is not None:
+            ed = getattr(pr, "_editor", None)
+            if ed is not None and hasattr(ed, "setValue"):
+                ed.blockSignals(True)
+                try:
+                    ed.setValue(int(value))
+                finally:
+                    ed.blockSignals(False)
+        return True
 
     def _build_ports_widget(self) -> QWidget:
         tool = self._node.tool; w = QWidget(); lay = QVBoxLayout(w)
@@ -2754,9 +2780,10 @@ class NodeDetailDialog(QDialog):
         node.params[name] = value
 
         # YOLO Detect: model_path đổi → refresh info panel (lazy đọc metadata)
+        # + auto-set 'Image Size' theo imgsz model train (đề xuất resize).
         if (node.tool.tool_id == "yolo_detect" and name == "model_path"
                 and hasattr(self, "_yolo_info_lbl")):
-            self._refresh_yolo_info()
+            self._refresh_yolo_info(autofill=True)
 
         # Create Shape: chỉnh toạ độ tay → đồng bộ overlay (handle) ngay, kể cả
         # khi Auto Run tắt (ảnh output cập nhật khi Run).

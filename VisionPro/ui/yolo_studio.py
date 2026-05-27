@@ -1205,7 +1205,8 @@ class YoloStudioDialog(QDialog):
             "QPushButton:hover{background:#00d4ff;color:#000;}"
             "QPushButton:disabled{background:#1e2d45;color:#1e2d45;border-color:#1e2d45;}")
         self._btn_export_onnx.setToolTip(
-            "Export best.pt → best.onnx (FP32) cho CPU inference nhanh hơn 3-4x.\n"
+            "Export best.pt → best.onnx (FP32, dynamic-axes) cho CPU inference\n"
+            "nhanh hơn 3-4x mà accuracy KHỚP y hệt best.pt (letterbox giữ tỉ lệ).\n"
             "Tách khỏi pipeline train để nếu lỗi cũng không crash app.")
         self._btn_export_onnx.clicked.connect(self._export_onnx_clicked)
         btns_row.addWidget(self._btn_export_onnx)
@@ -2264,12 +2265,15 @@ class YoloStudioDialog(QDialog):
                 os.environ.setdefault("MPLBACKEND", "Agg")
                 from ultralytics import YOLO
                 m = YOLO(best_pt)
+                # dynamic=True → ONNX nhận input giữ tỉ lệ (letterbox chữ nhật)
+                # giống predict của .pt → accuracy ONNX KHỚP best.pt (thay vì
+                # bị ép vuông imgsz×imgsz làm lệch detection ở mép ảnh).
                 onnx_path = m.export(
                     format="onnx",
                     imgsz=imgsz,
                     simplify=True,
                     opset=12,
-                    dynamic=False,
+                    dynamic=True,
                     half=False,
                 )
                 # Sidecar classes.txt

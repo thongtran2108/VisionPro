@@ -3175,9 +3175,9 @@ def _shape_style_params():
 #  YOLO DETECTION
 # ═══════════════════════════════════════════════════════════════
 
-# Cache: {onnx_path: (session_or_net, names, backend, mtime)}
-# backend: "onnxruntime" | "cv2dnn"
-_YOLO_ONNX_CACHE: Dict[str, Tuple[Any, List[str], str, float]] = {}
+# Cache: {onnx_path: (session_or_net, names, backend, mtime, in_hw)}
+# backend: "onnxruntime" | "cv2dnn"; in_hw: (H,W) fixed | None dynamic | False unknown
+_YOLO_ONNX_CACHE: Dict[str, Tuple[Any, List[str], str, float, Any]] = {}
 
 # Cache model PyTorch (.pt): {path: (YOLO_model, mtime)}. Tránh nạp lại file
 # 20MB+ mỗi lần run / mỗi lần đọc metadata — nguyên nhân lag + memory churn.
@@ -3241,12 +3241,27 @@ def yolo_inspect_model(path: str) -> Dict[str, Any]:
                 info["input_shape"] = dims
                 if len(dims) >= 3 and isinstance(dims[-1], int):
                     info["imgsz"] = dims[-1]
+                info["dynamic"] = not (len(dims) == 4
+                                       and isinstance(dims[2], int)
+                                       and isinstance(dims[3], int))
                 # Task type từ metadata (ultralytics)
                 meta = {p.key: p.value for p in m.metadata_props}
                 if "task" in meta:
                     info["task"] = meta["task"]
                 if "stride" in meta:
                     info["stride"] = meta["stride"]
+                # imgsz từ metadata (dynamic-axes onnx có dims ký hiệu →
+                # dims[-1] không phải int; ultralytics lưu 'imgsz'='[H, W]').
+                if "imgsz" not in info and "imgsz" in meta:
+                    try:
+                        import ast
+                        v = ast.literal_eval(meta["imgsz"])
+                        if isinstance(v, (list, tuple)) and v:
+                            info["imgsz"] = int(v[-1])
+                        elif isinstance(v, int):
+                            info["imgsz"] = int(v)
+                    except Exception:
+                        pass
             except Exception:
                 pass
             info["ok"] = True
@@ -3303,6 +3318,26 @@ def _yolo_letterbox(img: np.ndarray, new_size: int = 640,
     return canvas, r, pad_x, pad_y
 
 
+def _yolo_letterbox_rect(img: np.ndarray, imgsz: int = 640, stride: int = 32,
+                         color: Tuple[int, int, int] = (114, 114, 114)
+                         ) -> Tuple[np.ndarray, float, int, int]:
+    """Letterbox giữ aspect-ratio + pad TỐI THIỂU sang rectangle chia hết
+    cho `stride` (giống ultralytics predict `auto=True`). Dùng cho ONNX
+    dynamic-axes → khớp y hệt accuracy của .pt (không có viền xám thừa như
+    letterbox vuông của model fixed-size). Trả (canvas, scale, pad_x, pad_y)."""
+    h, w = img.shape[:2]
+    r = min(imgsz / h, imgsz / w)              # cho phép scaleup (= predict default)
+    nw, nh = int(round(w * r)), int(round(h * r))
+    dw, dh = (imgsz - nw) % stride, (imgsz - nh) % stride
+    dw /= 2.0; dh /= 2.0
+    resized = cv2.resize(img, (nw, nh), interpolation=cv2.INTER_LINEAR)
+    top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+    left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+    canvas = cv2.copyMakeBorder(resized, top, bottom, left, right,
+                                cv2.BORDER_CONSTANT, value=color)
+    return canvas, r, left, top
+
+
 def _yolo_read_classes(onnx_path: str) -> List[str]:
     """Đọc class names từ ONNX metadata (ultralytics embed sẵn) →
     fallback sidecar `<model>.classes.txt` → fallback `class_<i>`."""
@@ -3332,13 +3367,43 @@ def _yolo_read_classes(onnx_path: str) -> List[str]:
     return []
 
 
-def _yolo_load_onnx(onnx_path: str) -> Tuple[Any, List[str], str]:
+def _onnx_input_hw(sess, backend: str, onnx_path: str):
+    """Spatial input shape của ONNX model:
+       • (H, W) ints  → model FIXED-size (vd export dynamic=False) → letterbox vuông.
+       • None          → model DYNAMIC axes → letterbox chữ nhật (khớp .pt).
+       • False         → không đọc được (cv2.dnn không có onnx pkg) → giữ
+                         hành vi cũ (letterbox vuông theo param imgsz)."""
+    try:
+        if backend == "onnxruntime":
+            shp = sess.get_inputs()[0].shape            # vd [1,3,640,640] | [1,3,'h','w']
+            if len(shp) == 4:
+                H, W = shp[2], shp[3]
+                if (isinstance(H, int) and isinstance(W, int)
+                        and H > 0 and W > 0):
+                    return (H, W)
+            return None
+        # cv2.dnn: thử đọc shape qua onnx pkg (best-effort)
+        import onnx
+        m = onnx.load(onnx_path, load_external_data=False)
+        dims = [d.dim_value for d in
+                m.graph.input[0].type.tensor_type.shape.dim]
+        if len(dims) == 4 and dims[2] > 0 and dims[3] > 0:
+            return (dims[2], dims[3])
+        return None
+    except ModuleNotFoundError:
+        return False        # onnx pkg thiếu (cv2.dnn path) → hành vi cũ
+    except Exception:
+        return None
+
+
+def _yolo_load_onnx(onnx_path: str) -> Tuple[Any, List[str], str, Any]:
     """Lazy-load + cache ONNX session. Ưu tiên onnxruntime (nhanh hơn,
-    multi-thread tối ưu); fallback cv2.dnn nếu chưa cài."""
+    multi-thread tối ưu); fallback cv2.dnn nếu chưa cài. Trả thêm `in_hw`
+    (xem _onnx_input_hw) để chọn kiểu letterbox cho đúng accuracy."""
     mtime = os.path.getmtime(onnx_path)
     cached = _YOLO_ONNX_CACHE.get(onnx_path)
     if cached and cached[3] == mtime:
-        return cached[0], cached[1], cached[2]
+        return cached[0], cached[1], cached[2], cached[4]
 
     names = _yolo_read_classes(onnx_path)
     sess = None
@@ -3360,8 +3425,9 @@ def _yolo_load_onnx(onnx_path: str) -> Tuple[Any, List[str], str]:
         sess = net
         backend = "cv2dnn"
 
-    _YOLO_ONNX_CACHE[onnx_path] = (sess, names, backend, mtime)
-    return sess, names, backend
+    in_hw = _onnx_input_hw(sess, backend, onnx_path)
+    _YOLO_ONNX_CACHE[onnx_path] = (sess, names, backend, mtime, in_hw)
+    return sess, names, backend, in_hw
 
 
 def _yolo_onnx_predict(sess, backend: str, blob: np.ndarray) -> np.ndarray:
@@ -3437,12 +3503,22 @@ def _yolo_postprocess(pred: np.ndarray, conf_thres: float, iou_thres: float,
 def _yolo_detect_onnx(img: np.ndarray, onnx_path: str, params: dict,
                        vis: np.ndarray, s: float) -> Tuple[List[dict], str]:
     """ONNX/cv2dnn detect path — vẽ box lên vis, trả về (detections, backend)."""
-    sess, names, backend = _yolo_load_onnx(onnx_path)
+    sess, names, backend, in_hw = _yolo_load_onnx(onnx_path)
     imgsz = int(params.get("imgsz", 640))
-    canvas, scale, pad_x, pad_y = _yolo_letterbox(_bgr(img), imgsz)
+    bgr = _bgr(img)
+    if isinstance(in_hw, tuple):
+        # Model FIXED-size → bắt buộc letterbox vuông đúng cạnh model yêu cầu.
+        canvas, scale, pad_x, pad_y = _yolo_letterbox(bgr, int(in_hw[1]))
+    elif in_hw is None:
+        # Model DYNAMIC axes → letterbox chữ nhật (giữ tỉ lệ, pad tối thiểu) →
+        # khớp y hệt accuracy của .pt.
+        canvas, scale, pad_x, pad_y = _yolo_letterbox_rect(bgr, imgsz)
+    else:
+        # Không đọc được shape (cv2.dnn thiếu onnx pkg) → giữ hành vi cũ.
+        canvas, scale, pad_x, pad_y = _yolo_letterbox(bgr, imgsz)
     blob = cv2.dnn.blobFromImage(canvas, scalefactor=1 / 255.0,
-                                  size=(imgsz, imgsz), swapRB=True,
-                                  crop=False)
+                                  size=(canvas.shape[1], canvas.shape[0]),
+                                  swapRB=True, crop=False)
     pred = _yolo_onnx_predict(sess, backend, blob)
     raw = _yolo_postprocess(
         pred,
@@ -4757,7 +4833,11 @@ TOOL_REGISTRY: List[ToolDef] = [
                     "ONNX (*.onnx);;All Files (*)"),
      P("confidence","Confidence","float",0.5,0.01,1.0,step=0.01),
      P("iou","IoU Threshold","float",0.45,0.01,1.0,step=0.01),
-     P("imgsz","Image Size","int",640,32,4096,step=32),
+     P("imgsz","Image Size","int",640,32,4096,step=32,
+       tooltip="Cạnh resize khi inference. Tự đề xuất theo imgsz model khi "
+               "add file. ONNX dynamic-axes (export từ Studio) dùng giá trị này "
+               "làm cạnh dài, giữ tỉ lệ → khớp accuracy .pt. ONNX fixed-size cũ "
+               "luôn chạy đúng cạnh đã export (bỏ qua giá trị này)."),
      P("max_det","Max Detections","int",300,1,1000),
      P("min_count","Min Objects (PASS)","int",1,0,1000),
      P("max_count","Max Objects (PASS)","int",9999,0,10000),
