@@ -2369,14 +2369,14 @@ def proc_distance_point_line(inputs, params):
         # Endpoints của segment định nghĩa line
         cv2.circle(vis, (int(lx1), int(ly1)), _t(5, s), (255, 180, 0), -1)
         cv2.circle(vis, (int(lx2), int(ly2)), _t(5, s), (255, 180, 0), -1)
-    # Foot of perpendicular
-    cv2.circle(vis, (int(fx), int(fy)), _t(5, s), (0, 220, 255), -1)
-    # Perpendicular segment from point to foot
-    cv2.line(vis, (int(px), int(py)), (int(fx), int(fy)),
-              (0, 220, 255), _t(2, s), cv2.LINE_AA)
-    # Point marker
-    cv2.circle(vis, (int(px), int(py)), _t(6, s), (0, 100, 255), -1)
-    cv2.circle(vis, (int(px), int(py)), _t(6, s), (255, 255, 255), _t(1, s))
+    # Đoạn vuông góc điểm→chân: mũi tên 2 đầu thay vì chấm tròn.
+    # tipLength chuẩn hóa theo px → đầu mũi tên không phình/teo theo độ dài.
+    pp = (int(px), int(py)); pf = (int(fx), int(fy))
+    head = min(0.45, (14.0 * s) / dist_px) if dist_px > 1e-6 else 0.45
+    cv2.arrowedLine(vis, pf, pp, (0, 220, 255), _t(2, s),
+                    line_type=cv2.LINE_AA, tipLength=head)
+    cv2.arrowedLine(vis, pp, pf, (0, 220, 255), _t(2, s),
+                    line_type=cv2.LINE_AA, tipLength=head)
 
     if show_labels:
         midx = int((px + fx) / 2); midy = int((py + fy) / 2)
