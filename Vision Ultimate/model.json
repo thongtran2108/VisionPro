@@ -1,0 +1,48 @@
+{
+  "trained": true,
+  "train_roi": [
+    326,
+    239,
+    116,
+    47
+  ],
+  "origin_x": 56.02999999999997,
+  "origin_y": 3.789999999999992,
+  "pattern_w": 116,
+  "pattern_h": 47,
+  "extra_refs": [
+    {
+      "name": "Ref 1",
+      "x": 182.0,
+      "y": 2.0,
+      "angle": 0.0
+    },
+    {
+      "name": "Ref 2",
+      "x": -136.0,
+      "y": 9.0,
+      "angle": 0.0
+    }
+  ],
+  "edge_count": 567,
+  "model_hash": "759bd362",
+  "shape_type": "rect",
+  "shape_data": {
+    "x": 326,
+    "y": 239,
+    "w": 116,
+    "h": 47
+  },
+  "train_mode": "evaluate",
+  "accept_threshold": 0.5,
+  "angle_low": 0.0,
+  "angle_high": 0.0,
+  "angle_step": 5.0,
+  "scale_low": 1.0,
+  "scale_high": 1.0,
+  "scale_step": 0.1,
+  "num_results": 1,
+  "overlap_threshold": 0.5,
+  "canny_low": 50,
+  "canny_high": 150
+}
