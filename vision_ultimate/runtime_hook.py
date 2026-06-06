@@ -1,0 +1,56 @@
+"""
+Runtime hook — chạy TRƯỚC main.py khi app khởi động.
+
+Mục đích:
+1. Set Qt plugin path đúng (PySide6 đôi khi load nhầm khi frozen).
+2. Hi-DPI scaling cho Windows 4K/2K monitor.
+3. Set cwd về folder chứa .exe để các đường dẫn relative
+   (assets/, vendor/, model files) hoạt động đúng.
+"""
+import os
+import sys
+
+# ── 1. Set cwd về folder chứa .exe ────────────────────────────────────
+# Khi user double-click .exe từ Desktop, cwd có thể là C:\Users\<name>\
+# khiến code đọc "assets/logo.png", "nutfixed.aoi" v.v. bị fail.
+if getattr(sys, 'frozen', False):
+    # Đang chạy từ PyInstaller .exe
+    exe_dir = os.path.dirname(sys.executable)
+    os.chdir(exe_dir)
+    # Thêm exe_dir vào sys.path để `import vendor.mvs...` chạy được
+    sys.path.insert(0, exe_dir)
+    sys.path.insert(0, os.path.join(exe_dir, '_internal'))
+
+# ── 2. Qt plugin path ─────────────────────────────────────────────────
+# PySide6 lookup plugins (platforms/, imageformats/, styles/...) qua
+# QT_PLUGIN_PATH. Khi frozen, set thẳng để tránh load nhầm DLL hệ thống.
+if getattr(sys, 'frozen', False):
+    base = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(sys.executable)
+    qt_plugins = os.path.join(base, 'PySide6', 'plugins')
+    if not os.path.isdir(qt_plugins):
+        # Layout fallback (onedir)
+        qt_plugins = os.path.join(base, '_internal', 'PySide6', 'plugins')
+    if os.path.isdir(qt_plugins):
+        os.environ['QT_PLUGIN_PATH'] = qt_plugins
+        os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = os.path.join(
+            qt_plugins, 'platforms')
+
+# ── 3. Hi-DPI awareness (Windows) ─────────────────────────────────────
+# Phải set TRƯỚC khi QApplication được tạo. PySide6 6.5+ enable mặc định
+# nhưng set tường minh để chắc chắn trên monitor scaling 125%/150%/200%.
+os.environ.setdefault('QT_AUTO_SCREEN_SCALE_FACTOR', '1')
+os.environ.setdefault('QT_ENABLE_HIGHDPI_SCALING', '1')
+
+# ── 4. Tắt verbose log của OpenCV khi load video codec ────────────────
+os.environ.setdefault('OPENCV_LOG_LEVEL', 'ERROR')
+
+# ── 5. Log file cho lỗi không bắt được (chỉ khi build --windowed) ────
+# Không có console → exception trong main thread khiến app exit silently.
+# Redirect stderr ra file để debug dễ hơn.
+if getattr(sys, 'frozen', False) and sys.stderr is None:
+    log_path = os.path.join(os.path.dirname(sys.executable), 'error.log')
+    try:
+        sys.stderr = open(log_path, 'a', encoding='utf-8', buffering=1)
+        sys.stdout = sys.stderr  # gộp luôn print() vào log
+    except Exception:
+        pass  # không write được thì thôi, không crash
