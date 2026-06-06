@@ -1,0 +1,1038 @@
+"""
+ui/node_item.py — T VisionPro style
+Hiển thị T tool name, tooltip params, port colors.
+"""
+from __future__ import annotations
+from typing import Optional, List, TYPE_CHECKING
+
+from PySide6.QtWidgets import (QGraphicsItem, QGraphicsEllipseItem, QMenu,
+                                QApplication, QDialog, QVBoxLayout, QHBoxLayout,
+                                QLabel, QComboBox, QLineEdit,
+                                QPushButton, QListWidget, QListWidgetItem,
+                                QInputDialog, QMessageBox, QCheckBox,
+                                QScrollArea, QWidget)
+from PySide6.QtCore import Qt, QRectF, QPointF, Signal, QObject
+from PySide6.QtGui import (QPainter, QColor, QPen, QBrush, QFont,
+                            QLinearGradient, QPainterPath, QCursor)
+
+from core.flow_graph import NodeInstance
+from core.tool_registry import ToolDef, auto_terminal_name, OBJECT_SELECTORS
+
+PORT_R        = 7
+PORT_D        = PORT_R * 2
+NODE_MIN_W    = 190
+NODE_HEADER_H = 42
+NODE_PORT_ROW = 22
+NODE_PADDING  = 8
+# Khi port (input hoặc output) > MAX_PORT_ROWS, wrap xuống cột kế tiếp thay vì
+# kéo node cao mãi (vd YOLO add x,y cho 8 object → 16+ port). Node rộng ra,
+# thấp lại nên thấy & nối được hết port.
+PORT_COL_W    = 104    # bề rộng 1 cột port (label + nub)
+PORT_COL_GAP  = 34     # khoảng giữa block input và block output khi multi-col
+MAX_PORT_ROWS = 16     # số port tối đa mỗi cột
+
+C_BG       = QColor(13, 18, 30)
+C_BORDER   = QColor(30, 45, 69)
+C_SEL      = QColor(0, 212, 255)
+C_PASS     = QColor(57, 255, 20)
+C_FAIL     = QColor(255, 56, 96)
+C_WARN     = QColor(255, 215, 0)
+C_DIM      = QColor(100, 116, 139)
+C_PORT_IN  = QColor(0, 180, 220)
+C_PORT_OUT = QColor(255, 140, 50)
+
+
+class PortItem(QGraphicsEllipseItem):
+    """Port hitbox — scene xử lý drag connection."""
+    def __init__(self, node_item: "NodeItem", port_name: str,
+                 is_output: bool, index: int, parent=None):
+        super().__init__(-PORT_R, -PORT_R, PORT_D, PORT_D, parent)
+        self.node_item  = node_item
+        self.port_name  = port_name
+        self.is_output  = is_output
+        self.port_index = index
+        self._hovered   = False
+        self._highlight = False   # sáng khi dây nối tới port này được chọn/hover
+
+        self.setAcceptHoverEvents(True)
+        self.setCursor(QCursor(Qt.CrossCursor))
+        self.setZValue(20)
+        self.setAcceptedMouseButtons(Qt.LeftButton)
+        self._update_brush()
+
+    def _update_brush(self):
+        base = C_PORT_OUT if self.is_output else C_PORT_IN
+        if self._highlight:
+            # Endpoint của dây đang chọn/hover → nub vàng sáng, viền cam đậm.
+            self.setBrush(QBrush(QColor(255, 235, 80)))
+            self.setPen(QPen(QColor(255, 170, 40), 2.5))
+        elif self._hovered:
+            self.setBrush(QBrush(base))
+            self.setPen(QPen(Qt.white, 2))
+        else:
+            self.setBrush(QBrush(base.darker(200)))
+            self.setPen(QPen(base, 1.5))
+
+    def set_highlight(self, on: bool):
+        on = bool(on)
+        if on != self._highlight:
+            self._highlight = on
+            self._update_brush()
+
+    def hoverEnterEvent(self, event):
+        self._hovered = True
+        self._update_brush()
+        self.setScale(1.4)
+        if self.is_output:
+            val = self.node_item.node.outputs.get(self.port_name)
+            self.setToolTip(
+                f"<b>OUT • {self.port_name}</b><br>"
+                f"<span style='color:#00d4ff'>{self._fmt_value(val)}</span>")
+        else:
+            self.setToolTip(f"<b>IN • {self.port_name}</b>")
+        super().hoverEnterEvent(event)
+
+    @staticmethod
+    def _fmt_value(val) -> str:
+        """Format giá trị output cho tooltip."""
+        if val is None:
+            return "(no output yet)"
+        if isinstance(val, bool):
+            return "✔ TRUE" if val else "✖ FALSE"
+        if isinstance(val, float):
+            return f"{val:.5g}"
+        if isinstance(val, int):
+            return str(val)
+        if isinstance(val, str):
+            return val if len(val) < 80 else val[:77] + "..."
+        # numpy array
+        try:
+            import numpy as np
+            if isinstance(val, np.ndarray):
+                shp = "×".join(str(s) for s in val.shape)
+                return f"ndarray {shp} {val.dtype}"
+        except Exception:
+            pass
+        if isinstance(val, list):
+            if val and isinstance(val[0], dict):
+                # List of object-dicts (e.g. per-object PatMax results)
+                head = ", ".join(f"{k}={PortItem._fmt_value(v)}"
+                                 for k, v in list(val[0].items())[:3])
+                return f"[{len(val)} items]<br>#0: {head}"
+            return f"[list: {len(val)} items]"
+        if isinstance(val, dict):
+            return "{" + ", ".join(
+                f"{k}={PortItem._fmt_value(v)}" for k, v in list(val.items())[:3]
+            ) + "}"
+        return str(val)[:60]
+
+    def hoverLeaveEvent(self, event):
+        self._hovered = False
+        self._update_brush()
+        self.setScale(1.0)
+        super().hoverLeaveEvent(event)
+
+    def scene_center(self) -> QPointF:
+        return self.mapToScene(QPointF(0, 0))
+
+
+class NodeSignals(QObject):
+    selected   = Signal(str)
+    moved      = Signal(str, float, float)
+    delete_req = Signal(str)
+    open_props = Signal(str)
+    ports_changed = Signal(str)   # node_id — phát khi thay đổi extra terminals
+    renamed    = Signal(str)      # node_id — phát khi đổi tên hiển thị node
+
+
+# Mapping field từ "objects" list — dùng cho PatMax/PatFind
+PATMAX_FIELDS = ["x", "y", "score", "angle", "scale",
+                 "center_x", "center_y", "origin_x", "origin_y"]
+# Field cơ bản dành cho mỗi ref point (origin chính + extra refs)
+PATMAX_REF_FIELDS = ["x", "y", "angle"]
+
+
+def _patmax_ref_options(node) -> list:
+    """Build list (label, ref_idx, name) cho mỗi ref point của node PatMax.
+    ref_idx = 0 → origin chính, ≥1 → extras[ref_idx-1].
+    """
+    out = [("Origin (main)", 0, None)]
+    model = node.params.get("_patmax_model")
+    refs = list(getattr(model, "extra_refs", []) or []) if model else []
+    for j, ref in enumerate(refs, start=1):
+        nm = str(ref.get("name", f"Ref {j}"))
+        out.append((nm, j, nm))
+    return out
+
+
+class AddTerminalDialog(QDialog):
+    """Dialog thêm terminal output — chọn object index + reference + field.
+    Remove được apply NGAY khi click (không chờ Accept) — user expectation
+    sau khi xóa thì port biến mất ngay, dù có Cancel."""
+
+    def __init__(self, node, parent=None, on_remove=None):
+        super().__init__(parent)
+        self._node = node
+        self._on_remove = on_remove
+        self.setWindowTitle("➕  Add Output Terminal")
+        self.setMinimumWidth(360)
+        self.setWindowFlags(self.windowFlags()
+                            | Qt.WindowMinimizeButtonHint
+                            | Qt.WindowMaximizeButtonHint)
+        self.setStyleSheet("""
+            QDialog { background:#0d1220; color:#e2e8f0; }
+            QLabel  { color:#94a3b8; font-size:11px; }
+            QComboBox, QLineEdit {
+                background:#0a0e1a; color:#e2e8f0;
+                border:1px solid #1e2d45; border-radius:3px; padding:3px 5px;
+            }
+            QPushButton {
+                background:#1e2d45; color:#e2e8f0; border:none;
+                border-radius:4px; padding:6px 14px; font-weight:600;
+            }
+            QPushButton:hover { background:#00d4ff; color:#000; }
+            QListWidget { background:#0a0e1a; color:#e2e8f0;
+                          border:1px solid #1e2d45; }
+        """)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(14, 14, 14, 14); lay.setSpacing(10)
+
+        self._ref_options = _patmax_ref_options(node)
+        # Tool nào có terminal_fields tự khai báo (vd YOLO Detect) → dùng nó
+        # thay PATMAX_FIELDS, ẩn Reference combo (không có khái niệm ref).
+        tool_fields = list(getattr(node.tool, "terminal_fields", []) or [])
+        self._tool_fields = tool_fields
+        # source_key: output port chứa list[dict] objects để đếm.
+        # PatMax → "objects"; YOLO → "detections".
+        src_key = (getattr(node.tool, "terminal_source_key", "") or "objects")
+        n_obj_detected = len(node.outputs.get(src_key) or [])
+        self._n_obj = max(1, n_obj_detected)
+
+        is_patmax = (not tool_fields)  # chỉ PatMax-style mới có Reference rows
+        if is_patmax:
+            info = QLabel(
+                f"Tool detect <b>{n_obj_detected}</b> object · "
+                f"<b>{len(self._ref_options)}</b> reference point(s).<br>"
+                f"Mỗi terminal map 1 (object, reference, field) → 1 output port."
+            )
+        else:
+            info = QLabel(
+                f"Tool detect <b>{n_obj_detected}</b> object.<br>"
+                f"Mỗi terminal map 1 (object, field) → 1 output port. "
+                f"Vd: object 2 + field <i>cx</i> → port <b>cx_2</b>."
+            )
+        info.setWordWrap(True)
+        lay.addWidget(info)
+
+        row_obj = QHBoxLayout()
+        row_obj.addWidget(QLabel("Object:"))
+        self._cb_obj = QComboBox()
+        # Selectors (vd: Highest, Lowest, Center, ...) — chỉ show cho non-PatMax,
+        # và ít nhất 1 object phải detect được. Selector resolve runtime ⇒
+        # vẫn hoạt động khi số object thay đổi giữa các run (vd: scene động).
+        self._selector_keys = []
+        if not is_patmax and n_obj_detected > 0:
+            selector_icons = {
+                "highest": "🔼", "lowest": "🔽",
+                "leftmost": "◀", "rightmost": "▶",
+                "center": "⏺", "first": "1️⃣", "last": "🔚",
+            }
+            for key, desc in OBJECT_SELECTORS.items():
+                icon = selector_icons.get(key, "•")
+                label = key.capitalize()
+                self._cb_obj.addItem(f"{icon}  {label}  —  {desc}", key)
+                self._selector_keys.append(key)
+            self._cb_obj.insertSeparator(self._cb_obj.count())
+        # Numbered objects
+        for i in range(self._n_obj):
+            self._cb_obj.addItem(f"Object {i+1}", i)
+        # Default highlight numbered Object 1 (selectors là extra, không phải default)
+        if self._selector_keys:
+            self._cb_obj.setCurrentIndex(len(self._selector_keys) + 1)
+        row_obj.addWidget(self._cb_obj, 1)
+        lay.addLayout(row_obj)
+
+        # Reference row — chỉ hiển thị cho PatMax-style (có >1 ref point).
+        row_ref = QHBoxLayout()
+        row_ref.addWidget(QLabel("Reference:"))
+        self._cb_ref = QComboBox()
+        for label, _idx, _nm in self._ref_options:
+            self._cb_ref.addItem(label)
+        self._cb_ref.currentIndexChanged.connect(self._on_ref_changed)
+        row_ref.addWidget(self._cb_ref, 1)
+        if is_patmax:
+            lay.addLayout(row_ref)
+
+        row2 = QHBoxLayout()
+        row2.addWidget(QLabel("Field:"))
+        self._cb_field = QComboBox()
+        row2.addWidget(self._cb_field, 1)
+        lay.addLayout(row2)
+        self._on_ref_changed(0)  # populate field combo lần đầu
+
+        # "Add for all objects" — bulk-add 1 field × N objects. Tiện khi user
+        # muốn x/y cho hết object trong 1 click thay vì add từng cái.
+        if not is_patmax and self._n_obj > 1:
+            self._btn_bulk = QPushButton(
+                f"➕  Add this field for all {self._n_obj} objects")
+            self._btn_bulk.setStyleSheet(
+                "QPushButton{background:#0f3460;color:#00d4ff;"
+                "border:1px solid #1e2d45;border-radius:3px;padding:5px;}"
+                "QPushButton:hover{background:#00d4ff;color:#000;}")
+            self._btn_bulk.clicked.connect(self._add_bulk_all_objects)
+            lay.addWidget(self._btn_bulk)
+
+        row3 = QHBoxLayout()
+        row3.addWidget(QLabel("Port name (optional):"))
+        self._le_name = QLineEdit()
+        self._le_name.setPlaceholderText("auto: <field>  (vd: ref1_x)")
+        row3.addWidget(self._le_name, 1)
+        lay.addLayout(row3)
+
+        # Hiện list terminals đang có
+        existing = node.params.get("_extra_terminals") or []
+        if existing:
+            lbl_ex = QLabel("Đang có:")
+            lay.addWidget(lbl_ex)
+            self._list = QListWidget()
+            self._list.setFixedHeight(min(120, 22 * len(existing) + 8))
+            for t in existing:
+                name = auto_terminal_name(t)
+                obj_idx = int(t.get("object", 0) or 0)
+                self._list.addItem(
+                    f"  • {name}  ←  Object {obj_idx + 1} · {t.get('field','x')}")
+            lay.addWidget(self._list)
+            btn_remove = QPushButton("🗑  Remove selected")
+            btn_remove.clicked.connect(self._remove_selected)
+            lay.addWidget(btn_remove)
+        else:
+            self._list = None
+
+        btn_row = QHBoxLayout()
+        btn_row.addStretch()
+        btn_cancel = QPushButton("Cancel"); btn_cancel.clicked.connect(self.reject)
+        btn_ok = QPushButton("Add Terminal"); btn_ok.clicked.connect(self.accept)
+        btn_ok.setStyleSheet(btn_ok.styleSheet() +
+                              "QPushButton{background:#0f3460;color:#00d4ff;}"
+                              "QPushButton:hover{background:#00d4ff;color:#000;}")
+        btn_row.addWidget(btn_cancel); btn_row.addWidget(btn_ok)
+        lay.addLayout(btn_row)
+
+    def _remove_selected(self):
+        if not self._list:
+            return
+        row = self._list.currentRow()
+        if row < 0:
+            return
+        # Apply ngay vào node.params — không chờ Accept để Cancel cũng giữ
+        # được xóa (user feedback: "remove không mất node" trước khi sửa).
+        terminals = list(self._node.params.get("_extra_terminals") or [])
+        if 0 <= row < len(terminals):
+            terminals.pop(row)
+            self._node.params["_extra_terminals"] = terminals
+            self._list.takeItem(row)
+            if callable(self._on_remove):
+                self._on_remove()
+
+    def _on_ref_changed(self, idx: int):
+        """Populate field combo. Tool có terminal_fields (YOLO) → dùng nó;
+        PatMax: Origin → PATMAX_FIELDS, extra ref → PATMAX_REF_FIELDS."""
+        self._cb_field.clear()
+        if self._tool_fields:
+            self._cb_field.addItems(self._tool_fields)
+            return
+        if 0 <= idx < len(self._ref_options):
+            ref_idx = self._ref_options[idx][1]
+            if ref_idx == 0:
+                self._cb_field.addItems(PATMAX_FIELDS)
+            else:
+                self._cb_field.addItems(PATMAX_REF_FIELDS)
+        else:
+            self._cb_field.addItems(PATMAX_FIELDS)
+
+    def _add_bulk_all_objects(self):
+        """Bulk-add: thêm 1 entry cho mỗi object hiện có, dùng field đang
+        chọn ở combo. Sau khi add → close dialog với Accepted state."""
+        field = self._cb_field.currentText()
+        existing = list(self._node.params.get("_extra_terminals") or [])
+        existing_names = ({p.name for p in self._node.tool.outputs}
+                          | {auto_terminal_name(t) for t in existing})
+        added = 0
+        for i in range(self._n_obj):
+            term = {"object": i, "field": field, "name": ""}
+            name = auto_terminal_name(term)
+            if name in existing_names:
+                continue
+            existing.append(term)
+            existing_names.add(name)
+            added += 1
+        if added == 0:
+            return
+        self._node.params["_extra_terminals"] = existing
+        # Trigger refresh callback (rebuild ports trên canvas)
+        if callable(self._on_remove):
+            self._on_remove()
+        self.accept()
+
+    def get_new_terminal(self) -> dict:
+        # Map (reference, field) → key trong objects dict:
+        #   Origin (ref_idx=0) → field nguyên gốc (x, y, ...)
+        #   Ref j (ref_idx=j>0) → "ref{j}_{field}" (vd: ref1_x)
+        ref_combo_idx = self._cb_ref.currentIndex()
+        field_basic = self._cb_field.currentText()
+        ref_idx = 0
+        if 0 <= ref_combo_idx < len(self._ref_options):
+            ref_idx = self._ref_options[ref_combo_idx][1]
+        if ref_idx == 0:
+            field_key = field_basic
+        else:
+            field_key = f"ref{ref_idx}_{field_basic}"
+        # currentData() trả str (selector) hoặc int (object index). Separator
+        # rows trả None → fallback Object 1 (index 0).
+        obj_data = self._cb_obj.currentData()
+        if obj_data is None:
+            obj_data = 0
+        return {
+            "object": obj_data,
+            "field":  field_key,
+            "name":   self._le_name.text().strip(),
+        }
+
+
+
+class ManageOutputsDialog(QDialog):
+    """Dialog show/hide output ports. Áp dụng ngay khi tick → port xuất hiện/
+    biến mất tức thời (callback refresh). Dùng được cho mọi tool — tool có
+    nhiều scalar output (blob, find_circle, …) thường cần ẩn bớt cho gọn."""
+
+    def __init__(self, node, parent=None, on_change=None):
+        super().__init__(parent)
+        self._node = node
+        self._on_change = on_change
+        self.setWindowTitle("👁  Manage Output Ports")
+        self.setMinimumWidth(340)
+        self.setWindowFlags(self.windowFlags()
+                            | Qt.WindowMinimizeButtonHint
+                            | Qt.WindowMaximizeButtonHint)
+        self.setStyleSheet("""
+            QDialog{background:#0d1220;color:#e2e8f0;}
+            QLabel{color:#94a3b8;font-size:11px;}
+            QPushButton{background:#1e2d45;color:#e2e8f0;border:none;
+                        border-radius:4px;padding:6px 14px;font-weight:600;}
+            QPushButton:hover{background:#00d4ff;color:#000;}
+            QCheckBox{color:#e2e8f0;font-size:12px;padding:3px 6px;}
+            QCheckBox::indicator{width:14px;height:14px;}
+        """)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(14, 14, 14, 14); lay.setSpacing(8)
+
+        info = QLabel(
+            f"Tick để hiện / bỏ tick để ẩn port. <i>image</i> luôn hiện. "
+            f"Áp dụng ngay — đóng dialog khi xong.")
+        info.setWordWrap(True)
+        lay.addWidget(info)
+
+        hidden = set(self._node.params.get("_hidden_outputs") or [])
+        # Build list = tool.outputs + extra terminals (PatMax-style)
+        port_names: List[str] = [p.name for p in self._node.tool.outputs]
+        for term in (self._node.params.get("_extra_terminals") or []):
+            n = auto_terminal_name(term)
+            if n not in port_names:
+                port_names.append(n)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet(
+            "QScrollArea{border:1px solid #1e2d45;background:#0a0e1a;}")
+        inner = QWidget()
+        inner_lay = QVBoxLayout(inner)
+        inner_lay.setContentsMargins(6, 6, 6, 6); inner_lay.setSpacing(2)
+        self._checks: List[tuple] = []  # (name, QCheckBox)
+        for name in port_names:
+            cb = QCheckBox(name)
+            is_image = (name == "image")
+            cb.setChecked(name not in hidden)
+            if is_image:
+                cb.setEnabled(False)
+                cb.setToolTip("Port 'image' luôn visible — không ẩn được "
+                               "(chain port).")
+            cb.toggled.connect(
+                lambda on, _nm=name: self._toggle(_nm, on))
+            inner_lay.addWidget(cb)
+            self._checks.append((name, cb))
+        inner_lay.addStretch()
+        scroll.setWidget(inner)
+        scroll.setMinimumHeight(min(360, 30 * max(1, len(port_names)) + 20))
+        lay.addWidget(scroll, 1)
+
+        btn_row = QHBoxLayout(); btn_row.addStretch()
+        btn_close = QPushButton("Close"); btn_close.clicked.connect(self.accept)
+        btn_close.setStyleSheet(btn_close.styleSheet() +
+                                 "QPushButton{background:#0f3460;color:#00d4ff;}")
+        btn_row.addWidget(btn_close)
+        lay.addLayout(btn_row)
+
+    def _toggle(self, port_name: str, visible: bool):
+        if port_name == "image":
+            return  # image không thể ẩn
+        hidden = list(self._node.params.get("_hidden_outputs") or [])
+        if visible and port_name in hidden:
+            hidden.remove(port_name)
+        elif not visible and port_name not in hidden:
+            hidden.append(port_name)
+        self._node.params["_hidden_outputs"] = hidden
+        if callable(self._on_change):
+            self._on_change()
+
+
+class NodeItem(QGraphicsItem):
+    def __init__(self, node: NodeInstance, signals: NodeSignals):
+        super().__init__()
+        self.node    = node
+        self.signals = signals
+
+        self.setFlag(QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+        self.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
+        self.setAcceptHoverEvents(True)
+        self.setPos(node.pos_x, node.pos_y)
+        self.setZValue(10)
+
+        tool: ToolDef = node.tool
+        self._color       = QColor(tool.color)
+        self._icon        = tool.icon
+        self._name        = node.name   # tên custom (mặc định = tool.name)
+        self._T_name = tool.T_equiv
+
+        self._in_ports:  List[PortItem] = []
+        self._out_ports: List[PortItem] = []
+        self._highlight = False   # sáng viền khi 1 dây nối tới node được chọn/hover
+        self._compute_size()
+        self._build_ports()
+
+        # Tooltip
+        tip = f"<b>{node.name}</b>"
+        if node.name != tool.name:
+            tip += f"<br><span style='color:#94a3b8'>{tool.name}</span>"
+        if tool.T_equiv:
+            tip += f"<br><span style='color:#00d4ff'>{tool.T_equiv}</span>"
+        tip += f"<br>{tool.description}"
+        self.setToolTip(tip)
+
+    def set_highlight(self, on: bool):
+        """Bat/tat vien sang khi 1 day noi toi node dang duoc chon/hover —
+        giup biet day do noi nhung node nao."""
+        on = bool(on)
+        if on != self._highlight:
+            self._highlight = on
+            self.update()
+
+    def apply_port_highlights(self, active_ports: set):
+        """Sáng riêng các nub port là endpoint của dây active.
+        active_ports = set of (node_id, port_name, is_output)."""
+        nid = self.node.node_id
+        for p in self._out_ports:
+            p.set_highlight((nid, p.port_name, True) in active_ports)
+        for p in self._in_ports:
+            p.set_highlight((nid, p.port_name, False) in active_ports)
+
+    def _output_port_names(self) -> List[str]:
+        """Tên các output ports = tool.outputs + extra terminals + extra outputs
+        (Script Tool), sau khi lọc bỏ những port nằm trong `_hidden_outputs`
+        (user ẩn qua dialog Manage Output Ports). `image` luôn visible."""
+        hidden = set(self.node.params.get("_hidden_outputs") or [])
+        hidden.discard("image")
+        names = [p.name for p in self.node.tool.outputs
+                 if p.name not in hidden]
+        # PatMax-style structured terminals (object/field tuples)
+        for term in (self.node.params.get("_extra_terminals") or []):
+            n = auto_terminal_name(term)
+            if n not in names and n not in hidden:
+                names.append(n)
+        # Script-style simple extra port names (added via right-click)
+        for n in (self.node.params.get("_extra_outputs") or []):
+            if n not in names and n not in hidden:
+                names.append(n)
+        return names
+
+    def _visible_input_ports(self):
+        """Inputs = tool.inputs (static) + `_extra_inputs` (user thêm qua
+        right-click). Tool nào có `extra_input_type` mới cho phép thêm.
+        Port mới mặc định cùng data_type với extra_input_type của tool."""
+        from core.tool_registry import PortDef
+        inputs = list(self.node.tool.inputs)
+        extra_type = self.node.tool.extra_input_type or ""
+        if extra_type:
+            for name in (self.node.params.get("_extra_inputs") or []):
+                inputs.append(PortDef(name, extra_type, required=False))
+        return inputs
+
+    def _compute_size(self):
+        tool = self.node.tool
+        n_in  = len(self._visible_input_ports())
+        n_out = len(self._output_port_names())
+        R = MAX_PORT_ROWS
+        self._port_rows = R
+        # Số cột mỗi bên (ceil). Input mở rộng từ cạnh trái sang phải, output
+        # từ cạnh phải sang trái → cột cuối của output luôn nằm ở cạnh phải.
+        self._in_cols  = max(1, (n_in  + R - 1) // R)
+        self._out_cols = max(1, (n_out + R - 1) // R)
+        rows = max(min(n_in, R), min(n_out, R), 1)
+        w_base = max(NODE_MIN_W, len(self.node.name) * 7 + 60)
+        if self._in_cols == 1 and self._out_cols == 1:
+            self._w = w_base
+        else:
+            self._w = max(w_base,
+                          self._in_cols * PORT_COL_W
+                          + self._out_cols * PORT_COL_W + PORT_COL_GAP)
+        self._h = NODE_HEADER_H + NODE_PADDING + rows * NODE_PORT_ROW + NODE_PADDING
+
+    def _port_xy(self, index: int, is_output: bool):
+        """Toạ độ (x, y_center) của port thứ `index` theo layout nhiều cột."""
+        R = self._port_rows
+        col = index // R
+        row = index % R
+        y = NODE_HEADER_H + NODE_PADDING + row * NODE_PORT_ROW + NODE_PORT_ROW // 2
+        if is_output:
+            # col 0 = trong cùng (trái), cột cuối = cạnh phải (x = _w)
+            x = self._w - (self._out_cols - 1 - col) * PORT_COL_W
+        else:
+            x = col * PORT_COL_W
+        return x, y
+
+    def _build_ports(self):
+        for i, port in enumerate(self._visible_input_ports()):
+            p = PortItem(self, port.name, False, i, self)
+            x, y = self._port_xy(i, False)
+            p.setPos(x, y)
+            self._in_ports.append(p)
+        for i, name in enumerate(self._output_port_names()):
+            p = PortItem(self, name, True, i, self)
+            x, y = self._port_xy(i, True)
+            p.setPos(x, y)
+            self._out_ports.append(p)
+
+    def refresh_ports(self):
+        """Rebuild ports (gọi sau khi đổi extra_terminals)."""
+        for p in self._in_ports + self._out_ports:
+            try:
+                if self.scene():
+                    self.scene().removeItem(p)
+                else:
+                    p.setParentItem(None)
+            except RuntimeError:
+                pass
+        self._in_ports = []
+        self._out_ports = []
+        self._compute_size()
+        self._build_ports()
+        self.prepareGeometryChange()
+        self.update()
+        self.signals.ports_changed.emit(self.node.node_id)
+
+    def boundingRect(self) -> QRectF:
+        m = PORT_R + 4
+        return QRectF(-m, -m, self._w + m * 2, self._h + m * 2)
+
+    def paint(self, painter: QPainter, option, widget=None):
+        painter.setRenderHint(QPainter.Antialiasing)
+        status = self.node.status
+
+        if self.isSelected():
+            border_col, border_w = C_SEL, 2.5
+        elif self._highlight:
+            # Dây nối tới node này đang được chọn/hover → viền cam sáng.
+            border_col, border_w = QColor(255, 170, 40), 3.0
+        elif status == "pass":
+            border_col, border_w = C_PASS, 2.0
+        elif status == "fail":
+            border_col, border_w = C_FAIL, 2.0
+        elif status == "running":
+            border_col, border_w = C_WARN, 2.0
+        elif status == "error":
+            border_col, border_w = C_FAIL, 2.0
+        else:
+            border_col, border_w = C_BORDER, 1.5
+
+        # Shadow
+        shadow = QPainterPath()
+        shadow.addRoundedRect(3, 3, self._w, self._h, 8, 8)
+        painter.fillPath(shadow, QBrush(QColor(0, 0, 0, 80)))
+
+        # Body
+        body = QPainterPath()
+        body.addRoundedRect(0, 0, self._w, self._h, 8, 8)
+        painter.fillPath(body, QBrush(C_BG))
+        painter.setPen(QPen(border_col, border_w))
+        painter.drawPath(body)
+
+        # Header gradient
+        hdr = QPainterPath()
+        hdr.addRoundedRect(0, 0, self._w, NODE_HEADER_H, 8, 8)
+        cut = QPainterPath()
+        cut.addRect(0, NODE_HEADER_H // 2, self._w, NODE_HEADER_H)
+        hdr = hdr.united(cut)
+        grad = QLinearGradient(0, 0, self._w, NODE_HEADER_H)
+        grad.setColorAt(0, self._color.lighter(140))
+        grad.setColorAt(1, self._color.darker(110))
+        painter.fillPath(hdr, QBrush(grad))
+
+        # Icon
+        painter.setFont(QFont("Segoe UI Emoji", 14))
+        painter.setPen(QPen(Qt.white))
+        painter.drawText(QRectF(6, 0, 30, NODE_HEADER_H), Qt.AlignCenter, self._icon)
+
+        # Tool name
+        painter.setFont(QFont("Segoe UI", 8, QFont.Bold))
+        painter.setPen(QPen(Qt.white))
+        painter.drawText(QRectF(36, 2, self._w - 42, NODE_HEADER_H // 2 + 2),
+                         Qt.AlignVCenter | Qt.AlignLeft, self._name)
+
+        # T equiv name (small, cyan)
+        if self._T_name:
+            painter.setFont(QFont("Segoe UI", 6))
+            painter.setPen(QPen(QColor(0, 212, 255, 180)))
+            painter.drawText(QRectF(36, NODE_HEADER_H // 2, self._w - 42, NODE_HEADER_H // 2),
+                             Qt.AlignVCenter | Qt.AlignLeft, self._T_name)
+
+        # Status badge
+        if status in ("pass", "fail", "error", "running"):
+            colors = {"pass": C_PASS, "fail": C_FAIL, "error": C_FAIL, "running": C_WARN}
+            texts  = {"pass": "✔ PASS", "fail": "✖ FAIL", "error": "ERR", "running": "…"}
+            badge_col = colors[status]
+            badge_txt = texts[status]
+            painter.setPen(QPen(badge_col))
+            painter.setFont(QFont("Segoe UI", 7, QFont.Bold))
+            painter.drawText(QRectF(0, self._h - 18, self._w - 6, 14),
+                             Qt.AlignRight | Qt.AlignVCenter, badge_txt)
+
+        # Port labels (wrap nhiều cột khi port nhiều)
+        tool = self.node.tool
+        painter.setFont(QFont("Segoe UI", 7))
+        single = (self._in_cols == 1 and self._out_cols == 1)
+        in_ports = self._visible_input_ports()
+        n_static_in = len(tool.inputs)
+        for i, port in enumerate(in_ports):
+            x, y = self._port_xy(i, False)
+            # Extra inputs (user thêm) → vàng để phân biệt với static
+            col = C_PORT_IN.lighter(120) if i < n_static_in else QColor(255, 215, 0)
+            painter.setPen(QPen(col))
+            lw = (self._w // 2 - 14) if single else (PORT_COL_W - PORT_D - 6)
+            painter.drawText(QRectF(x + 10, y - 8, lw, 16),
+                             Qt.AlignLeft | Qt.AlignVCenter, port.name)
+
+        out_names = self._output_port_names()
+        n_static = len(tool.outputs)
+        for i, name in enumerate(out_names):
+            x, y = self._port_xy(i, True)
+            # Extra terminals → màu khác để phân biệt
+            col = C_PORT_OUT.lighter(120) if i < n_static else QColor(255, 215, 0)
+            painter.setPen(QPen(col))
+            if single:
+                rect = QRectF(self._w // 2, y - 8, self._w // 2 - 12, 16)
+            else:
+                # Text kết thúc trước nub (gap = PORT_R+3) để không bị nub đè.
+                lw = PORT_COL_W - PORT_D - 6
+                rect = QRectF(x - (PORT_R + 3) - lw, y - 8, lw, 16)
+            painter.drawText(rect, Qt.AlignRight | Qt.AlignVCenter, name)
+
+        # Output value previews — ẩn khi multi-column để khỏi đè lên cột port.
+        if self.node.outputs and single:
+            painter.setFont(QFont("Courier New", 7))
+            painter.setPen(QPen(C_DIM))
+            y_off = NODE_HEADER_H + NODE_PADDING + 2
+            for key, val in list(self.node.outputs.items())[:3]:
+                if isinstance(val, bool):
+                    txt = f"{key}:{'✔' if val else '✖'}"
+                elif isinstance(val, float):
+                    txt = f"{key}:{val:.3g}"
+                elif isinstance(val, int):
+                    txt = f"{key}:{val}"
+                elif isinstance(val, str) and len(val) < 20:
+                    txt = f"{key}:{val[:12]}"
+                else:
+                    continue
+                painter.drawText(QRectF(8, y_off + 2, self._w - 16, 12),
+                                 Qt.AlignLeft | Qt.AlignVCenter, txt)
+                y_off += 12
+                if y_off > self._h - 20:
+                    break
+
+    def itemChange(self, change, value):
+        if change == QGraphicsItem.ItemPositionHasChanged:
+            self.node.pos_x = self.pos().x()
+            self.node.pos_y = self.pos().y()
+            self.signals.moved.emit(self.node.node_id, self.pos().x(), self.pos().y())
+            if self.scene():
+                self.scene().update()
+        return super().itemChange(change, value)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.signals.selected.emit(self.node.node_id)
+        super().mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event):
+        self.signals.open_props.emit(self.node.node_id)
+        super().mouseDoubleClickEvent(event)
+
+    def contextMenuEvent(self, event):
+        # Chuột phải = chọn node (highlight + sync properties panel) rồi mới
+        # show menu. Nếu node đã nằm trong selection nhiều node thì giữ nguyên.
+        if not self.isSelected():
+            if self.scene():
+                self.scene().clearSelection()
+            self.setSelected(True)
+        self.signals.selected.emit(self.node.node_id)
+        menu = QMenu()
+        menu.setStyleSheet(
+            "QMenu{background:#0d1220;color:#e2e8f0;border:1px solid #1e2d45;font-size:12px;}"
+            "QMenu::item:selected{background:#1a2236;color:#00d4ff;}"
+            "QMenu::separator{height:1px;background:#1e2d45;}")
+        act_props  = menu.addAction(f"{self.node.tool.icon}  Properties / Detail")
+        act_rename = menu.addAction("✏  Rename…")
+        act_run    = menu.addAction("▶  Run this node")
+        menu.addSeparator()
+        act_viewer = menu.addAction("👁  View output in Image Viewer")
+        # ➕ Add Input — tool có extra_input_type (vd Pass/Fail Judge).
+        # Auto-name = letter kế tiếp chưa dùng.
+        act_add_input = None
+        act_remove_input = None
+        if self.node.tool.extra_input_type:
+            menu.addSeparator()
+            act_add_input = menu.addAction("➕  Add Input Port")
+            extras = self.node.params.get("_extra_inputs") or []
+            act_remove_input = menu.addAction(
+                f"➖  Remove Last Input Port ({extras[-1]})"
+                if extras else "➖  Remove Last Input Port")
+            act_remove_input.setEnabled(bool(extras))
+        # ➕ Add Output — tool có extra_output_type (vd Script Tool). User nhập
+        # tên port qua QInputDialog (phải là Python identifier hợp lệ).
+        act_add_output = None
+        act_remove_output = None
+        if self.node.tool.extra_output_type:
+            menu.addSeparator()
+            act_add_output = menu.addAction("➕  Add Output Port…")
+            outs = self.node.params.get("_extra_outputs") or []
+            act_remove_output = menu.addAction(
+                f"➖  Remove Last Output Port ({outs[-1]})"
+                if outs else "➖  Remove Last Output Port")
+            act_remove_output.setEnabled(bool(outs))
+        # Add Terminal — tool tạo list object cho phép thêm per-object output
+        # port qua dialog. Nhận diện theo terminal_source_key (PatMax→"objects",
+        # YOLO→"detections"); KHÔNG chỉ dựa terminal_fields, nếu không PatMax
+        # (không khai báo terminal_fields) sẽ mất mục này.
+        src_key = getattr(self.node.tool, "terminal_source_key", "objects") or "objects"
+        supports_objects = (any(p.name == src_key for p in self.node.tool.outputs)
+                            or bool(getattr(self.node.tool, "terminal_fields", None)))
+        act_add_term = None
+        if supports_objects:
+            menu.addSeparator()
+            act_add_term = menu.addAction("➕  Add / Manage Output Terminals…")
+        # Manage Output Ports — show/hide từng output. Hiện cho mọi tool có
+        # ≥2 outputs (1 output thì không ai ẩn). image port không bị ẩn được.
+        act_manage = None
+        if len(self.node.tool.outputs) >= 2:
+            if not supports_objects:
+                menu.addSeparator()
+            act_manage = menu.addAction("👁  Show / Hide Output Ports…")
+        menu.addSeparator()
+        act_del    = menu.addAction("🗑  Delete")
+
+        chosen = menu.exec(event.screenPos())
+        if chosen == act_props:
+            self.signals.open_props.emit(self.node.node_id)
+        elif chosen == act_rename:
+            self._rename_node()
+        elif chosen == act_del:
+            self.signals.delete_req.emit(self.node.node_id)
+        elif chosen == act_run:
+            if self.scene() and hasattr(self.scene(), "run_single_node"):
+                self.scene().run_single_node(self.node.node_id)
+        elif chosen == act_viewer:
+            if self.scene() and hasattr(self.scene(), "view_in_viewer"):
+                self.scene().view_in_viewer(self.node.node_id)
+        elif act_add_input is not None and chosen == act_add_input:
+            self._add_extra_input()
+        elif act_remove_input is not None and chosen == act_remove_input:
+            self._remove_last_extra_input()
+        elif act_add_output is not None and chosen == act_add_output:
+            self._add_extra_output()
+        elif act_remove_output is not None and chosen == act_remove_output:
+            self._remove_last_extra_output()
+        elif act_add_term is not None and chosen == act_add_term:
+            self._open_add_terminal_dialog()
+        elif act_manage is not None and chosen == act_manage:
+            self._open_manage_outputs_dialog()
+
+    def _rename_node(self):
+        """Đổi tên hiển thị node. Tên để trống → reset về tool.name."""
+        from PySide6.QtWidgets import QInputDialog
+        cur = self.node.name
+        text, ok = QInputDialog.getText(
+            None, "Rename Node",
+            "Tên hiển thị (để trống = về mặc định):", text=cur)
+        if not ok:
+            return
+        new_name = text.strip() or self.node.tool.name
+        if new_name == cur:
+            return
+        self.node.name = new_name
+        self._sync_name()
+        self.signals.renamed.emit(self.node.node_id)
+
+    def _sync_name(self):
+        """Cập nhật tên đã đổi vào item: resize theo độ dài tên + repaint."""
+        self._name = self.node.name
+        tool = self.node.tool
+        tip = f"<b>{self.node.name}</b>"
+        if self.node.name != tool.name:
+            tip += f"<br><span style='color:#94a3b8'>{tool.name}</span>"
+        if tool.T_equiv:
+            tip += f"<br><span style='color:#00d4ff'>{tool.T_equiv}</span>"
+        tip += f"<br>{tool.description}"
+        self.setToolTip(tip)
+        # refresh_ports() lo _compute_size + reposition ports theo width mới
+        # (output ports neo theo cạnh phải) + repaint.
+        self.refresh_ports()
+
+    def _add_extra_input(self):
+        """Append 1 port mới với tên = letter chưa dùng (A-Z, rồi AA-ZZ)."""
+        used = {p.name for p in self.node.tool.inputs}
+        extras = list(self.node.params.get("_extra_inputs") or [])
+        used.update(extras)
+        from string import ascii_uppercase
+        new_name = None
+        for c in ascii_uppercase:
+            if c not in used:
+                new_name = c; break
+        if new_name is None:
+            for a in ascii_uppercase:
+                for b in ascii_uppercase:
+                    if (a + b) not in used:
+                        new_name = a + b; break
+                if new_name: break
+        if new_name is None:
+            new_name = f"Extra{len(extras) + 1}"
+        extras.append(new_name)
+        self.node.params["_extra_inputs"] = extras
+        self.refresh_ports()
+
+    def _remove_last_extra_input(self):
+        """Xóa extra port cuối + connection nối tới nó."""
+        extras = list(self.node.params.get("_extra_inputs") or [])
+        if not extras:
+            return
+        removed = extras.pop()
+        self.node.params["_extra_inputs"] = extras
+        self._prune_port_connections(removed, is_output=False)
+        self.refresh_ports()
+
+    def _add_extra_output(self):
+        """Prompt user nhập tên port output. Validate identifier hợp lệ +
+        không trùng với output đã có."""
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+        existing = {p.name for p in self.node.tool.outputs}
+        existing.update(self.node.params.get("_extra_outputs") or [])
+        # Suggest tên mặc định: out1, out2, ...
+        suggest = "out1"
+        n = 1
+        while suggest in existing:
+            n += 1
+            suggest = f"out{n}"
+        text, ok = QInputDialog.getText(
+            None, "Add Output Port",
+            "Tên port (Python identifier hợp lệ):", text=suggest)
+        if not ok:
+            return
+        name = text.strip()
+        if not name.isidentifier():
+            QMessageBox.warning(
+                None, "Invalid Name",
+                f"'{name}' không phải Python identifier hợp lệ.\n"
+                "Chỉ dùng a-z, A-Z, 0-9, _ và không bắt đầu bằng số.")
+            return
+        if name in existing:
+            QMessageBox.warning(
+                None, "Duplicate Name",
+                f"Port '{name}' đã tồn tại.")
+            return
+        outs = list(self.node.params.get("_extra_outputs") or [])
+        outs.append(name)
+        self.node.params["_extra_outputs"] = outs
+        self.refresh_ports()
+
+    def _remove_last_extra_output(self):
+        """Xóa output port cuối + connection bắt đầu từ port đó."""
+        outs = list(self.node.params.get("_extra_outputs") or [])
+        if not outs:
+            return
+        removed = outs.pop()
+        self.node.params["_extra_outputs"] = outs
+        self._prune_port_connections(removed, is_output=True)
+        self.refresh_ports()
+
+    def _prune_port_connections(self, port_name: str, is_output: bool):
+        """Xóa connection liên quan đến port vừa bị remove + ConnectionItem
+        tương ứng trong scene."""
+        scene = self.scene()
+        graph = getattr(scene, "graph", None)
+        if graph is None:
+            return
+        nid = self.node.node_id
+        if is_output:
+            graph.connections = [
+                c for c in graph.connections
+                if not (c.src_id == nid and c.src_port == port_name)
+            ]
+        else:
+            graph.connections = [
+                c for c in graph.connections
+                if not (c.dst_id == nid and c.dst_port == port_name)
+            ]
+        stale = [cid for cid, _ in list(getattr(scene, "_conn_items", {}).items())
+                 if not any(c.conn_id == cid for c in graph.connections)]
+        for cid in stale:
+            ci = scene._conn_items.pop(cid, None)
+            if ci is not None and ci.scene() is scene:
+                scene.removeItem(ci)
+
+    def _open_manage_outputs_dialog(self):
+        dlg = ManageOutputsDialog(self.node, on_change=self.refresh_ports)
+        dlg.exec()
+
+    def _open_add_terminal_dialog(self):
+        # on_remove callback → refresh port ngay sau khi click "Remove
+        # selected" trong dialog, không phải chờ Accept.
+        dlg = AddTerminalDialog(self.node, on_remove=self.refresh_ports)
+        if dlg.exec() != QDialog.Accepted:
+            return
+        terminals = list(self.node.params.get("_extra_terminals") or [])
+        # Thêm mới (nếu user nhập)
+        new = dlg.get_new_terminal()
+        if new and (new.get("field") or new.get("name")):
+            # Tên trùng → bỏ qua (chỉ giữ 1 port), không tạo bản _2.
+            explicit = (new.get("name") or "").strip()
+            base = explicit or auto_terminal_name(new)
+            existing_names = ([p.name for p in self.node.tool.outputs] +
+                                [auto_terminal_name(t) for t in terminals])
+            if base not in existing_names:
+                new["name"] = explicit  # giữ rỗng → fallback auto-name
+                terminals.append(new)
+        self.node.params["_extra_terminals"] = terminals
+        self.refresh_ports()
+
+    def get_port_scene_pos(self, port_name: str, is_output: bool) -> Optional[QPointF]:
+        ports = self._out_ports if is_output else self._in_ports
+        for p in ports:
+            if p.port_name == port_name:
+                return p.scene_center()
+        return None
+
+    def node_width(self) -> float:
+        return self._w
+
+    def node_height(self) -> float:
+        return self._h
