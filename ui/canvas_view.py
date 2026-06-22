@@ -203,6 +203,7 @@ class AOIScene(QGraphicsScene):
     graph_changed    = Signal()
     run_single       = Signal(str)
     view_in_viewer   = Signal(str)   # NEW
+    edit_locked      = Signal()      # phát khi thao tác chỉnh sửa bị chặn (chưa đăng nhập)
 
     def __init__(self, graph: FlowGraph, parent=None):
         super().__init__(parent)
@@ -244,6 +245,8 @@ class AOIScene(QGraphicsScene):
         """Context-menu Delete → chỉ xoá khi đang mở khoá chỉnh sửa."""
         if self._editable:
             self._delete_node(node_id)
+        else:
+            self.edit_locked.emit()
 
     def _load_graph(self):
         for node in self.graph.nodes.values():
@@ -345,16 +348,19 @@ class AOIScene(QGraphicsScene):
         return best
 
     def mousePressEvent(self, event):
-        if self._editable and event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:
             port = self._port_at(event.scenePos())
             if port is not None:
-                self._drag_port    = port
-                self._dragging_conn = True
-                self._temp_curve   = TempCurve()
-                self.addItem(self._temp_curve)
-                self._temp_curve.update(port.scene_center(), event.scenePos())
-                event.accept()
-                return
+                if self._editable:
+                    self._drag_port    = port
+                    self._dragging_conn = True
+                    self._temp_curve   = TempCurve()
+                    self.addItem(self._temp_curve)
+                    self._temp_curve.update(port.scene_center(), event.scenePos())
+                    event.accept()
+                    return
+                # Khoá: bấm vào port để nối dây → báo cần đăng nhập.
+                self.edit_locked.emit()
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -418,6 +424,7 @@ class AOIScene(QGraphicsScene):
     def unlink_connection(self, conn_id: str):
         """Xoá 1 connection (qua right-click dây → Unlink)."""
         if not self._editable:
+            self.edit_locked.emit()
             return
         ci = self._conn_items.pop(conn_id, None)
         if ci is not None and ci.scene() is self:
@@ -434,6 +441,7 @@ class AOIScene(QGraphicsScene):
         """Nối lại 1 đầu của connection sang node/port khác. Giữ nguyên đầu
         không đổi. Trả về Connection mới (hoặc None nếu invalid)."""
         if not self._editable:
+            self.edit_locked.emit()
             return None
         conn = next((c for c in self.graph.connections
                      if c.conn_id == conn_id), None)
@@ -468,6 +476,11 @@ class AOIScene(QGraphicsScene):
         return new_conn
 
     def keyPressEvent(self, event: QKeyEvent):
+        if event.key() in (Qt.Key_Delete, Qt.Key_Backspace) and not self._editable:
+            if self.selectedItems():
+                self.edit_locked.emit()
+            super().keyPressEvent(event)
+            return
         if self._editable and event.key() in (Qt.Key_Delete, Qt.Key_Backspace):
             for item in self.selectedItems():
                 if isinstance(item, NodeItem):
@@ -611,6 +624,7 @@ class AOICanvas(QGraphicsView):
     def dropEvent(self, event: QDropEvent):
         # Chưa đăng nhập → canvas khoá, không cho kéo thêm tool vào.
         if not self._scene.is_editable():
+            self._scene.edit_locked.emit()
             event.ignore()
             return
         tool_id = event.mimeData().text()

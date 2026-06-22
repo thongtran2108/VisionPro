@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                 QFileDialog, QMessageBox, QProgressBar,
                                 QProgressDialog,
                                 QFrame, QTabWidget, QApplication, QDialog)
-from PySide6.QtCore import Qt, QThread, Signal, QObject, QTimer, QSettings
+from PySide6.QtCore import Qt, QThread, Signal, QObject, QTimer, QSettings, QEvent
 from PySide6.QtGui import QAction, QActionGroup, QKeySequence, QFont
 
 from core.i18n import (tr, LANGUAGES, current_language, set_language)
@@ -130,6 +130,51 @@ def _sep() -> QFrame:
     s.setFrameShape(QFrame.VLine)
     s.setStyleSheet("color:#1e2d45;")
     return s
+
+
+class LockOverlay(QWidget):
+    """Lớp phủ mờ đặt trên 1 panel khi CHƯA đăng nhập. Mục đích: panel khoá
+    mà im lặng → user không hiểu sao bấm không được. Overlay vừa cho thấy rõ
+    panel đang khoá (mờ + dòng nhắc), vừa CHẶN tương tác và phát `clicked` để
+    MainWindow hiện thông báo/mời đăng nhập. Tự bám kích thước panel cha."""
+    clicked = Signal()
+
+    def __init__(self, target: QWidget, hint: str = ""):
+        super().__init__(target)
+        self._target = target
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet("background: rgba(6,10,20,0.55);")
+        self._lbl = QLabel(hint, self)
+        self._lbl.setAlignment(Qt.AlignCenter)
+        self._lbl.setWordWrap(True)
+        self._lbl.setStyleSheet(
+            "color:#e2e8f0; background:rgba(13,18,32,0.95);"
+            "border:1px solid #00d4ff; border-radius:8px; padding:10px 14px;"
+            "font-size:12px; font-weight:600;")
+        target.installEventFilter(self)
+        self.hide()
+
+    def eventFilter(self, obj, ev):
+        # Panel cha resize/show → overlay bám theo để luôn phủ kín.
+        if obj is self._target and ev.type() in (QEvent.Resize, QEvent.Show):
+            self._relayout()
+        return False
+
+    def _relayout(self):
+        self.setGeometry(self._target.rect())
+        self._lbl.setFixedWidth(max(140, min(self.width() - 24, 220)))
+        self._lbl.adjustSize()
+        self._lbl.move(max(0, (self.width() - self._lbl.width()) // 2),
+                       max(0, (self.height() - self._lbl.height()) // 2))
+
+    def showEvent(self, ev):
+        self._relayout()
+        self.raise_()
+        super().showEvent(ev)
+
+    def mousePressEvent(self, ev):
+        self.clicked.emit()
+        ev.accept()
 
 
 # ── Main Window ───────────────────────────────────────────────────
@@ -310,6 +355,17 @@ class MainWindow(QMainWindow):
         outer.setSizes([240, 1020, 280])
         outer.setCollapsible(0, False)
         outer.setCollapsible(2, False)
+
+        # Lock overlays — phủ Thư viện Tool & Properties khi chưa đăng nhập:
+        # cho thấy rõ panel đang khoá + bắt click để báo cần đăng nhập (thay
+        # vì disable im lặng khiến user không hiểu sao bấm không được).
+        self._lock_overlays = []
+        for _panel, _hint in (
+                (self._tool_lib, tr("🔒 Đăng nhập để dùng Thư viện Tool")),
+                (self._props,    tr("🔒 Đăng nhập để sửa tham số"))):
+            _ov = LockOverlay(_panel, _hint)
+            _ov.clicked.connect(lambda: self._notify_edit_locked(prompt=True))
+            self._lock_overlays.append(_ov)
 
     def _build_toolbar(self) -> QWidget:
         tb = QWidget()
@@ -553,11 +609,13 @@ class MainWindow(QMainWindow):
             self._act_login.setEnabled(not authed)
             self._act_logout.setEnabled(authed)
             self._act_chpw.setEnabled(authed)
-        # Tool library + Properties chỉ thao tác được khi đã login.
-        if hasattr(self, "_tool_lib"):
-            self._tool_lib.setEnabled(authed)
-        if hasattr(self, "_props"):
-            self._props.setEnabled(authed)
+        # Tool library + Properties chỉ thao tác được khi đã login. Dùng lock
+        # overlay (mờ + bắt click → báo cần đăng nhập) thay cho setEnabled(False)
+        # vốn xám và im lặng khiến user không hiểu sao bấm không được.
+        for _ov in getattr(self, "_lock_overlays", []):
+            _ov.setVisible(not authed)
+            if not authed:
+                _ov.raise_()
         # Canvas: khoá di chuyển/nối/xoá node khi chưa login (vẫn xem được).
         if hasattr(self, "_canvas"):
             self._canvas.aoi_scene.set_editable(authed)
@@ -576,6 +634,37 @@ class MainWindow(QMainWindow):
         dlg.exec()
         self._apply_auth_state()
         return self._auth.is_authenticated
+
+    def _notify_edit_locked(self, prompt: bool = False):
+        """Báo cho user khi 1 thao tác CHỈNH SỬA bị chặn vì chưa đăng nhập.
+        Luôn hiện thông báo ở status bar; hộp thoại mời đăng nhập được throttle
+        (tối đa ~8s/lần) để không spam khi user thao tác liên tiếp."""
+        if self._auth.is_authenticated:
+            return
+        self.statusBar().showMessage(
+            tr("🔒 Chưa đăng nhập — chế độ chỉ xem. Bấm nút 🔒 Đăng nhập để chỉnh sửa."),
+            5000)
+        if not prompt:
+            return
+        import time
+        now = time.monotonic()
+        if now - getattr(self, "_last_lock_prompt", 0.0) < 8.0:
+            return
+        self._last_lock_prompt = now
+        # Defer modal ra ngoài event handler đang chạy (mousePress/keyPress/drop
+        # của canvas) để tránh mở nested event loop ngay trong handler.
+        QTimer.singleShot(0, self._prompt_login_modal)
+
+    def _prompt_login_modal(self):
+        if self._auth.is_authenticated:
+            return
+        r = QMessageBox.question(
+            self, tr("Chưa đăng nhập"),
+            tr("Bạn cần đăng nhập để chỉnh sửa pipeline (thêm / di chuyển / nối "
+               "/ xoá tool, sửa tham số).\n\nĐăng nhập ngay?"),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if r == QMessageBox.Yes:
+            self._do_login()
 
     def _on_login_button(self):
         self._do_logout() if self._auth.is_authenticated else self._do_login()
@@ -870,6 +959,8 @@ class MainWindow(QMainWindow):
         scene.node_deselected.connect(self._on_node_deselected)
         scene.graph_changed.connect(self._on_graph_changed)
         scene.run_single.connect(self._run_single_node)
+        # Thao tác chỉnh sửa canvas bị chặn (chưa đăng nhập) → báo cho user.
+        scene.edit_locked.connect(lambda: self._notify_edit_locked(prompt=True))
         scene._signals.open_props.connect(self._open_node_detail)
         scene._signals.selected.connect(self._props.show_node)
         scene._signals.renamed.connect(self._on_node_renamed)

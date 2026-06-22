@@ -98,6 +98,28 @@ _ENTRIES: List[Tuple[str, str, str, str]] = [
      "Đăng nhập để Sửa tool / YOLO / pipeline. RUN không cần đăng nhập.",
      "登录以编辑工具 / YOLO / 流程。运行无需登录。"),
 
+    # ── Lock overlay + thông báo khi chưa đăng nhập ────────────────
+    ("🔒 Đăng nhập để dùng Thư viện Tool",
+     "🔒 Log in to use the Tool Library",
+     "🔒 Đăng nhập để dùng Thư viện Tool",
+     "🔒 登录以使用工具库"),
+    ("🔒 Đăng nhập để sửa tham số",
+     "🔒 Log in to edit parameters",
+     "🔒 Đăng nhập để sửa tham số",
+     "🔒 登录以编辑参数"),
+    ("🔒 Chưa đăng nhập — chế độ chỉ xem. Bấm nút 🔒 Đăng nhập để chỉnh sửa.",
+     "🔒 Not logged in — view-only mode. Click 🔒 Log in to edit.",
+     "🔒 Chưa đăng nhập — chế độ chỉ xem. Bấm nút 🔒 Đăng nhập để chỉnh sửa.",
+     "🔒 未登录 — 仅查看模式。点击 🔒 登录 进行编辑。"),
+    ("Chưa đăng nhập", "Not logged in", "Chưa đăng nhập", "未登录"),
+    ("Bạn cần đăng nhập để chỉnh sửa pipeline (thêm / di chuyển / nối "
+     "/ xoá tool, sửa tham số).\n\nĐăng nhập ngay?",
+     "You must log in to edit the pipeline (add / move / connect / delete "
+     "tools, edit parameters).\n\nLog in now?",
+     "Bạn cần đăng nhập để chỉnh sửa pipeline (thêm / di chuyển / nối "
+     "/ xoá tool, sửa tham số).\n\nĐăng nhập ngay?",
+     "您需要登录才能编辑流程（添加/移动/连接/删除工具，编辑参数）。\n\n现在登录？"),
+
     # ── Center tabs ────────────────────────────────────────────────
     ("🔧  Pipeline Canvas", "🔧  Pipeline Canvas", "🔧  Pipeline Canvas", "🔧  流程画布"),
     ("👁  Image Viewer", "👁  Image Viewer", "👁  Trình xem ảnh", "👁  图像查看器"),
