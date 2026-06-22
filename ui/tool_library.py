@@ -145,7 +145,7 @@ class ToolButton(QFrame):
 class CategorySection(QWidget):
     def __init__(self, category: str, tools: List[ToolDef], parent=None):
         super().__init__(parent)
-        self._collapsed = False
+        self._collapsed = True   # mặc định ĐÓNG — user tự mở category cần dùng
         self._tools = tools
         self._category = category
         cat_color = CAT_COLORS.get(category, "#1e2d45")
@@ -155,8 +155,9 @@ class CategorySection(QWidget):
         layout.setContentsMargins(0, 0, 0, 2)
         layout.setSpacing(2)
 
-        self._header = QPushButton(f"▾  {cat_icon}  {tr(category)}  ({len(tools)})")
+        self._header = QPushButton(f"▸  {cat_icon}  {tr(category)}  ({len(tools)})")
         self._header.setCheckable(True)
+        self._header.setChecked(True)   # checked = collapsed (đồng bộ _toggle)
         self._header.setStyleSheet(f"""
             QPushButton {{
                 background: {cat_color}88;
@@ -187,12 +188,19 @@ class CategorySection(QWidget):
             cl.addWidget(btn)
             self._buttons.append(btn)
         layout.addWidget(self._content)
+        # Mặc định đóng: ẩn nội dung ngay khi dựng (giữ đồng bộ với _collapsed).
+        self._content.setVisible(False)
 
     def _toggle(self):
-        self._collapsed = not self._collapsed
-        self._content.setVisible(not self._collapsed)
+        self.set_collapsed(not self._collapsed)
+
+    def set_collapsed(self, collapsed: bool):
+        """Đặt trạng thái đóng/mở; đồng bộ mũi tên + checked + nội dung."""
+        self._collapsed = collapsed
+        self._content.setVisible(not collapsed)
+        self._header.setChecked(collapsed)   # checked = collapsed
         cat_icon = CAT_ICONS.get(self._category, "●")
-        sym = "▸" if self._collapsed else "▾"
+        sym = "▸" if collapsed else "▾"
         self._header.setText(
             f"{sym}  {cat_icon}  {tr(self._category)}  ({len(self._tools)})")
 
@@ -208,6 +216,14 @@ class CategorySection(QWidget):
             btn.setVisible(vis)
             any_vis = any_vis or vis
         self.setVisible(any_vis or not text)
+        # Đang tìm kiếm → mở section có tool khớp để thấy ngay; xóa ô tìm →
+        # đóng lại về mặc định (đóng). Không có set_collapsed thì content đang
+        # ẩn sẽ che mất tool khớp.
+        if text:
+            if any_vis:
+                self.set_collapsed(False)
+        else:
+            self.set_collapsed(True)
 
 
 class ToolLibraryPanel(QWidget):

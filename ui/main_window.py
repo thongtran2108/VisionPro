@@ -11,13 +11,12 @@ from typing import Optional, Callable
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                 QSplitter, QLabel, QPushButton, QStatusBar,
                                 QFileDialog, QMessageBox, QProgressBar,
-                                QProgressDialog, QComboBox,
+                                QProgressDialog,
                                 QFrame, QTabWidget, QApplication, QDialog)
 from PySide6.QtCore import Qt, QThread, Signal, QObject, QTimer, QSettings
 from PySide6.QtGui import QAction, QActionGroup, QKeySequence, QFont
 
-from core.i18n import (tr, LANGUAGES, LANGUAGE_CODES, current_language,
-                       set_language)
+from core.i18n import (tr, LANGUAGES, current_language, set_language)
 from core.flow_graph import FlowGraph
 from core.paths import projects_dir
 from ui.canvas_view import AOICanvas
@@ -392,31 +391,8 @@ class MainWindow(QMainWindow):
         sep_l.setStyleSheet("color:#1e2d45;")
         hl.addWidget(sep_l)
 
-        # Language switcher (vi / en / zh). Đổi → lưu QSettings + nhắc khởi
-        # động lại app để áp dụng (không retranslate runtime).
-        self._lang_combo = QComboBox()
-        self._lang_combo.setFixedHeight(34)
-        self._lang_combo.setCursor(Qt.PointingHandCursor)
-        self._lang_combo.setToolTip(tr("🌐 Language"))
-        self._lang_combo.setStyleSheet(
-            "QComboBox{background:#111827;border:1px solid #1e2d45;"
-            "border-radius:5px;color:#94a3b8;font-size:12px;font-weight:600;"
-            "padding:0 10px;}"
-            "QComboBox:hover{border-color:#00d4ff;color:#e2e8f0;}"
-            "QComboBox::drop-down{border:none;width:16px;}"
-            "QComboBox QAbstractItemView{background:#0d1220;color:#e2e8f0;"
-            "border:1px solid #1e2d45;selection-background-color:#1a2236;}")
-        for code, label in LANGUAGES:
-            self._lang_combo.addItem(f"🌐 {label}", code)
-        _cur = current_language()
-        if _cur in LANGUAGE_CODES:
-            self._lang_combo.setCurrentIndex(LANGUAGE_CODES.index(_cur))
-        self._lang_combo.currentIndexChanged.connect(self._on_language_changed)
-        hl.addWidget(self._lang_combo)
-
-        sep_lang = QFrame(); sep_lang.setFrameShape(QFrame.VLine)
-        sep_lang.setStyleSheet("color:#1e2d45;")
-        hl.addWidget(sep_lang)
+        # Ngôn ngữ đổi qua menu “🌐 Language” trên menu bar (không đặt combo
+        # cạnh nút đăng nhập nữa cho gọn toolbar).
 
         # Login/Logout — khoá/mở quyền Sửa & Chạy tool. Bấm khi đang khoá →
         # mở dialog đăng nhập; đang mở khoá → đăng xuất.
@@ -427,20 +403,13 @@ class MainWindow(QMainWindow):
         hl.addWidget(self._btn_login)
         return tb
 
-    def _on_language_changed(self, idx: int):
-        self._change_language(self._lang_combo.itemData(idx))
-
     def _change_language(self, code: str):
         """Đổi ngôn ngữ: lưu lựa chọn vào QSettings + nhắc khởi động lại app.
-        Không retranslate runtime — đơn giản & chắc chắn. Đồng bộ cả combo
-        toolbar lẫn menu để phản ánh lựa chọn (dù app chưa restart)."""
+        Không retranslate runtime — đơn giản & chắc chắn. Đồng bộ menu Language
+        để phản ánh lựa chọn (dù app chưa restart)."""
         if not code or code == current_language():
             return
         set_language(code, persist=True)
-        if hasattr(self, "_lang_combo") and code in LANGUAGE_CODES:
-            self._lang_combo.blockSignals(True)
-            self._lang_combo.setCurrentIndex(LANGUAGE_CODES.index(code))
-            self._lang_combo.blockSignals(False)
         for a in getattr(self, "_lang_actions", []):
             a.setChecked(a.data() == code)
         # tr() đã dùng ngôn ngữ mới → hộp thoại hiện đúng ngôn ngữ vừa chọn.
@@ -1409,13 +1378,33 @@ class MainWindow(QMainWindow):
             f"({ok} values{', '+str(err)+' errors' if err else ''})", 4000)
 
     def _about(self):
+        # Thời hạn kích hoạt: _days_left do LicenseManager tính (theo expires
+        # hoặc duration_days). Không có hạn → license vĩnh viễn; <0 → đã hết hạn.
+        lic_html = ""
+        try:
+            from core.licensing import LicenseManager
+            payload = LicenseManager().status().payload or {}
+            days = payload.get("_days_left")
+            if days is None:
+                lic_html = f"<p>{tr('🔑 Bản quyền: vĩnh viễn')}</p>"
+            elif int(days) >= 0:
+                line = tr("🔑 Bản quyền: còn lại {days} ngày").format(
+                    days=f"<b style='color:#00d4ff;'>{int(days)}</b>")
+                expiry = payload.get("_effective_expiry", "")
+                if expiry:
+                    line += " " + tr("(hết hạn {date})").format(date=expiry)
+                lic_html = f"<p>{line}</p>"
+            else:
+                lic_html = f"<p>{tr('🔑 Bản quyền đã hết hạn')}</p>"
+        except Exception:
+            pass
         QMessageBox.about(self, "Vision Ultimate",
             tr("<h2 style='color:#00d4ff;'>Vision Ultimate v1.0</h2>"
             "<p>Automated Optical Inspection<br>PySide6 + OpenCV</p>"
             "<ul><li>Drag-drop pipeline</li>"
             "<li>30+ inspection tools</li>"
             "<li>Real-time image viewer</li>"
-            "<li>Pass/Fail judgment</li></ul>"))
+            "<li>Pass/Fail judgment</li></ul>") + lic_html)
 
     def _shortcuts(self):
         QMessageBox.information(self, tr("Shortcuts"),
