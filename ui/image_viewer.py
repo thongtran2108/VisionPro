@@ -10,7 +10,8 @@ import numpy as np
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                 QComboBox, QPushButton, QScrollArea,
                                 QSizePolicy, QFrame, QSlider, QCheckBox,
-                                QToolBar, QSplitter, QGroupBox, QGridLayout)
+                                QToolBar, QSplitter, QGroupBox, QGridLayout,
+                                QFileDialog, QMessageBox)
 from PySide6.QtCore import Qt, Signal, QTimer, QPointF, QRectF, QSize
 from PySide6.QtGui import (QPixmap, QImage, QColor, QPainter, QPen, QBrush,
                             QFont, QWheelEvent, QMouseEvent, QTransform,
@@ -92,6 +93,11 @@ class ZoomableImageWidget(QWidget):
         self._pixmap = QPixmap.fromImage(qimg)
         self._fit_to_window()
         self.update()
+
+    def current_pixmap(self) -> Optional[QPixmap]:
+        """Pixmap full-resolution đang hiển thị (None nếu chưa có ảnh). Dùng
+        để lưu ảnh ra file đúng như đang thấy (không phụ thuộc zoom/pan)."""
+        return self._pixmap
 
     def _fit_to_window(self):
         if not self._pixmap:
@@ -313,6 +319,12 @@ class ImageViewerPanel(QWidget):
         # Refs để ẩn cùng node combo khi vào multi-view (zoom + Results global
         # không apply cho grid — mỗi cell có combo + zoom riêng).
         self._tb_zoom_btns = (btn_out, btn_in, btn_1to1, btn_fit)
+
+        # Save — xuất ảnh đang hiển thị ra file (PNG/JPG/BMP/TIFF). Hoạt động
+        # cả single-view (ảnh node đang xem) lẫn multi-view (lưu từng ô).
+        btn_save = tb_btn("💾", tr("Lưu ảnh đang hiển thị ra file (PNG/JPG/BMP)"))
+        btn_save.clicked.connect(self._save_image)
+        tl.addWidget(btn_save)
 
         # Results dropdown — chọn tool nào để overlay annotation lên ảnh gốc.
         # Menu rebuilt động khi mở: list tất cả node có image output, mỗi
@@ -1673,6 +1685,79 @@ class ImageViewerPanel(QWidget):
             return
         fit_scale = min(ww / pw, wh / ph) * 0.95
         v.set_zoom(min(1.0, fit_scale))
+
+    def _save_image(self):
+        """Lưu ảnh ĐANG HIỂN THỊ ra file (PNG/JPG/BMP/TIFF). Single-view: lưu
+        ảnh của node đang xem (kèm overlay đang bật). Multi-view: lưu từng ô,
+        chèn hậu tố tên nhánh vào tên file."""
+        import os
+        import re
+        import time
+
+        # Thu thập (pixmap, gợi ý tên) của ảnh đang hiển thị.
+        items = []   # list[(QPixmap, name_hint)]
+        if self._view_stack.currentIndex() == 1 and self._multi_views:
+            for entry in self._multi_views:
+                v = entry.get("view")
+                pm = v.current_pixmap() if v is not None else None
+                if pm is not None:
+                    items.append((pm, entry.get("root_lbl") or ""))
+        else:
+            pm = self._img_view.current_pixmap()
+            if pm is not None:
+                name = ""
+                if self._graph and self._current_node_id in self._graph.nodes:
+                    name = self._graph.nodes[self._current_node_id].name
+                items.append((pm, name))
+
+        if not items:
+            QMessageBox.information(
+                self, tr("Lưu ảnh"),
+                tr("Chưa có ảnh để lưu. Hãy Run pipeline hoặc chọn node có ảnh."))
+            return
+
+        def _safe(s: str) -> str:
+            s = re.sub(r"[^\w\-]+", "_", (s or "").strip()).strip("_")
+            return s or "image"
+
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        base_name = _safe(items[0][1]) if len(items) == 1 else "viewer"
+        default_path = os.path.join(
+            os.path.expanduser("~"), f"{base_name}_{ts}.png")
+
+        path, _flt = QFileDialog.getSaveFileName(
+            self, tr("Lưu ảnh"), default_path,
+            "PNG (*.png);;JPEG (*.jpg *.jpeg);;BMP (*.bmp);;TIFF (*.tif *.tiff)")
+        if not path:
+            return
+        root, ext = os.path.splitext(path)
+        if not ext:
+            ext = ".png"
+
+        saved, failed = [], []
+        for i, (pm, hint) in enumerate(items):
+            if len(items) == 1:
+                p = root + ext
+            else:
+                # Luôn kèm index → tên không trùng kể cả khi nhãn ô rỗng/giống nhau.
+                p = f"{root}_{i + 1}_{_safe(hint)}{ext}"
+            (saved if pm.save(p) else failed).append(p)
+
+        if saved and not failed:
+            QMessageBox.information(
+                self, tr("Lưu ảnh"),
+                tr("Đã lưu {n} ảnh:").format(n=len(saved)) + "\n"
+                + "\n".join(saved))
+        elif saved and failed:
+            QMessageBox.warning(
+                self, tr("Lưu ảnh"),
+                tr("Đã lưu {n} ảnh:").format(n=len(saved)) + "\n"
+                + "\n".join(saved) + "\n\n"
+                + tr("Lưu thất bại:") + "\n" + "\n".join(failed))
+        else:
+            QMessageBox.critical(
+                self, tr("Lưu ảnh"),
+                tr("Lưu ảnh thất bại — kiểm tra đường dẫn/định dạng."))
 
     def _on_pixel_info(self, x: int, y: int, rgb: tuple):
         r, g, b = rgb

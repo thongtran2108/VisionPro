@@ -102,6 +102,23 @@ _ENTRIES: List[Tuple[str, str, str, str]] = [
     ("🔧  Pipeline Canvas", "🔧  Pipeline Canvas", "🔧  Pipeline Canvas", "🔧  流程画布"),
     ("👁  Image Viewer", "👁  Image Viewer", "👁  Trình xem ảnh", "👁  图像查看器"),
 
+    # ── Image Viewer — Save image ──────────────────────────────────
+    ("Lưu ảnh đang hiển thị ra file (PNG/JPG/BMP)",
+     "Save the displayed image to file (PNG/JPG/BMP)",
+     "Lưu ảnh đang hiển thị ra file (PNG/JPG/BMP)",
+     "将显示的图像保存到文件 (PNG/JPG/BMP)"),
+    ("Lưu ảnh", "Save Image", "Lưu ảnh", "保存图像"),
+    ("Chưa có ảnh để lưu. Hãy Run pipeline hoặc chọn node có ảnh.",
+     "No image to save. Run the pipeline or pick a node with an image.",
+     "Chưa có ảnh để lưu. Hãy Run pipeline hoặc chọn node có ảnh.",
+     "没有可保存的图像。请运行流程或选择有图像的节点。"),
+    ("Đã lưu {n} ảnh:", "Saved {n} image(s):", "Đã lưu {n} ảnh:", "已保存 {n} 张图像："),
+    ("Lưu thất bại:", "Failed to save:", "Lưu thất bại:", "保存失败："),
+    ("Lưu ảnh thất bại — kiểm tra đường dẫn/định dạng.",
+     "Failed to save image — check the path/format.",
+     "Lưu ảnh thất bại — kiểm tra đường dẫn/định dạng.",
+     "保存图像失败 — 请检查路径/格式。"),
+
     # ── Tool Library panel ─────────────────────────────────────────
     ("⬡  T TOOL LIBRARY", "⬡  TOOL LIBRARY", "⬡  THƯ VIỆN TOOL", "⬡  工具库"),
     ("tools", "tools", "tool", "个工具"),
