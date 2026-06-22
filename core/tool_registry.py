@@ -3279,17 +3279,95 @@ def proc_message(inputs, params):
             "_label_centroids": label_anchors}
 
 
-def proc_save_image(inputs,params):
-    """TSaveImageTool — Lưu ảnh ra file."""
-    img=inputs.get("image")
-    if img is None: return {"saved":False,"path":""}
-    import os,time
-    path=params.get("save_path","output/result.png")
-    os.makedirs(os.path.dirname(os.path.abspath(path)),exist_ok=True)
-    if params.get("timestamp",True):
-        b,e=os.path.splitext(path); path=f"{b}_{int(time.time())}{e or '.png'}"
-    ok=cv2.imwrite(path,img)
-    return {"saved":ok,"path":path}
+def proc_save_image(inputs, params):
+    """TSaveImageTool — Lưu ảnh ra file. Hỗ trợ:
+      • Thư mục con TỰ SINH theo ngày (YYYY-MM-DD / YYYY/MM/DD / YYYY-MM).
+      • Chọn lưu ảnh ĐÃ XỬ LÝ (port image), ẢNH GỐC/RAW (port raw_image)
+        hay CẢ HAI (thêm hậu tố _proc / _raw).
+      • Tách thư mục OK / NG theo port 'pass'.
+      • Thêm timestamp (YYYYMMDD_HHMMSS_mmm) để mỗi lần lưu là 1 file mới.
+    """
+    import os, datetime
+    proc_img = inputs.get("image")
+    raw_img  = inputs.get("raw_image")
+    which = params.get("which_image", "Đã xử lý")
+
+    # Quyết định ảnh cần lưu (fallback hợp lý nếu thiếu port).
+    targets = []   # list[(img, suffix)]
+    if which == "Ảnh gốc (raw)":
+        targets.append((raw_img if raw_img is not None else proc_img, ""))
+    elif which == "Cả hai":
+        if proc_img is not None:
+            targets.append((proc_img, "_proc"))
+        if raw_img is not None:
+            targets.append((raw_img, "_raw"))
+    else:  # "Đã xử lý"
+        targets.append((proc_img if proc_img is not None else raw_img, ""))
+    targets = [(im, sfx) for im, sfx in targets if im is not None]
+    if not targets:
+        return {"saved": False, "path": "", "raw_path": ""}
+
+    # Tách đường dẫn gốc → thư mục + tên + đuôi.
+    base = params.get("save_path", "output/result.png") or "output/result.png"
+    out_dir = os.path.dirname(os.path.abspath(base)) or os.getcwd()
+    name = os.path.splitext(os.path.basename(base))[0] or "result"
+    fmt = (params.get("format", "Theo path") or "Theo path")
+    if fmt == "Theo path":
+        ext = os.path.splitext(base)[1] or ".png"
+    else:
+        ext = "." + fmt.lower().lstrip(".")
+
+    # Thư mục con theo ngày.
+    now = datetime.datetime.now()
+    mode = params.get("date_subfolder", "Không")
+    if mode == "YYYY-MM-DD":
+        out_dir = os.path.join(out_dir, now.strftime("%Y-%m-%d"))
+    elif mode == "YYYY/MM/DD":
+        out_dir = os.path.join(out_dir, now.strftime("%Y"),
+                               now.strftime("%m"), now.strftime("%d"))
+    elif mode == "YYYY-MM":
+        out_dir = os.path.join(out_dir, now.strftime("%Y-%m"))
+
+    # Tách OK / NG theo port pass.
+    if params.get("split_pass_fail", False):
+        pv = inputs.get("pass")
+        if pv is not None:
+            out_dir = os.path.join(out_dir, "OK" if pv else "NG")
+
+    try:
+        os.makedirs(out_dir, exist_ok=True)
+    except OSError as e:
+        return {"saved": False, "path": "", "raw_path": "",
+                "error": f"mkdir failed: {e}"}
+
+    stamp = ""
+    if params.get("timestamp", True):
+        stamp = "_" + now.strftime("%Y%m%d_%H%M%S_") + f"{now.microsecond // 1000:03d}"
+
+    enc = []
+    if ext.lower() in (".jpg", ".jpeg"):
+        q = int(params.get("jpg_quality", 95))
+        enc = [cv2.IMWRITE_JPEG_QUALITY, max(1, min(100, q))]
+
+    saved_any = False
+    proc_path = ""
+    raw_path = ""
+    for im, sfx in targets:
+        fpath = os.path.join(out_dir, f"{name}{sfx}{stamp}{ext}")
+        try:
+            ok = cv2.imwrite(fpath, im, enc) if enc else cv2.imwrite(fpath, im)
+        except Exception as e:
+            print(f"[SaveImage] imwrite error: {e}")
+            ok = False
+        if ok:
+            saved_any = True
+            if sfx == "_raw":
+                raw_path = fpath
+            else:
+                proc_path = fpath
+            print(f"[SaveImage] saved: {fpath}")
+    return {"saved": saved_any, "path": proc_path or raw_path,
+            "raw_path": raw_path}
 
 def proc_csv_log(inputs,params):
     """Ghi kết quả vào CSV log."""
@@ -5708,11 +5786,42 @@ TOOL_REGISTRY: List[ToolDef] = [
     proc_message, ""),
 
   ToolDef("save_image","Save Image","Output & Display",
-    "Lưu ảnh ra file — TSaveImageTool","#0d1117","💾",
-    [PortDef("image","image")],
-    [PortDef("saved","bool"),PortDef("path","any")],
-    [P("save_path","Save Path","str","output/result.png"),
-     P("timestamp","Add Timestamp","bool",True)],
+    "Lưu ảnh ra file. Tạo thư mục con theo NGÀY (YYYY-MM-DD…), chọn lưu ảnh ĐÃ "
+    "XỬ LÝ (port image) / ẢNH GỐC-RAW (nối Acquire vào port raw_image) / CẢ HAI, "
+    "tách thư mục OK-NG theo port pass, thêm timestamp để không đè file — "
+    "TSaveImageTool","#0d1117","💾",
+    [PortDef("image","image"),
+     PortDef("raw_image","image",required=False),
+     PortDef("pass","bool",required=False)],
+    [PortDef("saved","bool"),PortDef("path","any"),PortDef("raw_path","any")],
+    [P("save_path","Đường dẫn gốc (thư mục/tên file)","str","output/result.png",
+       tooltip="Thư mục + tên file cơ sở (vd output/result.png). Thư mục con "
+               "theo ngày & OK/NG sẽ chèn VÀO TRONG thư mục này. Dùng đường dẫn "
+               "tuyệt đối (vd D:/AOI/img.png) nếu muốn lưu chỗ khác."),
+     P("which_image","Lưu ảnh nào","enum","Đã xử lý",
+       choices=["Đã xử lý","Ảnh gốc (raw)","Cả hai"],
+       tooltip="• Đã xử lý: lưu ảnh ở port 'image'.\n"
+               "• Ảnh gốc (raw): lưu ảnh ở port 'raw_image' — nối từ Acquire "
+               "Image/Camera để có ảnh chưa qua xử lý.\n"
+               "• Cả hai: lưu cả 2, tự thêm hậu tố _proc và _raw vào tên file."),
+     P("date_subfolder","Thư mục con theo ngày","enum","Không",
+       choices=["Không","YYYY-MM-DD","YYYY/MM/DD","YYYY-MM"],
+       tooltip="Tự tạo thư mục con theo ngày để gom ảnh:\n"
+               "• YYYY-MM-DD → output/2026-06-22/\n"
+               "• YYYY/MM/DD → output/2026/06/22/ (lồng nhau)\n"
+               "• YYYY-MM    → output/2026-06/"),
+     P("split_pass_fail","Tách thư mục OK/NG (theo port pass)","bool",False,
+       tooltip="Nối port 'pass' (vd từ Pass/Fail Judge) → ảnh OK lưu vào .../OK, "
+               "ảnh FAIL lưu vào .../NG. Port pass trống → không tách."),
+     P("format","Định dạng","enum","Theo path",
+       choices=["Theo path","png","jpg","bmp","tiff"],
+       tooltip="'Theo path' = dùng đuôi file ở Đường dẫn gốc. Hoặc ép 1 định dạng."),
+     P("jpg_quality","JPEG Quality","int",95,1,100,
+       visible_if={"format":"jpg"},
+       tooltip="Chất lượng JPEG 1–100 (chỉ khi định dạng jpg)."),
+     P("timestamp","Thêm thời gian vào tên file","bool",True,
+       tooltip="Chèn _YYYYMMDD_HHMMSS_mmm vào tên → mỗi lần lưu là 1 file mới, "
+               "không đè lên file cũ. Tắt → luôn ghi đè cùng 1 tên.")],
     proc_save_image,"TSaveImageTool"),
 
   ToolDef("csv_log","CSV Logger","Output & Display",
