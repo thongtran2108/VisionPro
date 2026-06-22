@@ -1,0 +1,6012 @@
+{
+"!=": {
+"en": "!=",
+"vi": "!=",
+"zh": "!="
+},
+"(keyword) Giá trị nằm đâu so với từ khóa. Hóa đơn thường để 'right'.": {
+"en": "(keyword) Where the value is relative to the keyword. Invoices are usually 'right'.",
+"vi": "(keyword) Giá trị nằm đâu so với từ khóa. Hóa đơn thường để 'right'.",
+"zh": "(keyword) 数值相对于关键词的位置。发票通常设为 'right'。"
+},
+"0 = giữ chiều cao ảnh gốc": {
+"en": "0 = keep original image height",
+"vi": "0 = giữ chiều cao ảnh gốc",
+"zh": "0 = 保持原始图像高度"
+},
+"0 = giữ chiều rộng ảnh gốc": {
+"en": "0 = keep original image width",
+"vi": "0 = giữ chiều rộng ảnh gốc",
+"zh": "0 = 保持原始图像宽度"
+},
+"0-based theo enumeration order": {
+"en": "0-based according to enumeration order",
+"vi": "0-based theo enumeration order",
+"zh": "基于 0 索引，按 enumeration order 排序"
+},
+"0.5 = thu 1/2, 2.0 = phóng gấp đôi.": {
+"en": "0.5 = shrink to 1/2, 2.0 = zoom in 2×.",
+"vi": "0.5 = thu 1/2, 2.0 = phóng gấp đôi.",
+"zh": "0.5 = 缩小至 1/2，2.0 = 放大一倍。"
+},
+"0=auto": {
+"en": "0=auto",
+"vi": "0=auto",
+"zh": "0=auto"
+},
+"0=auto (target ~1.5MP). 20MP → ds=4 → ~6ms vs ~45ms full-res.": {
+"en": "0=auto (target ~1.5MP). 20MP → ds=4 → ~6ms vs ~45ms full-res.",
+"vi": "0=auto (target ~1.5MP). 20MP → ds=4 → ~6ms vs ~45ms full-res.",
+"zh": "0=auto（目标 ~1.5MP）。20MP → ds=4 → ~6ms 对比 ~45ms 全分辨率。"
+},
+"0=auto (target ~1.5MP). Canny chỉ chạy trong ROI band; downscale thêm khi band lớn.": {
+"en": "0=auto (target ~1.5MP). Canny only runs inside the ROI band; downscale further when the band is large.",
+"vi": "0=auto (target ~1.5MP). Canny chỉ chạy trong ROI band; downscale thêm khi band lớn.",
+"zh": "0=auto（目标 ~1.5MP）。Canny 仅在 ROI band 内运行；band 较大时会进一步缩小。"
+},
+"0=auto (target ~1.5MP). Tọa độ/length scale ngược về full-res.": {
+"en": "0=auto (target ~1.5MP). Coordinates/length are scaled back to full-res.",
+"vi": "0=auto (target ~1.5MP). Tọa độ/length scale ngược về full-res.",
+"zh": "0=auto（目标 ~1.5MP）。坐标/长度会按比例还原为 full-res。"
+},
+"0=auto target ~1.5MP. cvtColor+inRange+morph chạy trên ảnh nhỏ; mask resize ngược về full-res. Cho ảnh 20MP: ~80ms → ~6ms.": {
+"en": "0=auto target ~1.5MP. cvtColor+inRange+morph run on the downscaled image; the mask is resized back to full-res. For a 20MP image: ~80ms → ~6ms.",
+"vi": "0=auto target ~1.5MP. cvtColor+inRange+morph chạy trên ảnh nhỏ; mask resize ngược về full-res. Cho ảnh 20MP: ~80ms → ~6ms.",
+"zh": "0=auto，目标 ~1.5MP。cvtColor+inRange+morph 在缩小后的图像上运行；mask 再缩放还原为 full-res。对于 20MP 图像：~80ms → ~6ms。"
+},
+"0=auto target ~1.5MP. ≥1 force tỉ lệ. Giảm DS× → giảm DS²× thời gian threshold+findContours. Toạ độ/area scale ngược về full-res cho overlay & output.": {
+"en": "0=auto target ~1.5MP. ≥1 forces the ratio. Reducing DS× → reduces threshold+findContours time by DS²×. Coordinates/area are scaled back to full-res for overlay & output.",
+"vi": "0=auto target ~1.5MP. ≥1 force tỉ lệ. Giảm DS× → giảm DS²× thời gian threshold+findContours. Toạ độ/area scale ngược về full-res cho overlay & output.",
+"zh": "0=auto，目标 ~1.5MP。≥1 表示强制比例。降低 DS× → threshold+findContours 耗时降低 DS²×。坐标/面积会按比例还原为 full-res 用于 overlay 与 output。"
+},
+"0=auto. findChessboardCorners coarse trên ảnh nhỏ, cornerSubPix refine full-res → cùng độ chính xác sub-pixel.": {
+"en": "0=auto. findChessboardCorners runs coarse on the downscaled image, cornerSubPix refines at full-res → same sub-pixel accuracy.",
+"vi": "0=auto. findChessboardCorners coarse trên ảnh nhỏ, cornerSubPix refine full-res → cùng độ chính xác sub-pixel.",
+"zh": "0=auto。findChessboardCorners 在缩小图像上粗略检测，cornerSubPix 在 full-res 上精修 → 保持相同的亚像素精度。"
+},
+"0=mọi hình dạng, 1=hình tròn hoàn hảo": {
+"en": "0=any shape, 1=perfect circle",
+"vi": "0=mọi hình dạng, 1=hình tròn hoàn hảo",
+"zh": "0=任意形状，1=完美圆形"
+},
+"ABCD": {
+"en": "ABCD",
+"vi": "ABCD",
+"zh": "ABCD"
+},
+"ALL": {
+"en": "ALL",
+"vi": "ALL",
+"zh": "ALL"
+},
+"AND Gate": {
+"en": "AND Gate",
+"vi": "Cổng AND",
+"zh": "AND 门"
+},
+"ANY": {
+"en": "ANY",
+"vi": "ANY",
+"zh": "ANY"
+},
+"Accept Threshold": {
+"en": "Accept Threshold",
+"vi": "Ngưỡng chấp nhận",
+"zh": "接受阈值"
+},
+"Access mode": {
+"en": "Access mode",
+"vi": "Chế độ truy cập",
+"zh": "访问模式"
+},
+"Accum Thresh": {
+"en": "Accum Thresh",
+"vi": "Ngưỡng tích lũy",
+"zh": "累积阈值"
+},
+"Acquire Image": {
+"en": "Acquire Image",
+"vi": "Lấy ảnh",
+"zh": "采集图像"
+},
+"Add Timestamp": {
+"en": "Add Timestamp",
+"vi": "Thêm dấu thời gian",
+"zh": "添加时间戳"
+},
+"Address": {
+"en": "Address",
+"vi": "Địa chỉ",
+"zh": "地址"
+},
+"Algorithm": {
+"en": "Algorithm",
+"vi": "Thuật toán",
+"zh": "算法"
+},
+"Anchor Position": {
+"en": "Anchor Position",
+"vi": "Vị trí neo",
+"zh": "锚点位置"
+},
+"Angle (°)": {
+"en": "Angle (°)",
+"vi": "Góc (°)",
+"zh": "角度 (°)"
+},
+"Angle Line-Line": {
+"en": "Angle Line-Line",
+"vi": "Góc Line-Line",
+"zh": "Line-Line 角度"
+},
+"Angle Range (°)": {
+"en": "Angle Range (°)",
+"vi": "Khoảng góc (°)",
+"zh": "角度范围 (°)"
+},
+"Angle Step (°)": {
+"en": "Angle Step (°)",
+"vi": "Bước góc (°)",
+"zh": "角度步长 (°)"
+},
+"Annotate & hiển thị ảnh kết quả — TRecordDisplayTool": {
+"en": "Annotate & display result image — TRecordDisplayTool",
+"vi": "Annotate & hiển thị ảnh kết quả — TRecordDisplayTool",
+"zh": "标注并显示结果图像 — TRecordDisplayTool"
+},
+"Area": {
+"en": "Area",
+"vi": "Diện tích",
+"zh": "面积"
+},
+"Area Measure": {
+"en": "Area Measure",
+"vi": "Đo diện tích",
+"zh": "面积测量"
+},
+"Auto": {
+"en": "Auto",
+"vi": "Tự động",
+"zh": "自动"
+},
+"Auto Advance": {
+"en": "Auto Advance",
+"vi": "Tự động chuyển tiếp",
+"zh": "自动前进"
+},
+"Auto Binarize (Otsu)": {
+"en": "Auto Binarize (Otsu)",
+"vi": "Tự động nhị phân hoá (Otsu)",
+"zh": "自动二值化 (Otsu)"
+},
+"Auto Threshold (Otsu)": {
+"en": "Auto Threshold (Otsu)",
+"vi": "Tự động ngưỡng (Otsu)",
+"zh": "自动阈值 (Otsu)"
+},
+"Auto-connect": {
+"en": "Auto-connect",
+"vi": "Tự động kết nối",
+"zh": "自动连接"
+},
+"Average": {
+"en": "Average",
+"vi": "Trung bình",
+"zh": "平均值"
+},
+"B High": {
+"en": "B High",
+"vi": "B Cao",
+"zh": "B 高"
+},
+"B Low": {
+"en": "B Low",
+"vi": "B Thấp",
+"zh": "B 低"
+},
+"BBox Color": {
+"en": "BBox Color",
+"vi": "Màu BBox",
+"zh": "BBox 颜色"
+},
+"BBox Thickness": {
+"en": "BBox Thickness",
+"vi": "Độ dày BBox",
+"zh": "BBox 线宽"
+},
+"BGR to RGB": {
+"en": "BGR to RGB",
+"vi": "BGR sang RGB",
+"zh": "BGR 转 RGB"
+},
+"Backend": {
+"en": "Backend",
+"vi": "Backend",
+"zh": "后端"
+},
+"Bilateral d": {
+"en": "Bilateral d",
+"vi": "Bilateral d",
+"zh": "Bilateral d"
+},
+"Binarize trước OCR — tách chữ khỏi nền phức tạp / sáng không đều.": {
+"en": "Binarize before OCR — separate text from a complex background / uneven lighting.",
+"vi": "Binarize trước OCR — tách chữ khỏi nền phức tạp / sáng không đều.",
+"zh": "OCR 前先二值化 — 将文字从复杂背景 / 光照不均的背景中分离出来。"
+},
+"Binary": {
+"en": "Binary",
+"vi": "Nhị phân",
+"zh": "二值化"
+},
+"Binary INV": {
+"en": "Binary INV",
+"vi": "Nhị phân đảo (INV)",
+"zh": "二值化反转 (INV)"
+},
+"Biến đổi hình thái: Erode/Dilate/Open/Close — lọc nhiễu, vá lỗ, tách object trên mask nhị phân": {
+"en": "Morphological transform: Erode/Dilate/Open/Close — filter noise, fill holes, separate objects on a binary mask",
+"vi": "Biến đổi hình thái: Erode/Dilate/Open/Close — lọc nhiễu, vá lỗ, tách object trên mask nhị phân",
+"zh": "形态学变换：Erode/Dilate/Open/Close — 过滤噪声、填补空洞、在二值 mask 上分离 object"
+},
+"Biểu thức theo tên port (A,B,C…). Vd (A+B)/2, hypot(A,B), abs(A-B).": {
+"en": "Expression based on port names (A,B,C…). E.g. (A+B)/2, hypot(A,B), abs(A-B).",
+"vi": "Biểu thức theo tên port (A,B,C…). Vd (A+B)/2, hypot(A,B), abs(A-B).",
+"zh": "基于 port 名称的表达式 (A,B,C…)。例如 (A+B)/2、hypot(A,B)、abs(A-B)。"
+},
+"Black Hat": {
+"en": "Black Hat",
+"vi": "Black Hat",
+"zh": "Black Hat"
+},
+"Blend alpha (A)": {
+"en": "Blend alpha (A)",
+"vi": "Blend alpha (A)",
+"zh": "混合 alpha (A)"
+},
+"Blob Analysis": {
+"en": "Blob Analysis",
+"vi": "Phân tích Blob",
+"zh": "Blob 分析"
+},
+"Blue": {
+"en": "Blue",
+"vi": "Xanh dương",
+"zh": "蓝色"
+},
+"Blur Kernel": {
+"en": "Blur Kernel",
+"vi": "Kernel làm mờ",
+"zh": "模糊核 (Kernel)"
+},
+"Blur tolerance": {
+"en": "Blur tolerance",
+"vi": "Dung sai làm mờ",
+"zh": "模糊容差"
+},
+"Body Format": {
+"en": "Body Format",
+"vi": "Định dạng nội dung (Body)",
+"zh": "正文格式"
+},
+"Bot-Left X": {
+"en": "Bot-Left X",
+"vi": "Bot-Left X",
+"zh": "左下 X"
+},
+"Bot-Left Y": {
+"en": "Bot-Left Y",
+"vi": "Bot-Left Y",
+"zh": "左下 Y"
+},
+"Bot-Right X": {
+"en": "Bot-Right X",
+"vi": "Bot-Right X",
+"zh": "右下 X"
+},
+"Bot-Right Y": {
+"en": "Bot-Right Y",
+"vi": "Bot-Right Y",
+"zh": "右下 Y"
+},
+"Bottom Width": {
+"en": "Bottom Width",
+"vi": "Chiều rộng đáy",
+"zh": "底部宽度"
+},
+"Bottom-Center": {
+"en": "Bottom-Center",
+"vi": "Giữa-Dưới",
+"zh": "底部居中"
+},
+"Bottom-Left": {
+"en": "Bottom-Left",
+"vi": "Dưới-Trái",
+"zh": "左下"
+},
+"Bottom-Right": {
+"en": "Bottom-Right",
+"vi": "Dưới-Phải",
+"zh": "右下"
+},
+"Brightness (β)": {
+"en": "Brightness (β)",
+"vi": "Độ sáng (β)",
+"zh": "亮度 (β)"
+},
+"Bật để chồng/hiển thị cùng ảnh màu; tắt = ảnh xám 1 kênh.": {
+"en": "Enable to overlay/display together with the color image; disabled = single-channel grayscale image.",
+"vi": "Bật để chồng/hiển thị cùng ảnh màu; tắt = ảnh xám 1 kênh.",
+"zh": "开启后将与彩色图像叠加/一起显示；关闭 = 单通道灰度图像。"
+},
+"Bật để vẽ '{class} {conf}' cạnh từng detection lên ảnh output. Mặc định tắt — kết quả vẫn có trong log & detections port.": {
+"en": "Enable to draw '{class} {conf}' next to each detection on the output image. Disabled by default — results are still available in the log & detections port.",
+"vi": "Bật để vẽ '{class} {conf}' cạnh từng detection lên ảnh output. Mặc định tắt — kết quả vẫn có trong log & detections port.",
+"zh": "开启后会在输出图像上每个 detection 旁绘制 '{class} {conf}'。默认关闭 — 结果仍会出现在 log 与 detections port 中。"
+},
+"Bật để vẽ label 'H S V' cạnh điểm picked lên ảnh output. Mặc định tắt.": {
+"en": "Enable to draw the 'H S V' label next to the picked point on the output image. Disabled by default.",
+"vi": "Bật để vẽ label 'H S V' cạnh điểm picked lên ảnh output. Mặc định tắt.",
+"zh": "开启后会在输出图像上已选取点旁绘制 'H S V' 标签。默认关闭。"
+},
+"Bật để vẽ label 'R=…mm cx=… cy=…' lên ảnh output. Mặc định tắt — vẫn được log.": {
+"en": "Enable to draw the 'R=…mm cx=… cy=…' label on the output image. Disabled by default — still logged.",
+"vi": "Bật để vẽ label 'R=…mm cx=… cy=…' lên ảnh output. Mặc định tắt — vẫn được log.",
+"zh": "开启后会在输出图像上绘制 'R=…mm cx=… cy=…' 标签。默认关闭 — 仍会被记录到 log。"
+},
+"Bật để vẽ label '…mm' giữa điểm và chân đường vuông góc.": {
+"en": "Enable to draw the '…mm' label between the point and the foot of the perpendicular line.",
+"vi": "Bật để vẽ label '…mm' giữa điểm và chân đường vuông góc.",
+"zh": "开启后会在点与垂线垂足之间绘制 '…mm' 标签。"
+},
+"Bật để vẽ label area cạnh từng contour lên ảnh output. Mặc định tắt.": {
+"en": "Enable to draw the area label next to each contour on the output image. Disabled by default.",
+"vi": "Bật để vẽ label area cạnh từng contour lên ảnh output. Mặc định tắt.",
+"zh": "开启后会在输出图像上每个 contour 旁绘制面积标签。默认关闭。"
+},
+"Bật để vẽ label edge (E1:42.5 …) lên ảnh output. Mặc định tắt — số đo vẫn được log ra console.": {
+"en": "Enable to draw the edge label (E1:42.5 …) on the output image. Disabled by default — measurements are still logged to the console.",
+"vi": "Bật để vẽ label edge (E1:42.5 …) lên ảnh output. Mặc định tắt — số đo vẫn được log ra console.",
+"zh": "开启后会在输出图像上绘制 edge 标签 (E1:42.5 …)。默认关闭 — 测量值仍会记录到控制台。"
+},
+"Bề rộng vùng tìm cạnh": {
+"en": "Width of the edge-search region",
+"vi": "Bề rộng vùng tìm cạnh",
+"zh": "查找边缘的区域宽度"
+},
+"CCOMP": {
+"en": "CCOMP",
+"vi": "CCOMP",
+"zh": "CCOMP"
+},
+"CDAB": {
+"en": "CDAB",
+"vi": "CDAB",
+"zh": "CDAB"
+},
+"CIO_WORD": {
+"en": "CIO_WORD",
+"vi": "CIO_WORD",
+"zh": "CIO_WORD"
+},
+"CLAHE Clip": {
+"en": "CLAHE Clip",
+"vi": "CLAHE Clip",
+"zh": "CLAHE Clip"
+},
+"CLAHE Tile": {
+"en": "CLAHE Tile",
+"vi": "CLAHE Tile",
+"zh": "CLAHE Tile"
+},
+"CSV Logger": {
+"en": "CSV Logger",
+"vi": "CSV Logger",
+"zh": "CSV 记录器"
+},
+"CSV Path": {
+"en": "CSV Path",
+"vi": "Đường dẫn CSV",
+"zh": "CSV 路径"
+},
+"Calibrate (Checkerboard)": {
+"en": "Calibrate (Checkerboard)",
+"vi": "Hiệu chuẩn (Bàn cờ)",
+"zh": "标定 (棋盘格)"
+},
+"Calibration": {
+"en": "Calibration",
+"vi": "Hiệu chuẩn",
+"zh": "标定"
+},
+"Caliper": {
+"en": "Caliper",
+"vi": "Thước cặp",
+"zh": "卡尺"
+},
+"Caliper Multi-Edge": {
+"en": "Caliper Multi-Edge",
+"vi": "Thước cặp đa cạnh",
+"zh": "多边缘卡尺"
+},
+"Caliper Width (px)": {
+"en": "Caliper Width (px)",
+"vi": "Bề rộng thước cặp (px)",
+"zh": "卡尺宽度 (px)"
+},
+"Camera Acquire": {
+"en": "Camera Acquire",
+"vi": "Lấy ảnh từ camera",
+"zh": "相机采集"
+},
+"Canny High": {
+"en": "Canny High",
+"vi": "Canny Cao",
+"zh": "Canny 高阈值"
+},
+"Canny Low": {
+"en": "Canny Low",
+"vi": "Canny Thấp",
+"zh": "Canny 低阈值"
+},
+"Canny Thresh1": {
+"en": "Canny Thresh1",
+"vi": "Canny Thresh1",
+"zh": "Canny Thresh1"
+},
+"Canny Thresh2": {
+"en": "Canny Thresh2",
+"vi": "Canny Thresh2",
+"zh": "Canny Thresh2"
+},
+"Capture từ camera (OpenCV / HikRobot / Do3think) — TAcqFifoTool": {
+"en": "Capture from camera (OpenCV / HikRobot / Do3think) — TAcqFifoTool",
+"vi": "Capture từ camera (OpenCV / HikRobot / Do3think) — TAcqFifoTool",
+"zh": "从相机采集 (OpenCV / HikRobot / Do3think) — TAcqFifoTool"
+},
+"Center": {
+"en": "Center",
+"vi": "Tâm",
+"zh": "中心"
+},
+"Center X": {
+"en": "Center X",
+"vi": "Tâm X",
+"zh": "中心 X"
+},
+"Center Y": {
+"en": "Center Y",
+"vi": "Tâm Y",
+"zh": "中心 Y"
+},
+"Centroid Color": {
+"en": "Centroid Color",
+"vi": "Màu trọng tâm",
+"zh": "质心颜色"
+},
+"Chuyển đổi format ảnh + resize tuỳ chọn — TImageConvertTool": {
+"en": "Convert image format + optional resize — TImageConvertTool",
+"vi": "Chuyển đổi format ảnh + resize tuỳ chọn — TImageConvertTool",
+"zh": "转换图像格式 + 可选 resize — TImageConvertTool"
+},
+"Chạy Python code tùy biến với editor có syntax-highlight + gợi ý. Right-click node để Add Input / Add Output port. Trong code: input là biến lowercase (A→a, B→b...), gán `result = ...`, `pass_value = ...` hoặc `outputs['port_name'] = ...` để set output.": {
+"en": "Run custom Python code with a syntax-highlighting editor + suggestions. Right-click the node to Add Input / Add Output port. In the code: inputs are lowercase variables (A→a, B→b...), assign `result = ...`, `pass_value = ...` or `outputs['port_name'] = ...` to set the output.",
+"vi": "Chạy Python code tùy biến với editor có syntax-highlight + gợi ý. Right-click node để Add Input / Add Output port. Trong code: input là biến lowercase (A→a, B→b...), gán `result = ...`, `pass_value = ...` hoặc `outputs['port_name'] = ...` để set output.",
+"zh": "使用带语法高亮 + 建议提示的编辑器运行自定义 Python 代码。右键点击 node 可 Add Input / Add Output port。代码中：input 为小写变量 (A→a, B→b...)，赋值 `result = ...`、`pass_value = ...` 或 `outputs['port_name'] = ...` 来设置 output。"
+},
+"Chấm tại tâm blob.": {
+"en": "Mark at the blob center.",
+"vi": "Chấm tại tâm blob.",
+"zh": "在 blob 中心打点。"
+},
+"Chế độ train pattern": {
+"en": "Pattern training mode",
+"vi": "Chế độ train pattern",
+"zh": "模板训练模式"
+},
+"Chỉ dùng khi mode = Point + Angle": {
+"en": "Only used when mode = Point + Angle",
+"vi": "Chỉ dùng khi mode = Point + Angle",
+"zh": "仅在 mode = Point + Angle 时使用"
+},
+"Chỉ lấy số": {
+"en": "Numbers only",
+"vi": "Chỉ lấy số",
+"zh": "仅取数字"
+},
+"Chỉ áp dụng khi KHÔNG có port mask kết nối. Có mask → bỏ qua.": {
+"en": "Only applies when there is NO mask port connected. With a mask connected → ignored.",
+"vi": "Chỉ áp dụng khi KHÔNG có port mask kết nối. Có mask → bỏ qua.",
+"zh": "仅在未连接 mask port 时生效。已连接 mask → 忽略。"
+},
+"Chọn 1 PIXEL trên contour blob để emit thành x,y output:\n• First: pixel trái nhất (x nhỏ nhất).\n• Last: pixel phải nhất (x lớn nhất).\n• Highest: pixel cao nhất (y nhỏ nhất, trên cùng ảnh).\n• Lowest: pixel thấp nhất (y lớn nhất, dưới cùng ảnh).\n• Average: trung tâm trung bình (centroid của centroids).\nMarker magenta vẽ tại pixel được chọn. w,h,area,... vẫn là property của blob chứa pixel đó.": {
+"en": "Select 1 PIXEL on the blob contour to emit as x,y output:\n• First: leftmost pixel (smallest x).\n• Last: rightmost pixel (largest x).\n• Highest: topmost pixel (smallest y, top of image).\n• Lowest: bottommost pixel (largest y, bottom of image).\n• Average: average center (centroid of centroids).\nMagenta marker is drawn at the chosen pixel. w,h,area,... remain properties of the blob containing that pixel.",
+"vi": "Chọn 1 PIXEL trên contour blob để emit thành x,y output:\n• First: pixel trái nhất (x nhỏ nhất).\n• Last: pixel phải nhất (x lớn nhất).\n• Highest: pixel cao nhất (y nhỏ nhất, trên cùng ảnh).\n• Lowest: pixel thấp nhất (y lớn nhất, dưới cùng ảnh).\n• Average: trung tâm trung bình (centroid của centroids).\nMarker magenta vẽ tại pixel được chọn. w,h,area,... vẫn là property của blob chứa pixel đó.",
+"zh": "选择 blob 轮廓 (contour) 上 1 个 PIXEL 作为 x,y output 输出：\n• First：最左侧像素（x 最小）。\n• Last：最右侧像素（x 最大）。\n• Highest：最高像素（y 最小，图像最上方）。\n• Lowest：最低像素（y 最大，图像最下方）。\n• Average：平均中心点（centroids 的 centroid）。\n洋红色 (magenta) 标记会绘制在所选像素处。w,h,area 等仍为该像素所属 blob 的属性。"
+},
+"Chọn 1 ĐIỂM trên bbox của MỖI vật thể → lưu px,py vào port 'detections' + dùng cho per-object Output Terminals (px_obj1, py_obj2...). Top-level x,y = điểm của primary object.\n• Best:    góc trên-trái, primary = conf cao nhất (mặc định)\n• Highest: giữa cạnh trên  (cx,y1)\n• Lowest:  giữa cạnh dưới  (cx,y2)\n• First:   giữa cạnh trái  (x1,cy)\n• Last:    giữa cạnh phải  (x2,cy)\nKhi != Best: chấm magenta trên mỗi vật thể, ring to ở primary.": {
+"en": "Select 1 POINT on the bbox of EACH object → store px,py into the 'detections' port + use for per-object Output Terminals (px_obj1, py_obj2...). Top-level x,y = the primary object's point.\n• Best:    top-left corner, primary = highest conf (default)\n• Highest: middle of top edge  (cx,y1)\n• Lowest:  middle of bottom edge  (cx,y2)\n• First:   middle of left edge  (x1,cy)\n• Last:   middle of right edge  (x2,cy)\nWhen != Best: a magenta dot is drawn on each object, with a larger ring on the primary one.",
+"vi": "Chọn 1 ĐIỂM trên bbox của MỖI vật thể → lưu px,py vào port 'detections' + dùng cho per-object Output Terminals (px_obj1, py_obj2...). Top-level x,y = điểm của primary object.\n• Best:    góc trên-trái, primary = conf cao nhất (mặc định)\n• Highest: giữa cạnh trên  (cx,y1)\n• Lowest:  giữa cạnh dưới  (cx,y2)\n• First:   giữa cạnh trái  (x1,cy)\n• Last:    giữa cạnh phải  (x2,cy)\nKhi != Best: chấm magenta trên mỗi vật thể, ring to ở primary.",
+"zh": "在每个物体的 bbox 上选择 1 个点 → 将 px,py 存入 'detections' port，并用于 per-object Output Terminals（px_obj1、py_obj2...）。顶层 x,y = primary object 的点。\n• Best：左上角，primary = conf 最高者（默认）\n• Highest：上边中点  (cx,y1)\n• Lowest：下边中点  (cx,y2)\n• First：左边中点  (x1,cy)\n• Last：右边中点  (x2,cy)\n当 != Best 时：每个物体上绘制洋红色 (magenta) 圆点，primary 物体上为较大圆环。"
+},
+"Chọn backend chạy model:\n• Auto (ONNX→PT): có .onnx cùng tên cạnh .pt thì dùng ONNX (CPU nhanh ~3-4×), không thì PyTorch. (mặc định)\n• PyTorch (.pt): LUÔN dùng ultralytics .pt → ĐỘ CHÍNH XÁC GỐC, đầy đủ. Chọn cái này nếu ONNX detect kém/sai box.\n• ONNX (fast CPU): ép dùng ONNX cho tốc độ; thiếu .onnx thì tự quay về PyTorch.": {
+"en": "Select the backend to run the model:\n• Auto (ONNX→PT): if a .onnx exists alongside the .pt with the same name, use ONNX (CPU ~3-4× faster), otherwise PyTorch. (default)\n• PyTorch (.pt): ALWAYS use the ultralytics .pt → ORIGINAL ACCURACY, full-featured. Choose this if ONNX detects poorly/wrong boxes.\n• ONNX (fast CPU): force ONNX for speed; falls back to PyTorch automatically if .onnx is missing.",
+"vi": "Chọn backend chạy model:\n• Auto (ONNX→PT): có .onnx cùng tên cạnh .pt thì dùng ONNX (CPU nhanh ~3-4×), không thì PyTorch. (mặc định)\n• PyTorch (.pt): LUÔN dùng ultralytics .pt → ĐỘ CHÍNH XÁC GỐC, đầy đủ. Chọn cái này nếu ONNX detect kém/sai box.\n• ONNX (fast CPU): ép dùng ONNX cho tốc độ; thiếu .onnx thì tự quay về PyTorch.",
+"zh": "选择运行模型的后端 (backend)：\n• Auto (ONNX→PT)：若存在与 .pt 同名的 .onnx，则使用 ONNX（CPU 速度快 ~3-4×），否则使用 PyTorch。（默认）\n• PyTorch (.pt)：始终使用 ultralytics 的 .pt → 原始精度，功能完整。若 ONNX 检测效果差/框错误，请选择此项。\n• ONNX (fast CPU)：强制使用 ONNX 以提升速度；缺少 .onnx 时会自动回退到 PyTorch。"
+},
+"Chọn nguồn ảnh: 1 thư mục cycle qua các ảnh, hoặc 1 file": {
+"en": "Select the image source: 1 folder cycling through images, or 1 file",
+"vi": "Chọn nguồn ảnh: 1 thư mục cycle qua các ảnh, hoặc 1 file",
+"zh": "选择图像来源：1 个文件夹循环遍历图像，或 1 个文件"
+},
+"Circle": {
+"en": "Circle",
+"vi": "Hình tròn",
+"zh": "圆形"
+},
+"Click chuột lấy màu → xuất HSV range": {
+"en": "Click to pick a color → output HSV range",
+"vi": "Click chuột lấy màu → xuất HSV range",
+"zh": "点击鼠标取色 → 输出 HSV range"
+},
+"Close": {
+"en": "Close",
+"vi": "Close (đóng)",
+"zh": "Close（闭运算）"
+},
+"Close+Open": {
+"en": "Close+Open",
+"vi": "Close+Open",
+"zh": "Close+Open"
+},
+"Coarse Downscale": {
+"en": "Coarse Downscale",
+"vi": "Thu nhỏ thô (Coarse Downscale)",
+"zh": "粗略缩小 (Coarse Downscale)"
+},
+"Coarse downscale": {
+"en": "Coarse downscale",
+"vi": "Thu nhỏ thô (coarse downscale)",
+"zh": "粗略缩小 (coarse downscale)"
+},
+"Color FAIL": {
+"en": "Color FAIL",
+"vi": "Màu FAIL",
+"zh": "FAIL 颜色"
+},
+"Color Match": {
+"en": "Color Match",
+"vi": "Khớp màu",
+"zh": "颜色匹配"
+},
+"Color NONE": {
+"en": "Color NONE",
+"vi": "Màu NONE",
+"zh": "NONE 颜色"
+},
+"Color PASS": {
+"en": "Color PASS",
+"vi": "Màu PASS",
+"zh": "PASS 颜色"
+},
+"Color Picker": {
+"en": "Color Picker",
+"vi": "Bộ chọn màu",
+"zh": "取色器"
+},
+"Color Segmentation": {
+"en": "Color Segmentation",
+"vi": "Phân vùng màu",
+"zh": "颜色分割"
+},
+"Color Space": {
+"en": "Color Space",
+"vi": "Không gian màu",
+"zh": "颜色空间"
+},
+"Combine Mode": {
+"en": "Combine Mode",
+"vi": "Chế độ kết hợp",
+"zh": "组合模式"
+},
+"Compare": {
+"en": "Compare",
+"vi": "So sánh",
+"zh": "比较"
+},
+"Compare (→ pass)": {
+"en": "Compare (→ pass)",
+"vi": "So sánh (→ pass)",
+"zh": "比较 (→ pass)"
+},
+"Complex": {
+"en": "Complex",
+"vi": "Phức tạp",
+"zh": "复杂"
+},
+"Confidence": {
+"en": "Confidence",
+"vi": "Độ tin cậy",
+"zh": "置信度"
+},
+"Content-Type (raw)": {
+"en": "Content-Type (raw)",
+"vi": "Content-Type (raw)",
+"zh": "Content-Type（原始）"
+},
+"Continuous grab": {
+"en": "Continuous grab",
+"vi": "Chụp liên tục",
+"zh": "连续采集 (grab)"
+},
+"Contour Color": {
+"en": "Contour Color",
+"vi": "Màu đường viền",
+"zh": "轮廓颜色"
+},
+"Contour Thickness": {
+"en": "Contour Thickness",
+"vi": "Độ dày đường viền",
+"zh": "轮廓线宽"
+},
+"Contrast (α)": {
+"en": "Contrast (α)",
+"vi": "Độ tương phản (α)",
+"zh": "对比度 (α)"
+},
+"Create Circle": {
+"en": "Create Circle",
+"vi": "Tạo hình tròn",
+"zh": "创建圆形"
+},
+"Create Ellipse": {
+"en": "Create Ellipse",
+"vi": "Tạo hình elip",
+"zh": "创建椭圆"
+},
+"Create Polygon": {
+"en": "Create Polygon",
+"vi": "Tạo đa giác",
+"zh": "创建多边形"
+},
+"Create Rectangle": {
+"en": "Create Rectangle",
+"vi": "Tạo hình chữ nhật",
+"zh": "创建矩形"
+},
+"Create Trapezoid": {
+"en": "Create Trapezoid",
+"vi": "Tạo hình thang",
+"zh": "创建梯形"
+},
+"Crop ROI": {
+"en": "Crop ROI",
+"vi": "Cắt ROI",
+"zh": "裁剪 ROI"
+},
+"Cross": {
+"en": "Cross",
+"vi": "Chữ thập",
+"zh": "十字形"
+},
+"Cubic": {
+"en": "Cubic",
+"vi": "Cubic",
+"zh": "三次插值 (Cubic)"
+},
+"Cyan": {
+"en": "Cyan",
+"vi": "Lục lam (Cyan)",
+"zh": "青色 (Cyan)"
+},
+"Cạnh khớp Fit Size; cạnh còn lại scale theo tỉ lệ gốc.": {
+"en": "The matching side fits Fit Size; the other side scales by the original ratio.",
+"vi": "Cạnh khớp Fit Size; cạnh còn lại scale theo tỉ lệ gốc.",
+"zh": "匹配的一边适配 Fit Size；另一边按原始比例缩放。"
+},
+"Cắt vùng ROI — nhận x/y/w/h từ PatMax để tracking.\n• image     = ảnh gốc clean (cho downstream xử lý, panel vẫn hiện bbox).\n• roi_image = vùng đã cắt từ ảnh gốc (clean, không vướng overlay upstream).": {
+"en": "Crop ROI region — receives x/y/w/h from PatMax for tracking.\n• image     = clean original image (for downstream processing, the panel still shows the bbox).\n• roi_image = region cropped from the original image (clean, without upstream overlay).",
+"vi": "Cắt vùng ROI — nhận x/y/w/h từ PatMax để tracking.\n• image     = ảnh gốc clean (cho downstream xử lý, panel vẫn hiện bbox).\n• roi_image = vùng đã cắt từ ảnh gốc (clean, không vướng overlay upstream).",
+"zh": "裁剪 ROI 区域 — 从 PatMax 接收 x/y/w/h 用于 tracking。\n• image     = 干净的原始图像（供下游处理使用，面板仍会显示 bbox）。\n• roi_image = 从原始图像裁剪出的区域（干净，不含上游 overlay）。"
+},
+"Cỡ chữ (font scale OpenCV).": {
+"en": "Font size (OpenCV font scale).",
+"vi": "Cỡ chữ (font scale OpenCV).",
+"zh": "字体大小 (OpenCV font scale)。"
+},
+"Cực tính cạnh tìm kiếm": {
+"en": "Polarity of the edge to search for",
+"vi": "Cực tính cạnh tìm kiếm",
+"zh": "查找边缘的极性"
+},
+"DM_WORD": {
+"en": "DM_WORD",
+"vi": "DM_WORD",
+"zh": "DM_WORD"
+},
+"DP": {
+"en": "DP",
+"vi": "DP",
+"zh": "DP"
+},
+"Dark→Light": {
+"en": "Dark→Light",
+"vi": "Tối→Sáng",
+"zh": "暗→亮"
+},
+"Data Type": {
+"en": "Data Type",
+"vi": "Kiểu dữ liệu",
+"zh": "数据类型"
+},
+"Diff Threshold": {
+"en": "Diff Threshold",
+"vi": "Ngưỡng khác biệt",
+"zh": "差异阈值"
+},
+"Dilate": {
+"en": "Dilate",
+"vi": "Dilate (giãn nở)",
+"zh": "Dilate（膨胀）"
+},
+"Display": {
+"en": "Display",
+"vi": "Hiển thị",
+"zh": "显示"
+},
+"Display: show labels on image": {
+"en": "Display: show labels on image",
+"vi": "Display: hiển thị nhãn trên ảnh",
+"zh": "Display：在图像上显示标签"
+},
+"Distance Line-Line": {
+"en": "Distance Line-Line",
+"vi": "Khoảng cách Line-Line",
+"zh": "Line-Line 距离"
+},
+"Distance Point-Line": {
+"en": "Distance Point-Line",
+"vi": "Khoảng cách Point-Line",
+"zh": "Point-Line 距离"
+},
+"Distance Point-Point": {
+"en": "Distance Point-Point",
+"vi": "Khoảng cách Point-Point",
+"zh": "Point-Point 距离"
+},
+"Double-click node → click ảnh để lấy màu": {
+"en": "Double-click the node → click the image to pick a color",
+"vi": "Double-click node → click ảnh để lấy màu",
+"zh": "双击 node → 点击图像以取色"
+},
+"Duplex": {
+"en": "Duplex",
+"vi": "Duplex (song công)",
+"zh": "Duplex（双工）"
+},
+"Dịch label theo trục X (px, đã scale theo ảnh). Có thể kéo label trực tiếp trên ảnh — slider tự sync.": {
+"en": "Shift the label along the X axis (px, already scaled to the image). You can drag the label directly on the image — the slider will sync automatically.",
+"vi": "Dịch label theo trục X (px, đã scale theo ảnh). Có thể kéo label trực tiếp trên ảnh — slider tự sync.",
+"zh": "沿 X 轴移动标签 (px，已按图像比例缩放)。可直接在图像上拖动标签 — 滑块会自动同步。"
+},
+"Dịch label theo trục X từ trung điểm. Kéo label trên ảnh sẽ sync vào slider.": {
+"en": "Shift the label along the X axis from the midpoint. Dragging the label on the image will sync to the slider.",
+"vi": "Dịch label theo trục X từ trung điểm. Kéo label trên ảnh sẽ sync vào slider.",
+"zh": "从中点沿 X 轴移动标签。在图像上拖动标签会同步到滑块。"
+},
+"Dịch label theo trục Y (px). Âm = lên trên, dương = xuống dưới. Có thể kéo label trực tiếp trên ảnh — slider tự sync.": {
+"en": "Shift the label along the Y axis (px). Negative = up, positive = down. You can drag the label directly on the image — the slider will sync automatically.",
+"vi": "Dịch label theo trục Y (px). Âm = lên trên, dương = xuống dưới. Có thể kéo label trực tiếp trên ảnh — slider tự sync.",
+"zh": "沿 Y 轴移动标签 (px)。负值 = 向上，正值 = 向下。可直接在图像上拖动标签 — 滑块会自动同步。"
+},
+"  (Chưa có tool nào trong pipeline)  ": {
+"en": "  (No tool in the pipeline yet)  ",
+"vi": "  (Chưa có tool nào trong pipeline)  ",
+"zh": "  (流程中还没有工具)  "
+},
+"  (No pipeline)  ": {
+"en": "  (No pipeline)  ",
+"vi": "  (Không có pipeline)  ",
+"zh": "  (无流程)  "
+},
+"Auto — 1 ô per Acquire/Camera": {
+"en": "Auto — 1 cell per Acquire/Camera",
+"vi": "Auto — 1 ô per Acquire/Camera",
+"zh": "Auto — 每个 Acquire/Camera 1 格"
+},
+"Auto ▾": {
+"en": "Auto ▾",
+"vi": "Auto ▾",
+"zh": "Auto ▾"
+},
+"Chuyển sang Custom mode để thêm view": {
+"en": "Switch to Custom mode to add a view",
+"vi": "Chuyển sang Custom mode để thêm view",
+"zh": "切换到 Custom 模式以添加视图"
+},
+"Chọn base node hiển thị trong ô — list gom cả Acquire Image và Camera Image branches.": {
+"en": "Choose the base node to display in the cell — the list gathers both Acquire Image and Camera Image branches.",
+"vi": "Chọn base node hiển thị trong ô — list gom cả Acquire Image và Camera Image branches.",
+"zh": "选择要在格子中显示的基础节点 — 列表汇集了 Acquire Image 和 Camera Image 分支。"
+},
+"Chọn layout mode cho multi-view:\n• Auto — 1 ô per Acquire/Camera root (auto theo input).\n• Custom — tự thêm view qua right-click canvas, mỗi view link tới node bất kỳ.": {
+"en": "Choose the layout mode for multi-view:\n• Auto — 1 cell per Acquire/Camera root (automatic based on input).\n• Custom — add views manually via right-click on the canvas, each view links to any node.",
+"vi": "Chọn layout mode cho multi-view:\n• Auto — 1 ô per Acquire/Camera root (auto theo input).\n• Custom — tự thêm view qua right-click canvas, mỗi view link tới node bất kỳ.",
+"zh": "选择 multi-view 的布局模式:\n• Auto — 每个 Acquire/Camera 根节点 1 格(根据输入自动)。\n• Custom — 通过右键画布手动添加视图,每个视图可链接到任意节点。"
+},
+"Custom — tự thêm view (right-click)": {
+"en": "Custom — add views manually (right-click)",
+"vi": "Custom — tự thêm view (right-click)",
+"zh": "Custom — 手动添加视图(右键)"
+},
+"Hover over image for pixel info": {
+"en": "Hover over image for pixel info",
+"vi": "Di chuột lên ảnh để xem thông tin pixel",
+"zh": "将鼠标悬停在图像上查看像素信息"
+},
+"IDLE": {
+"en": "IDLE",
+"vi": "IDLE",
+"zh": "IDLE"
+},
+"No image output yet": {
+"en": "No image output yet",
+"vi": "Chưa có ảnh đầu ra",
+"zh": "尚无图像输出"
+},
+"Node:": {
+"en": "Node:",
+"vi": "Node:",
+"zh": "节点:"
+},
+"Pick result(s) để composite lên ô này. Tick 1+ item → overlay annotation lên base image của pipeline. Không tick gì → chỉ hiện base node (combo bên trái).": {
+"en": "Pick result(s) to composite onto this cell. Tick 1+ item → overlay annotation on the pipeline's base image. Tick nothing → only show the base node (combo box on the left).",
+"vi": "Pick result(s) để composite lên ô này. Tick 1+ item → overlay annotation lên base image của pipeline. Không tick gì → chỉ hiện base node (combo bên trái).",
+"zh": "选择 result(s) 合成到此格。勾选 1 项以上 → 在流程的 base image 上叠加标注。不勾选任何项 → 只显示 base node(左侧下拉框)。"
+},
+"Remove view này": {
+"en": "Remove this view",
+"vi": "Remove view này",
+"zh": "移除此视图"
+},
+"Results — pick tools để composite annotation lên ảnh gốc Acquire/Camera. Single view: 1 ảnh composite tất cả ticked. Multi-view (⊞): 1 ô per Acquire/Camera root; overlay tick composite trong mỗi ô. 1 input → 1 ô; 2 cameras → 2 ô.": {
+"en": "Results — pick tools to composite annotation onto the original Acquire/Camera image. Single view: 1 image composites everything ticked. Multi-view (⊞): 1 cell per Acquire/Camera root; ticked overlays are composited within each cell. 1 input → 1 cell; 2 cameras → 2 cells.",
+"vi": "Results — pick tools để composite annotation lên ảnh gốc Acquire/Camera. Single view: 1 ảnh composite tất cả ticked. Multi-view (⊞): 1 ô per Acquire/Camera root; overlay tick composite trong mỗi ô. 1 input → 1 ô; 2 cameras → 2 ô.",
+"zh": "Results — 选择工具将标注合成到原始 Acquire/Camera 图像上。Single view:1 张图像合成所有勾选项。Multi-view (⊞):每个 Acquire/Camera 根节点 1 格;勾选的叠加项在各自格内合成。1 个输入 → 1 格;2 个相机 → 2 格。"
+},
+"Đã đạt cap 9 view": {
+"en": "Reached the cap of 9 views",
+"vi": "Đã đạt cap 9 view",
+"zh": "已达到 9 个视图上限"
+},
+"—": {
+"en": "—",
+"vi": "—",
+"zh": "—"
+},
+"— Select node —": {
+"en": "— Select node —",
+"vi": "— Chọn node —",
+"zh": "— 选择节点 —"
+},
+"●": {
+"en": "●",
+"vi": "●",
+"zh": "●"
+},
+"✓  Select All": {
+"en": "✓  Select All",
+"vi": "✓  Chọn tất cả",
+"zh": "✓  全选"
+},
+"✖": {
+"en": "✖",
+"vi": "✖",
+"zh": "✖"
+},
+"✗  Clear All": {
+"en": "✗  Clear All",
+"vi": "✗  Bỏ chọn tất cả",
+"zh": "✗  全部清除"
+},
+"＋  Add View": {
+"en": "＋  Add View",
+"vi": "＋  Thêm view",
+"zh": "＋  添加视图"
+},
+"👁  IMAGE VIEWER": {
+"en": "👁  IMAGE VIEWER",
+"vi": "👁  TRÌNH XEM ẢNH",
+"zh": "👁  图像查看器"
+},
+"📊": {
+"en": "📊",
+"vi": "📊",
+"zh": "📊"
+},
+"📊 Results ▾": {
+"en": "📊 Results ▾",
+"vi": "📊 Kết quả ▾",
+"zh": "📊 结果 ▾"
+},
+"Add Terminal": {
+"en": "Add Terminal",
+"vi": "Thêm Terminal",
+"zh": "添加端子"
+},
+"Cancel": {
+"en": "Cancel",
+"vi": "Hủy",
+"zh": "取消"
+},
+"Duplicate Name": {
+"en": "Duplicate Name",
+"vi": "Tên trùng lặp",
+"zh": "名称重复"
+},
+"Field:": {
+"en": "Field:",
+"vi": "Field:",
+"zh": "字段:"
+},
+"Invalid Name": {
+"en": "Invalid Name",
+"vi": "Tên không hợp lệ",
+"zh": "名称无效"
+},
+"Object:": {
+"en": "Object:",
+"vi": "Object:",
+"zh": "对象:"
+},
+"Port 'image' luôn visible — không ẩn được (chain port).": {
+"en": "Port 'image' is always visible — it cannot be hidden (chain port).",
+"vi": "Port 'image' luôn visible — không ẩn được (chain port).",
+"zh": "端口 'image' 始终可见 — 无法隐藏(链式端口)。"
+},
+"Port name (optional):": {
+"en": "Port name (optional):",
+"vi": "Tên port (tùy chọn):",
+"zh": "端口名称(可选):"
+},
+"Reference:": {
+"en": "Reference:",
+"vi": "Reference:",
+"zh": "参考:"
+},
+"auto: <field>  (vd: ref1_x)": {
+"en": "auto: <field>  (e.g.: ref1_x)",
+"vi": "auto: <field>  (vd: ref1_x)",
+"zh": "auto: <field>  (例如: ref1_x)"
+},
+"Đang có:": {
+"en": "Currently has:",
+"vi": "Đang có:",
+"zh": "当前已有:"
+},
+"▶  Run this node": {
+"en": "▶  Run this node",
+"vi": "▶  Chạy node này",
+"zh": "▶  运行此节点"
+},
+"✏  Rename…": {
+"en": "✏  Rename…",
+"vi": "✏  Đổi tên…",
+"zh": "✏  重命名…"
+},
+"➕  Add / Manage Output Terminals…": {
+"en": "➕  Add / Manage Output Terminals…",
+"vi": "➕  Thêm / Quản lý Output Terminal…",
+"zh": "➕  添加 / 管理输出端子…"
+},
+"➕  Add Input Port": {
+"en": "➕  Add Input Port",
+"vi": "➕  Thêm Input Port",
+"zh": "➕  添加输入端口"
+},
+"➕  Add Output Port…": {
+"en": "➕  Add Output Port…",
+"vi": "➕  Thêm Output Port…",
+"zh": "➕  添加输出端口…"
+},
+"➕  Add Output Terminal": {
+"en": "➕  Add Output Terminal",
+"vi": "➕  Thêm Output Terminal",
+"zh": "➕  添加输出端子"
+},
+"👁  Manage Output Ports": {
+"en": "👁  Manage Output Ports",
+"vi": "👁  Quản lý Output Port",
+"zh": "👁  管理输出端口"
+},
+"👁  Show / Hide Output Ports…": {
+"en": "👁  Show / Hide Output Ports…",
+"vi": "👁  Hiện / Ẩn Output Port…",
+"zh": "👁  显示 / 隐藏输出端口…"
+},
+"👁  View output in Image Viewer": {
+"en": "👁  View output in Image Viewer",
+"vi": "👁  Xem output trong Image Viewer",
+"zh": "👁  在图像查看器中查看输出"
+},
+"🗑  Delete": {
+"en": "🗑  Delete",
+"vi": "🗑  Xóa",
+"zh": "🗑  删除"
+},
+"🗑  Remove selected": {
+"en": "🗑  Remove selected",
+"vi": "🗑  Xóa mục đã chọn",
+"zh": "🗑  删除所选"
+},
+"Clear Log": {
+"en": "Clear Log",
+"vi": "Xóa Log",
+"zh": "清除日志"
+},
+"Execution Log": {
+"en": "Execution Log",
+"vi": "Log thực thi",
+"zh": "执行日志"
+},
+"Last run: —": {
+"en": "Last run: —",
+"vi": "Lần chạy cuối: —",
+"zh": "上次运行: —"
+},
+"Yield Rate": {
+"en": "Yield Rate",
+"vi": "Tỷ lệ đạt",
+"zh": "良率"
+},
+"▣  INSPECTION RESULTS": {
+"en": "▣  INSPECTION RESULTS",
+"vi": "▣  KẾT QUẢ KIỂM TRA",
+"zh": "▣  检测结果"
+},
+"Automated Optical Inspection": {
+"en": "Automated Optical Inspection",
+"vi": "Kiểm tra quang học tự động",
+"zh": "自动光学检测"
+},
+"VISION ULTIMATE": {
+"en": "VISION ULTIMATE",
+"vi": "VISION ULTIMATE",
+"zh": "VISION ULTIMATE"
+},
+"Đang khởi động…": {
+"en": "Starting…",
+"vi": "Đang khởi động…",
+"zh": "正在启动…"
+},
+"Đang tải…": {
+"en": "Loading…",
+"vi": "Đang tải…",
+"zh": "正在加载…"
+},
+"⏳": {
+"en": "⏳",
+"vi": "⏳",
+"zh": "⏳"
+},
+"✂  Unlink (xoá kết nối)": {
+"en": "✂  Unlink (remove connection)",
+"vi": "✂  Unlink (xoá kết nối)",
+"zh": "✂  断开链接(删除连接)"
+},
+"➡  Link đích tới node…": {
+"en": "➡  Link destination to node…",
+"vi": "➡  Link đích tới node…",
+"zh": "➡  将目标链接到节点…"
+},
+"⬅  Link nguồn tới node…": {
+"en": "⬅  Link source to node…",
+"vi": "⬅  Link nguồn tới node…",
+"zh": "⬅  将源链接到节点…"
+},
+"Clear": {
+"en": "Clear",
+"vi": "Xóa",
+"zh": "清除"
+},
+"Discard pipeline hiện tại và switch sang project khác?": {
+"en": "Discard the current pipeline and switch to another project?",
+"vi": "Discard pipeline hiện tại và switch sang project khác?",
+"zh": "放弃当前流程并切换到其他项目?"
+},
+"Loading": {
+"en": "Loading",
+"vi": "Đang tải",
+"zh": "加载中"
+},
+"NEO Vision Pro  v1.0": {
+"en": "NEO Vision Pro  v1.0",
+"vi": "NEO Vision Pro  v1.0",
+"zh": "NEO Vision Pro  v1.0"
+},
+"No nodes to run.": {
+"en": "No nodes to run.",
+"vi": "Không có node nào để chạy.",
+"zh": "没有可运行的节点。"
+},
+"PLC trigger ignored — pipeline already running": {
+"en": "PLC trigger ignored — pipeline already running",
+"vi": "Bỏ qua trigger PLC — pipeline đang chạy",
+"zh": "已忽略 PLC 触发 — 流程正在运行"
+},
+"Pipeline Error": {
+"en": "Pipeline Error",
+"vi": "Lỗi Pipeline",
+"zh": "流程错误"
+},
+"Pipeline có thay đổi chưa lưu. Lưu thay đổi không?": {
+"en": "The pipeline has unsaved changes. Save the changes?",
+"vi": "Pipeline có thay đổi chưa lưu. Lưu thay đổi không?",
+"zh": "流程有未保存的更改。是否保存更改?"
+},
+"Remove all nodes?": {
+"en": "Remove all nodes?",
+"vi": "Xóa tất cả node?",
+"zh": "删除所有节点?"
+},
+"Switch Project": {
+"en": "Switch Project",
+"vi": "Chuyển project",
+"zh": "切换项目"
+},
+"Unsaved changes": {
+"en": "Unsaved changes",
+"vi": "Thay đổi chưa lưu",
+"zh": "未保存的更改"
+},
+"Vision Ultimate": {
+"en": "Vision Ultimate",
+"vi": "Vision Ultimate",
+"zh": "Vision Ultimate"
+},
+"YOLO": {
+"en": "YOLO",
+"vi": "YOLO",
+"zh": "YOLO"
+},
+"Đã đăng xuất — Sửa/Chạy tool đã bị khoá.": {
+"en": "Logged out — Edit/Run tool has been locked.",
+"vi": "Đã đăng xuất — Sửa/Chạy tool đã bị khoá.",
+"zh": "已登出 — 编辑/运行工具已被锁定。"
+},
+"Đã đổi mật khẩu thành công.": {
+"en": "Password changed successfully.",
+"vi": "Đã đổi mật khẩu thành công.",
+"zh": "密码修改成功。"
+},
+"Đổi mật khẩu": {
+"en": "Change Password",
+"vi": "Đổi mật khẩu",
+"zh": "修改密码"
+},
+"■   STOP": {
+"en": "■   STOP",
+"vi": "■   DỪNG",
+"zh": "■   停止"
+},
+"▶   RUN": {
+"en": "▶   RUN",
+"vi": "▶   CHẠY",
+"zh": "▶   运行"
+},
+"🤖  YOLO": {
+"en": "🤖  YOLO",
+"vi": "🤖  YOLO",
+"zh": "🤖  YOLO"
+},
+"Bấm <b>Browse…</b> để mở file đầu tiên, hoặc <b>New blank project</b>.": {
+"en": "Click <b>Browse…</b> to open the first file, or <b>New blank project</b>.",
+"vi": "Bấm <b>Browse…</b> để mở file đầu tiên, hoặc <b>New blank project</b>.",
+"zh": "点击 <b>Browse…</b> 打开第一个文件,或 <b>New blank project</b>。"
+},
+"File này tự load mỗi khi mở app. Right-click → bỏ default.": {
+"en": "This file loads automatically every time the app opens. Right-click → remove default.",
+"vi": "File này tự load mỗi khi mở app. Right-click → bỏ default.",
+"zh": "此文件会在每次打开应用时自动加载。右键 → 取消默认。"
+},
+"Mở app lần sau sẽ tự load file này.": {
+"en": "The next time the app opens, this file will load automatically.",
+"vi": "Mở app lần sau sẽ tự load file này.",
+"zh": "下次打开应用时将自动加载此文件。"
+},
+"VisionPro AOI": {
+"en": "VisionPro AOI",
+"vi": "VisionPro AOI",
+"zh": "VisionPro AOI"
+},
+"⭐  Bỏ Set default": {
+"en": "⭐  Unset default",
+"vi": "⭐  Bỏ Set default",
+"zh": "⭐  取消设为默认"
+},
+"⭐  Set as default": {
+"en": "⭐  Set as default",
+"vi": "⭐  Đặt làm mặc định",
+"zh": "⭐  设为默认"
+},
+"👁": {
+"en": "👁",
+"vi": "👁",
+"zh": "👁"
+},
+"📄": {
+"en": "📄",
+"vi": "📄",
+"zh": "📄"
+},
+"📭": {
+"en": "📭",
+"vi": "📭",
+"zh": "📭"
+},
+"🗑  Xóa khỏi Recent": {
+"en": "🗑  Remove from Recent",
+"vi": "🗑  Xóa khỏi Recent",
+"zh": "🗑  从最近列表中删除"
+},
+"No Image": {
+"en": "No Image",
+"vi": "Không có ảnh",
+"zh": "无图像"
+},
+"🖱  Draw ROI on Image": {
+"en": "🖱  Draw ROI on Image",
+"vi": "🖱  Vẽ ROI trên ảnh",
+"zh": "🖱  在图像上绘制 ROI"
+},
+"Dịch label theo trục Y. Âm = lên trên.": {
+"en": "Shift label along Y axis. Negative = upward.",
+"vi": "Dịch label theo trục Y. Âm = lên trên.",
+"zh": "沿Y轴偏移标签。负值 = 向上。"
+},
+"Dịch text theo trục X từ anchor. Có thể kéo text trên ảnh.": {
+"en": "Shift text along X axis from anchor. You can drag the text on the image.",
+"vi": "Dịch text theo trục X từ anchor. Có thể kéo text trên ảnh.",
+"zh": "从锚点沿X轴偏移文本。可在图像上拖动文本。"
+},
+"Dịch text theo trục Y từ anchor. Có thể kéo text trên ảnh.": {
+"en": "Shift text along Y axis from anchor. You can drag the text on the image.",
+"vi": "Dịch text theo trục Y từ anchor. Có thể kéo text trên ảnh.",
+"zh": "从锚点沿Y轴偏移文本。可在图像上拖动文本。"
+},
+"Dựng đường thẳng từ 2 điểm — nối x/y của 2 tool (Blob, PatMax, Find Circle…) vào port (x1,y1) & (x2,y2), hoặc nhập toạ độ tay. Xuất angle / length / midpoint để chain vào Distance Point-Line, Angle Line-Line, hoặc làm ROI cho Caliper.": {
+"en": "Build a line from 2 points — connect x/y from 2 tools (Blob, PatMax, Find Circle…) to ports (x1,y1) & (x2,y2), or enter coordinates manually. Outputs angle / length / midpoint to chain into Distance Point-Line, Angle Line-Line, or use as ROI for Caliper.",
+"vi": "Dựng đường thẳng từ 2 điểm — nối x/y của 2 tool (Blob, PatMax, Find Circle…) vào port (x1,y1) & (x2,y2), hoặc nhập toạ độ tay. Xuất angle / length / midpoint để chain vào Distance Point-Line, Angle Line-Line, hoặc làm ROI cho Caliper.",
+"zh": "从2个点构建直线 — 将2个工具(Blob、PatMax、Find Circle…)的x/y连接到端口(x1,y1)与(x2,y2),或手动输入坐标。输出angle/length/midpoint以串联到Distance Point-Line、Angle Line-Line,或作为Caliper的ROI。"
+},
+"Edge Filter": {
+"en": "Edge Filter",
+"vi": "Bộ lọc biên",
+"zh": "边缘滤波"
+},
+"Edge Threshold": {
+"en": "Edge Threshold",
+"vi": "Ngưỡng biên",
+"zh": "边缘阈值"
+},
+"Either": {
+"en": "Either",
+"vi": "Bất kỳ",
+"zh": "任一"
+},
+"Ellipse": {
+"en": "Ellipse",
+"vi": "Ellipse",
+"zh": "椭圆"
+},
+"Enhance Contrast": {
+"en": "Enhance Contrast",
+"vi": "Tăng cường tương phản",
+"zh": "增强对比度"
+},
+"Erode": {
+"en": "Erode",
+"vi": "Erode",
+"zh": "腐蚀"
+},
+"Expand canvas": {
+"en": "Expand canvas",
+"vi": "Mở rộng canvas",
+"zh": "扩展画布"
+},
+"Expected Data": {
+"en": "Expected Data",
+"vi": "Dữ liệu mong đợi",
+"zh": "期望数据"
+},
+"Extend to infinite line": {
+"en": "Extend to infinite line",
+"vi": "Kéo dài thành đường vô hạn",
+"zh": "延伸为无限长直线"
+},
+"External": {
+"en": "External",
+"vi": "Bên ngoài",
+"zh": "外部"
+},
+"File": {
+"en": "File",
+"vi": "Tệp",
+"zh": "文件"
+},
+"File .pt (PyTorch) hoặc .onnx (fast CPU). Backend chạy do 'Inference Engine' bên dưới quyết định (mặc định Auto: có .onnx cùng tên thì ưu tiên ONNX cho tốc độ).": {
+"en": "File .pt (PyTorch) or .onnx (fast CPU). The runtime backend is decided by 'Inference Engine' below (default Auto: if a same-name .onnx exists, ONNX is preferred for speed).",
+"vi": "File .pt (PyTorch) hoặc .onnx (fast CPU). Backend chạy do 'Inference Engine' bên dưới quyết định (mặc định Auto: có .onnx cùng tên thì ưu tiên ONNX cho tốc độ).",
+"zh": "文件 .pt(PyTorch)或 .onnx(快速CPU)。运行后端由下方'Inference Engine'决定(默认Auto:若存在同名.onnx则优先使用ONNX以提升速度)。"
+},
+"Fill shape (35% alpha)": {
+"en": "Fill shape (35% alpha)",
+"vi": "Tô đầy hình (35% alpha)",
+"zh": "填充形状(35% 透明度)"
+},
+"Fill threshold": {
+"en": "Fill threshold",
+"vi": "Ngưỡng lấp đầy",
+"zh": "填充阈值"
+},
+"Filter Half Size": {
+"en": "Filter Half Size",
+"vi": "Nửa kích thước bộ lọc",
+"zh": "滤波器半尺寸"
+},
+"Find Circle": {
+"en": "Find Circle",
+"vi": "Find Circle",
+"zh": "Find Circle"
+},
+"Find Contours": {
+"en": "Find Contours",
+"vi": "Find Contours",
+"zh": "Find Contours"
+},
+"Find Line": {
+"en": "Find Line",
+"vi": "Find Line",
+"zh": "Find Line"
+},
+"First": {
+"en": "First",
+"vi": "Đầu tiên",
+"zh": "第一个"
+},
+"Fit (keep aspect)": {
+"en": "Fit (keep aspect)",
+"vi": "Fit (giữ tỉ lệ)",
+"zh": "适应(保持比例)"
+},
+"Fit Axis": {
+"en": "Fit Axis",
+"vi": "Trục Fit",
+"zh": "适应轴"
+},
+"Fit Size (px)": {
+"en": "Fit Size (px)",
+"vi": "Kích thước Fit (px)",
+"zh": "适应尺寸 (px)"
+},
+"Fit đường tròn chính xác — TFindCircleTool": {
+"en": "Precisely fit a circle — TFindCircleTool",
+"vi": "Fit đường tròn chính xác — TFindCircleTool",
+"zh": "精确拟合圆 — TFindCircleTool"
+},
+"Fixture": {
+"en": "Fixture",
+"vi": "Fixture",
+"zh": "Fixture"
+},
+"Flip": {
+"en": "Flip",
+"vi": "Lật",
+"zh": "翻转"
+},
+"Folder": {
+"en": "Folder",
+"vi": "Thư mục",
+"zh": "文件夹"
+},
+"Font": {
+"en": "Font",
+"vi": "Phông chữ",
+"zh": "字体"
+},
+"Font Scale": {
+"en": "Font Scale",
+"vi": "Tỉ lệ phông chữ",
+"zh": "字体缩放"
+},
+"Font Size": {
+"en": "Font Size",
+"vi": "Cỡ chữ",
+"zh": "字体大小"
+},
+"Formula": {
+"en": "Formula",
+"vi": "Công thức",
+"zh": "公式"
+},
+"Frame Index": {
+"en": "Frame Index",
+"vi": "Chỉ số khung hình",
+"zh": "帧索引"
+},
+"Full Image": {
+"en": "Full Image",
+"vi": "Toàn ảnh",
+"zh": "整幅图像"
+},
+"G High": {
+"en": "G High",
+"vi": "G Cao",
+"zh": "G 上限"
+},
+"G Low": {
+"en": "G Low",
+"vi": "G Thấp",
+"zh": "G 下限"
+},
+"Gamma": {
+"en": "Gamma",
+"vi": "Gamma",
+"zh": "伽马"
+},
+"Gaussian Blur": {
+"en": "Gaussian Blur",
+"vi": "Làm mờ Gaussian",
+"zh": "高斯模糊"
+},
+"Gaussian derivative sigma": {
+"en": "Gaussian derivative sigma",
+"vi": "Sigma đạo hàm Gaussian",
+"zh": "高斯导数 sigma"
+},
+"Ghi holding register(s) qua Modbus-TCP bằng socket thuần (FC16) — KHÔNG cần pymodbus. int16=1 reg; int32/float32=2 reg. 'value' trống → dùng pass (1/0).": {
+"en": "Write holding register(s) via Modbus-TCP using a plain socket (FC16) — NO pymodbus required. int16=1 reg; int32/float32=2 reg. Empty 'value' → use pass (1/0).",
+"vi": "Ghi holding register(s) qua Modbus-TCP bằng socket thuần (FC16) — KHÔNG cần pymodbus. int16=1 reg; int32/float32=2 reg. 'value' trống → dùng pass (1/0).",
+"zh": "通过Modbus-TCP使用纯socket(FC16)写入holding register(s) — 无需pymodbus。int16=1个寄存器;int32/float32=2个寄存器。'value'为空 → 使用pass (1/0)。"
+},
+"Ghi kết quả ra PLC mỗi chu kỳ — DÙNG CHUNG kết nối đã cấu hình ở Tools → PLC Connection. Mode 'pass_fail' ghi mã PASS/FAIL vào vùng result; mode 'value' ghi 1 số vào DM/CIO/W/H. Hỗ trợ Omron FINS & Inovance Modbus-TCP.": {
+"en": "Write results to PLC every cycle — SHARES the connection configured in Tools → PLC Connection. Mode 'pass_fail' writes the PASS/FAIL code into the result area; mode 'value' writes a number into DM/CIO/W/H. Supports Omron FINS & Inovance Modbus-TCP.",
+"vi": "Ghi kết quả ra PLC mỗi chu kỳ — DÙNG CHUNG kết nối đã cấu hình ở Tools → PLC Connection. Mode 'pass_fail' ghi mã PASS/FAIL vào vùng result; mode 'value' ghi 1 số vào DM/CIO/W/H. Hỗ trợ Omron FINS & Inovance Modbus-TCP.",
+"zh": "每个周期将结果写入PLC — 与Tools → PLC Connection中已配置的连接共用。'pass_fail'模式将PASS/FAIL代码写入result区域;'value'模式将一个数值写入DM/CIO/W/H。支持Omron FINS与汇川(Inovance) Modbus-TCP。"
+},
+"Ghi kết quả vào CSV log file": {
+"en": "Write results to CSV log file",
+"vi": "Ghi kết quả vào CSV log file",
+"zh": "将结果写入CSV日志文件"
+},
+"Giao điểm 2 đường (mỗi đường nối x1/y1/x2/y2 từ Line / Find Line). Xuất điểm giao (x,y) + góc giữa 2 đường. Song song → pass=False.": {
+"en": "Intersection of 2 lines (each line connects x1/y1/x2/y2 from Line / Find Line). Outputs the intersection point (x,y) + angle between the 2 lines. Parallel → pass=False.",
+"vi": "Giao điểm 2 đường (mỗi đường nối x1/y1/x2/y2 từ Line / Find Line). Xuất điểm giao (x,y) + góc giữa 2 đường. Song song → pass=False.",
+"zh": "两条直线的交点(每条线从Line/Find Line连接x1/y1/x2/y2)。输出交点(x,y)+两条线之间的夹角。平行 → pass=False。"
+},
+"GigE heartbeat timeout": {
+"en": "GigE heartbeat timeout",
+"vi": "Thời gian chờ heartbeat GigE",
+"zh": "GigE 心跳超时"
+},
+"Giá trị mm tương ứng mốc 1 (vd 2.1).": {
+"en": "mm value corresponding to mark 1 (e.g. 2.1).",
+"vi": "Giá trị mm tương ứng mốc 1 (vd 2.1).",
+"zh": "对应标记1的毫米值(例如2.1)。"
+},
+"Giá trị mm tương ứng mốc 2 (vd 2.5).": {
+"en": "mm value corresponding to mark 2 (e.g. 2.5).",
+"vi": "Giá trị mm tương ứng mốc 2 (vd 2.5).",
+"zh": "对应标记2的毫米值(例如2.5)。"
+},
+"Giới hạn vùng phân tích:\n• Full Image: toàn ảnh (mặc định).\n• Rectangle/Circle/Ellipse: kéo chuột để vẽ.\n• Polygon: click từng đỉnh, double-click đóng, right-click huỷ.\nPixel ratio sẽ tính trên diện tích shape (không phải toàn ảnh).": {
+"en": "Limit the analysis area:\n• Full Image: the whole image (default).\n• Rectangle/Circle/Ellipse: drag the mouse to draw.\n• Polygon: click each vertex, double-click to close, right-click to cancel.\nPixel ratio is computed over the shape's area (not the whole image).",
+"vi": "Giới hạn vùng phân tích:\n• Full Image: toàn ảnh (mặc định).\n• Rectangle/Circle/Ellipse: kéo chuột để vẽ.\n• Polygon: click từng đỉnh, double-click đóng, right-click huỷ.\nPixel ratio sẽ tính trên diện tích shape (không phải toàn ảnh).",
+"zh": "限制分析区域:\n• Full Image:整幅图像(默认)。\n• Rectangle/Circle/Ellipse:拖动鼠标绘制。\n• Polygon:逐个点击顶点,双击闭合,右键取消。\nPixel ratio将基于形状的面积计算(而非整幅图像)。"
+},
+"Golden Compare": {
+"en": "Golden Compare",
+"vi": "Golden Compare",
+"zh": "Golden Compare"
+},
+"Grab timeout (ms)": {
+"en": "Grab timeout (ms)",
+"vi": "Thời gian chờ chụp ảnh (ms)",
+"zh": "采集超时 (ms)"
+},
+"Gradient": {
+"en": "Gradient",
+"vi": "Gradient",
+"zh": "梯度"
+},
+"Gray": {
+"en": "Gray",
+"vi": "Gray",
+"zh": "灰度"
+},
+"Gray High": {
+"en": "Gray High",
+"vi": "Gray Cao",
+"zh": "灰度上限"
+},
+"Gray Low": {
+"en": "Gray Low",
+"vi": "Gray Thấp",
+"zh": "灰度下限"
+},
+"Grayscale": {
+"en": "Grayscale",
+"vi": "Ảnh xám",
+"zh": "灰度图"
+},
+"Green": {
+"en": "Green",
+"vi": "Xanh lá",
+"zh": "绿色"
+},
+"Grid Cols": {
+"en": "Grid Cols",
+"vi": "Số cột lưới",
+"zh": "网格列数"
+},
+"Grid Rows": {
+"en": "Grid Rows",
+"vi": "Số hàng lưới",
+"zh": "网格行数"
+},
+"Góc xoay (CCW). Port 'angle' nếu nối sẽ ưu tiên hơn giá trị này.": {
+"en": "Rotation angle (CCW). If port 'angle' is connected, it takes priority over this value.",
+"vi": "Góc xoay (CCW). Port 'angle' nếu nối sẽ ưu tiên hơn giá trị này.",
+"zh": "旋转角度(CCW逆时针)。若连接了端口'angle',则其优先于此值。"
+},
+"Gửi 1 chuỗi tới host:port qua TCP socket (stdlib, không cần thư viện). Template điền {pass}/{value}/{text}/{ts}; dùng \\r \\n cho CR/LF.": {
+"en": "Send a string to host:port via TCP socket (stdlib, no library needed). Template fills {pass}/{value}/{text}/{ts}; use \\r \\n for CR/LF.",
+"vi": "Gửi 1 chuỗi tới host:port qua TCP socket (stdlib, không cần thư viện). Template điền {pass}/{value}/{text}/{ts}; dùng \\r \\n cho CR/LF.",
+"zh": "通过TCP socket(标准库,无需第三方库)向host:port发送一个字符串。模板可填充{pass}/{value}/{text}/{ts};使用\\r \\n表示CR/LF。"
+},
+"H High": {
+"en": "H High",
+"vi": "H Cao",
+"zh": "H 上限"
+},
+"H Low": {
+"en": "H Low",
+"vi": "H Thấp",
+"zh": "H 下限"
+},
+"HSL": {
+"en": "HSL",
+"vi": "HSL",
+"zh": "HSL"
+},
+"HSV": {
+"en": "HSV",
+"vi": "HSV",
+"zh": "HSV"
+},
+"HSV Tolerance": {
+"en": "HSV Tolerance",
+"vi": "Dung sai HSV",
+"zh": "HSV 容差"
+},
+"HTTP POST": {
+"en": "HTTP POST",
+"vi": "HTTP POST",
+"zh": "HTTP POST"
+},
+"H_WORD": {
+"en": "H_WORD",
+"vi": "H_WORD",
+"zh": "H_WORD"
+},
+"Heartbeat (ms)": {
+"en": "Heartbeat (ms)",
+"vi": "Heartbeat (ms)",
+"zh": "心跳 (ms)"
+},
+"Height": {
+"en": "Height",
+"vi": "Chiều cao",
+"zh": "高度"
+},
+"Height (px)": {
+"en": "Height (px)",
+"vi": "Chiều cao (px)",
+"zh": "高度 (px)"
+},
+"Height khi shape được sinh từ port x/y hoặc fallback khi port h không kết nối.": {
+"en": "Height used when the shape is generated from port x/y, or as a fallback when port h is not connected.",
+"vi": "Height khi shape được sinh từ port x/y hoặc fallback khi port h không kết nối.",
+"zh": "当形状由端口x/y生成时使用的高度,或在端口h未连接时作为后备值。"
+},
+"Highest": {
+"en": "Highest",
+"vi": "Cao nhất",
+"zh": "最高"
+},
+"HikRobot/Do3think": {
+"en": "HikRobot/Do3think",
+"vi": "HikRobot/Do3think",
+"zh": "HikRobot/Do3think"
+},
+"Hiển thị label area (mm2) cạnh từng blob.": {
+"en": "Show area label (mm2) next to each blob.",
+"vi": "Hiển thị label area (mm2) cạnh từng blob.",
+"zh": "在每个blob旁显示面积标签(mm2)。"
+},
+"Hiển thị mask nhị phân (trắng/đen) thay vì overlay xanh.": {
+"en": "Show the binary mask (white/black) instead of the blue overlay.",
+"vi": "Hiển thị mask nhị phân (trắng/đen) thay vì overlay xanh.",
+"zh": "显示二值掩膜(黑/白)而非蓝色叠加层。"
+},
+"Hiển thị message khác nhau theo port pass (PASS/FAIL/NONE). Có thể nối port image của tool khác để overlay lên ảnh.": {
+"en": "Show different messages based on port pass (PASS/FAIL/NONE). You can connect the image port of another tool to overlay onto the image.",
+"vi": "Hiển thị message khác nhau theo port pass (PASS/FAIL/NONE). Có thể nối port image của tool khác để overlay lên ảnh.",
+"zh": "根据端口pass(PASS/FAIL/NONE)显示不同的消息。可连接其他工具的image端口以叠加到图像上。"
+},
+"Hiển thị overlay xanh của kết quả đè lên ảnh gốc — dễ so sánh vùng nào bị thay đổi.": {
+"en": "Show a blue overlay of the result on top of the original image — easy to compare which areas changed.",
+"vi": "Hiển thị overlay xanh của kết quả đè lên ảnh gốc — dễ so sánh vùng nào bị thay đổi.",
+"zh": "在原始图像上叠加显示结果的蓝色覆盖层 — 便于比较哪些区域发生了变化。"
+},
+"Hiện origin marker + X/Y axes + label '(x,y)' trên ảnh output.": {
+"en": "Show origin marker + X/Y axes + label '(x,y)' on the output image.",
+"vi": "Hiện origin marker + X/Y axes + label '(x,y)' trên ảnh output.",
+"zh": "在输出图像上显示原点标记 + X/Y轴 + 标签'(x,y)'。"
+},
+"Hiện rotated bounding box + score label trên ảnh output.": {
+"en": "Show the rotated bounding box + score label on the output image.",
+"vi": "Hiện rotated bounding box + score label trên ảnh output.",
+"zh": "在输出图像上显示旋转边界框 + 分数标签。"
+},
+"Hiệu chỉnh camera từ checkerboard — TCalibCheckerboardTool": {
+"en": "Calibrate camera from a checkerboard — TCalibCheckerboardTool",
+"vi": "Hiệu chỉnh camera từ checkerboard — TCalibCheckerboardTool",
+"zh": "通过棋盘格标定相机 — TCalibCheckerboardTool"
+},
+"Host": {
+"en": "Host",
+"vi": "Host",
+"zh": "主机"
+},
+"Hough Threshold": {
+"en": "Hough Threshold",
+"vi": "Ngưỡng Hough",
+"zh": "Hough 阈值"
+},
+"Hình kernel:\n• Ellipse: mượt, tự nhiên (mặc định).\n• Rect: góc cạnh, giữ cạnh thẳng.\n• Cross: chỉ 4 hướng, nhẹ.": {
+"en": "Kernel shape:\n• Ellipse: smooth, natural (default).\n• Rect: angular, keeps straight edges.\n• Cross: only 4 directions, lightweight.",
+"vi": "Hình kernel:\n• Ellipse: mượt, tự nhiên (mặc định).\n• Rect: góc cạnh, giữ cạnh thẳng.\n• Cross: chỉ 4 hướng, nhẹ.",
+"zh": "kernel形状:\n• Ellipse:平滑、自然(默认)。\n• Rect:有棱角,保持直边。\n• Cross:仅4个方向,轻量。"
+},
+"Hằng số ghi khi không nối port. Ưu tiên: port 'value' > port 'pass' (1/0) > giá trị này.": {
+"en": "Constant written when no port is connected. Priority: port 'value' > port 'pass' (1/0) > this value.",
+"vi": "Hằng số ghi khi không nối port. Ưu tiên: port 'value' > port 'pass' (1/0) > giá trị này.",
+"zh": "未连接端口时写入的常量。优先级:端口'value' > 端口'pass' (1/0) > 此值。"
+},
+"Hằng số để ghi khi KHÔNG nối port 'value'. Nếu nối port 'value' (tab Ports, vd từ kết quả đo) thì giá trị từ dây được ưu tiên.": {
+"en": "Constant to write when port 'value' is NOT connected. If port 'value' is connected (Ports tab, e.g. from a measurement result), the value from the wire takes priority.",
+"vi": "Hằng số để ghi khi KHÔNG nối port 'value'. Nếu nối port 'value' (tab Ports, vd từ kết quả đo) thì giá trị từ dây được ưu tiên.",
+"zh": "未连接端口'value'时要写入的常量。若连接了端口'value'(Ports标签页,例如来自测量结果),则以连线传来的值为准。"
+},
+"ID Reader": {
+"en": "ID Reader",
+"vi": "ID Reader",
+"zh": "ID Reader"
+},
+"Image": {
+"en": "Image",
+"vi": "Ảnh",
+"zh": "图像"
+},
+"Image Convert": {
+"en": "Image Convert",
+"vi": "Chuyển đổi ảnh",
+"zh": "图像转换"
+},
+"Image File": {
+"en": "Image File",
+"vi": "Tệp ảnh",
+"zh": "图像文件"
+},
+"Image Folder": {
+"en": "Image Folder",
+"vi": "Thư mục ảnh",
+"zh": "图像文件夹"
+},
+"Image Math (2 ảnh)": {
+"en": "Image Math (2 images)",
+"vi": "Image Math (2 ảnh)",
+"zh": "图像运算(2张图像)"
+},
+"Image Size": {
+"en": "Image Size",
+"vi": "Kích thước ảnh",
+"zh": "图像尺寸"
+},
+"Index ảnh trong folder — sẽ tự modulo theo số file": {
+"en": "Image index within the folder — will auto-modulo by file count",
+"vi": "Index ảnh trong folder — sẽ tự modulo theo số file",
+"zh": "文件夹中的图像索引 — 将按文件数自动取模"
+},
+"Inference Engine": {
+"en": "Inference Engine",
+"vi": "Inference Engine",
+"zh": "推理引擎"
+},
+"Intensity Stats": {
+"en": "Intensity Stats",
+"vi": "Thống kê cường độ",
+"zh": "强度统计"
+},
+"Interpolation": {
+"en": "Interpolation",
+"vi": "Nội suy",
+"zh": "插值"
+},
+"Invert": {
+"en": "Invert",
+"vi": "Đảo ngược",
+"zh": "反转"
+},
+"Invert Input": {
+"en": "Invert Input",
+"vi": "Đảo ngược đầu vào",
+"zh": "反转输入"
+},
+"Invert Mask": {
+"en": "Invert Mask",
+"vi": "Đảo ngược mask",
+"zh": "反转掩膜"
+},
+"IoU Threshold": {
+"en": "IoU Threshold",
+"vi": "Ngưỡng IoU",
+"zh": "IoU 阈值"
+},
+"Iterations": {
+"en": "Iterations",
+"vi": "Số lần lặp",
+"zh": "迭代次数"
+},
+"Kernel Shape": {
+"en": "Kernel Shape",
+"vi": "Hình kernel",
+"zh": "Kernel 形状"
+},
+"Kernel Size": {
+"en": "Kernel Size",
+"vi": "Kích thước kernel",
+"zh": "Kernel 大小"
+},
+"Kernel size (lẻ)": {
+"en": "Kernel size (odd)",
+"vi": "Kernel size (lẻ)",
+"zh": "Kernel 大小(奇数)"
+},
+"Khe hở giữa 2 đường — khoảng cách vuông góc từ line2 tới line1 (distance = điểm giữa; dist_start/dist_end = 2 đầu). PASS khi distance trong [min,max].": {
+"en": "Gap between 2 lines — perpendicular distance from line2 to line1 (distance = midpoint; dist_start/dist_end = the 2 ends). PASS when distance is within [min,max].",
+"vi": "Khe hở giữa 2 đường — khoảng cách vuông góc từ line2 tới line1 (distance = điểm giữa; dist_start/dist_end = 2 đầu). PASS khi distance trong [min,max].",
+"zh": "两条线之间的间隙 — 从line2到line1的垂直距离(distance=中点;dist_start/dist_end=两端)。当distance在[min,max]范围内时为PASS。"
+},
+"Khoảng cách pixel của mốc 1 (vd 150).": {
+"en": "Pixel distance of mark 1 (e.g. 150).",
+"vi": "Khoảng cách pixel của mốc 1 (vd 150).",
+"zh": "标记1的像素距离(例如150)。"
+},
+"Khoảng cách pixel của mốc 2 (vd 210).": {
+"en": "Pixel distance of mark 2 (e.g. 210).",
+"vi": "Khoảng cách pixel của mốc 2 (vd 210).",
+"zh": "标记2的像素距离(例如210)。"
+},
+"Khoảng cách vuông góc từ điểm đến đường thẳng — TDistancePointLineTool": {
+"en": "Perpendicular distance from a point to a line — TDistancePointLineTool",
+"vi": "Khoảng cách vuông góc từ điểm đến đường thẳng — TDistancePointLineTool",
+"zh": "点到直线的垂直距离 — TDistancePointLineTool"
+},
+"Không gian màu dùng để lọc:\n• HSV — Hue/Saturation/Value (mặc định, tốt cho phân biệt màu).\n• RGB — Red/Green/Blue (lọc theo cường độ từng kênh).\n• HSL — Hue/Saturation/Lightness.\n• Lab — CIELAB (đồng nhất perceptually, tốt cho phân biệt tinh).\n• Gray — đơn kênh xám 0–255.\nClick 'Pick Color' trên header rồi click ảnh để tự set ngưỡng quanh màu pixel đã chọn.": {
+"en": "Color space used for filtering:\n• HSV — Hue/Saturation/Value (default, good for distinguishing colors).\n• RGB — Red/Green/Blue (filter by intensity of each channel).\n• HSL — Hue/Saturation/Lightness.\n• Lab — CIELAB (perceptually uniform, good for fine distinctions).\n• Gray — single grayscale channel 0–255.\nClick 'Pick Color' on the header, then click the image to auto-set thresholds around the selected pixel color.",
+"vi": "Không gian màu dùng để lọc:\n• HSV — Hue/Saturation/Value (mặc định, tốt cho phân biệt màu).\n• RGB — Red/Green/Blue (lọc theo cường độ từng kênh).\n• HSL — Hue/Saturation/Lightness.\n• Lab — CIELAB (đồng nhất perceptually, tốt cho phân biệt tinh).\n• Gray — đơn kênh xám 0–255.\nClick 'Pick Color' trên header rồi click ảnh để tự set ngưỡng quanh màu pixel đã chọn.",
+"zh": "用于过滤的颜色空间:\n• HSV — Hue/Saturation/Value(默认,适合区分颜色)。\n• RGB — Red/Green/Blue(按各通道强度过滤)。\n• HSL — Hue/Saturation/Lightness。\n• Lab — CIELAB(感知均匀,适合精细区分)。\n• Gray — 单通道灰度 0–255。\n点击表头的'Pick Color',然后点击图像即可根据所选像素颜色自动设置阈值。"
+},
+"Kiểm CÓ/THIẾU vật trong ROI theo intensity / edge_density / fill_ratio. present=True khi score ∈ [min_score, max_score]. ROI W/H = 0 → full ảnh.": {
+"en": "Check PRESENCE/ABSENCE of an object in the ROI based on intensity / edge_density / fill_ratio. present=True when score ∈ [min_score, max_score]. ROI W/H = 0 → full image.",
+"vi": "Kiểm CÓ/THIẾU vật trong ROI theo intensity / edge_density / fill_ratio. present=True khi score ∈ [min_score, max_score]. ROI W/H = 0 → full ảnh.",
+"zh": "根据intensity/edge_density/fill_ratio检查ROI中物体的有无。当score ∈ [min_score, max_score]时present=True。ROI W/H = 0 → 整幅图像。"
+},
+"Kích thước kernel (pixel). Lớn = tác động mạnh hơn. Khuyến nghị số lẻ (3,5,7…).": {
+"en": "Kernel size (pixels). Larger = stronger effect. Odd numbers recommended (3,5,7…).",
+"vi": "Kích thước kernel (pixel). Lớn = tác động mạnh hơn. Khuyến nghị số lẻ (3,5,7…).",
+"zh": "kernel大小(像素)。越大=效果越强。建议使用奇数(3,5,7…)。"
+},
+"Kết hợp điều kiện → PASS/FAIL cuối cùng. Mặc định 2 input A, B; chuột phải node → ➕ Add Input để thêm port mới. ALL = tất cả input True; ANY = ít nhất 1 True. Input chưa nối được bỏ qua.": {
+"en": "Combine conditions → final PASS/FAIL. Default 2 inputs A, B; right-click the node → ➕ Add Input to add a new port. ALL = all inputs True; ANY = at least 1 True. Unconnected inputs are ignored.",
+"vi": "Kết hợp điều kiện → PASS/FAIL cuối cùng. Mặc định 2 input A, B; chuột phải node → ➕ Add Input để thêm port mới. ALL = tất cả input True; ANY = ít nhất 1 True. Input chưa nối được bỏ qua.",
+"zh": "组合条件 → 最终PASS/FAIL。默认2个输入A、B;右键节点 → ➕ Add Input可添加新端口。ALL = 所有输入均为True;ANY = 至少1个为True。未连接的输入将被忽略。"
+},
+"L High": {
+"en": "L High",
+"vi": "L Cao",
+"zh": "L 上限"
+},
+"L Low": {
+"en": "L Low",
+"vi": "L Thấp",
+"zh": "L 下限"
+},
+"LAB": {
+"en": "LAB",
+"vi": "LAB",
+"zh": "LAB"
+},
+"Lab": {
+"en": "Lab",
+"vi": "Lab",
+"zh": "Lab"
+},
+"Label Color": {
+"en": "Label Color",
+"vi": "Màu label",
+"zh": "标签颜色"
+},
+"Label Font": {
+"en": "Label Font",
+"vi": "Phông chữ label",
+"zh": "标签字体"
+},
+"Label Font Size": {
+"en": "Label Font Size",
+"vi": "Cỡ chữ label",
+"zh": "标签字体大小"
+},
+"Label Offset X": {
+"en": "Label Offset X",
+"vi": "Độ lệch label theo X",
+"zh": "标签偏移 X"
+},
+"Label Offset Y": {
+"en": "Label Offset Y",
+"vi": "Độ lệch label theo Y",
+"zh": "标签偏移 Y"
+},
+"Label Size": {
+"en": "Label Size",
+"vi": "Kích thước label",
+"zh": "标签大小"
+},
+"Label Text": {
+"en": "Label Text",
+"vi": "Nội dung label",
+"zh": "标签文本"
+},
+"Label Thickness": {
+"en": "Label Thickness",
+"vi": "Độ dày label",
+"zh": "标签粗细"
+},
+"Lanczos4": {
+"en": "Lanczos4",
+"vi": "Lanczos4",
+"zh": "Lanczos4"
+},
+"Language": {
+"en": "Language",
+"vi": "Ngôn ngữ",
+"zh": "语言"
+},
+"Last": {
+"en": "Last",
+"vi": "Cuối cùng",
+"zh": "最后一个"
+},
+"Light→Dark": {
+"en": "Light→Dark",
+"vi": "Sáng→Tối",
+"zh": "亮→暗"
+},
+"Line (2 Points)": {
+"en": "Line (2 Points)",
+"vi": "Line (2 Points)",
+"zh": "Line(2点)"
+},
+"Line 1 Angle (°)": {
+"en": "Line 1 Angle (°)",
+"vi": "Góc Line 1 (°)",
+"zh": "Line 1 角度 (°)"
+},
+"Line 2 Angle (°)": {
+"en": "Line 2 Angle (°)",
+"vi": "Góc Line 2 (°)",
+"zh": "Line 2 角度 (°)"
+},
+"Line Angle (°)": {
+"en": "Line Angle (°)",
+"vi": "Góc Line (°)",
+"zh": "直线角度 (°)"
+},
+"Line Color": {
+"en": "Line Color",
+"vi": "Màu đường",
+"zh": "线条颜色"
+},
+"Line Intersection": {
+"en": "Line Intersection",
+"vi": "Giao điểm đường thẳng",
+"zh": "直线交点"
+},
+"Line Mode": {
+"en": "Line Mode",
+"vi": "Chế độ đường",
+"zh": "直线模式"
+},
+"Line P1 X": {
+"en": "Line P1 X",
+"vi": "Line P1 X",
+"zh": "Line P1 X"
+},
+"Line P1 Y": {
+"en": "Line P1 Y",
+"vi": "Line P1 Y",
+"zh": "Line P1 Y"
+},
+"Line P2 X": {
+"en": "Line P2 X",
+"vi": "Line P2 X",
+"zh": "Line P2 X"
+},
+"Line P2 Y": {
+"en": "Line P2 Y",
+"vi": "Line P2 Y",
+"zh": "Line P2 Y"
+},
+"Line Relation (GD&T)": {
+"en": "Line Relation (GD&T)",
+"vi": "Quan hệ đường thẳng (GD&T)",
+"zh": "直线关系 (GD&T)"
+},
+"Line Thickness": {
+"en": "Line Thickness",
+"vi": "Độ dày đường",
+"zh": "线条粗细"
+},
+"Linear": {
+"en": "Linear",
+"vi": "Tuyến tính",
+"zh": "线性"
+},
+"List": {
+"en": "List",
+"vi": "Danh sách",
+"zh": "列表"
+},
+"Load ảnh từ file hoặc folder — TAcqFifoTool": {
+"en": "Load images from a file or folder — TAcqFifoTool",
+"vi": "Load ảnh từ file hoặc folder — TAcqFifoTool",
+"zh": "从文件或文件夹加载图像 — TAcqFifoTool"
+},
+"Logic AND": {
+"en": "Logic AND",
+"vi": "Logic AND",
+"zh": "逻辑 AND"
+},
+"Logic NOT": {
+"en": "Logic NOT",
+"vi": "Logic NOT",
+"zh": "逻辑 NOT"
+},
+"Logic OR": {
+"en": "Logic OR",
+"vi": "Logic OR",
+"zh": "逻辑 OR"
+},
+"Long side": {
+"en": "Long side",
+"vi": "Cạnh dài",
+"zh": "长边"
+},
+"Lowest": {
+"en": "Lowest",
+"vi": "Thấp nhất",
+"zh": "最低"
+},
+"Làm mờ Gaussian": {
+"en": "Gaussian Blur",
+"vi": "Làm mờ Gaussian",
+"zh": "高斯模糊"
+},
+"Làm mờ trước khi so để bớt lệch nhiễu nhỏ. 0 = tắt.": {
+"en": "Blur before comparing to reduce small-noise deviation. 0 = off.",
+"vi": "Làm mờ trước khi so để bớt lệch nhiễu nhỏ. 0 = tắt.",
+"zh": "比较前先模糊处理以减少小噪点偏差。0 = 关闭。"
+},
+"Làm nét ảnh": {
+"en": "Sharpen image",
+"vi": "Làm nét ảnh",
+"zh": "锐化图像"
+},
+"Lưu ảnh ra file — TSaveImageTool": {
+"en": "Save image to a file — TSaveImageTool",
+"vi": "Lưu ảnh ra file — TSaveImageTool",
+"zh": "将图像保存到文件 — TSaveImageTool"
+},
+"Lặp phép morph N lần — tương đương kernel lớn hơn nhưng tinh chỉnh được.": {
+"en": "Repeat the morph operation N times — equivalent to a larger kernel but adjustable.",
+"vi": "Lặp phép morph N lần — tương đương kernel lớn hơn nhưng tinh chỉnh được.",
+"zh": "将形态学操作重复N次 — 相当于更大的kernel,但可灵活调整。"
+},
+"Lọc nhiễu giữ cạnh — Median (muối-tiêu) hoặc Bilateral (mịn nhưng giữ biên).": {
+"en": "Edge-preserving denoise — Median (salt-and-pepper) or Bilateral (smooth while preserving edges).",
+"vi": "Lọc nhiễu giữ cạnh — Median (muối-tiêu) hoặc Bilateral (mịn nhưng giữ biên).",
+"zh": "保边去噪 — Median(椒盐噪声)或Bilateral(平滑且保留边缘)。"
+},
+"Lọc đúng phần số (vd '9.00' từ 'RM 9.00'). Cổng number / number_objN luôn cố parse ra số thực.": {
+"en": "Filter out just the numeric part (e.g. '9.00' from 'RM 9.00'). Ports number / number_objN always try to parse a real number.",
+"vi": "Lọc đúng phần số (vd '9.00' từ 'RM 9.00'). Cổng number / number_objN luôn cố parse ra số thực.",
+"zh": "仅过滤出数字部分(例如从'RM 9.00'中提取'9.00')。number / number_objN端口始终尝试解析为实数。"
+},
+"MVS device index": {
+"en": "MVS device index",
+"vi": "Chỉ số thiết bị MVS",
+"zh": "MVS 设备索引"
+},
+"MVS serial number": {
+"en": "MVS serial number",
+"vi": "Số serial MVS",
+"zh": "MVS 序列号"
+},
+"Magenta": {
+"en": "Magenta",
+"vi": "Magenta",
+"zh": "品红"
+},
+"Manual Threshold": {
+"en": "Manual Threshold",
+"vi": "Ngưỡng thủ công",
+"zh": "手动阈值"
+},
+"Math / Formula": {
+"en": "Math / Formula",
+"vi": "Toán học / Công thức",
+"zh": "数学 / 公式"
+},
+"Max (mm)": {
+"en": "Max (mm)",
+"vi": "Tối đa (mm)",
+"zh": "最大值 (mm)"
+},
+"Max Angle (°)": {
+"en": "Max Angle (°)",
+"vi": "Góc tối đa (°)",
+"zh": "最大角度 (°)"
+},
+"Max Area (mm²)": {
+"en": "Max Area (mm²)",
+"vi": "Diện tích tối đa (mm²)",
+"zh": "最大面积 (mm²)"
+},
+"Max Area (px²)": {
+"en": "Max Area (px²)",
+"vi": "Diện tích tối đa (px²)",
+"zh": "最大面积 (px²)"
+},
+"Max Circularity": {
+"en": "Max Circularity",
+"vi": "Độ tròn tối đa",
+"zh": "最大圆度"
+},
+"Max Count": {
+"en": "Max Count",
+"vi": "Số lượng tối đa",
+"zh": "最大数量"
+},
+"Max Defect Count (0=any)": {
+"en": "Max Defect Count (0=any)",
+"vi": "Số lỗi tối đa (0=bất kỳ)",
+"zh": "最大缺陷数 (0=任意)"
+},
+"Max Detections": {
+"en": "Max Detections",
+"vi": "Số phát hiện tối đa",
+"zh": "最大检测数"
+},
+"Max Distance": {
+"en": "Max Distance",
+"vi": "Khoảng cách tối đa",
+"zh": "最大距离"
+},
+"Max Edges": {
+"en": "Max Edges",
+"vi": "Số cạnh tối đa",
+"zh": "最大边缘数"
+},
+"Max Elongation": {
+"en": "Max Elongation",
+"vi": "Độ kéo dài tối đa",
+"zh": "最大伸长率"
+},
+"Max Gap (px)": {
+"en": "Max Gap (px)",
+"vi": "Khoảng hở tối đa (px)",
+"zh": "最大间隙 (px)"
+},
+"Max Mean (PASS)": {
+"en": "Max Mean (PASS)",
+"vi": "Trung bình tối đa (PASS)",
+"zh": "最大均值 (PASS)"
+},
+"Max Objects (PASS)": {
+"en": "Max Objects (PASS)",
+"vi": "Số đối tượng tối đa (PASS)",
+"zh": "最大对象数 (PASS)"
+},
+"Max Radius (mm)": {
+"en": "Max Radius (mm)",
+"vi": "Bán kính tối đa (mm)",
+"zh": "最大半径 (mm)"
+},
+"Max Radius (px)": {
+"en": "Max Radius (px)",
+"vi": "Bán kính tối đa (px)",
+"zh": "最大半径 (px)"
+},
+"Max Ratio": {
+"en": "Max Ratio",
+"vi": "Tỉ lệ tối đa",
+"zh": "最大比例"
+},
+"Max Results": {
+"en": "Max Results",
+"vi": "Số kết quả tối đa",
+"zh": "最大结果数"
+},
+"Max Scratches (0=none)": {
+"en": "Max Scratches (0=none)",
+"vi": "Số vết xước tối đa (0=không)",
+"zh": "最大划痕数 (0=无)"
+},
+"Max Total Defect (px²)": {
+"en": "Max Total Defect (px²)",
+"vi": "Tổng lỗi tối đa (px²)",
+"zh": "最大缺陷总量 (px²)"
+},
+"Max Value": {
+"en": "Max Value",
+"vi": "Giá trị tối đa",
+"zh": "最大值"
+},
+"Max Width (mm)": {
+"en": "Max Width (mm)",
+"vi": "Chiều rộng tối đa (mm)",
+"zh": "最大宽度 (mm)"
+},
+"Max score (present)": {
+"en": "Max score (present)",
+"vi": "Điểm tối đa (present)",
+"zh": "最大分数 (present)"
+},
+"Max total defect (px) để PASS": {
+"en": "Max total defect (px) for PASS",
+"vi": "Max total defect (px) để PASS",
+"zh": "PASS 所需的最大缺陷总量 (px)"
+},
+"Max ΔE": {
+"en": "Max ΔE",
+"vi": "ΔE tối đa",
+"zh": "最大 ΔE"
+},
+"Median ksize (lẻ)": {
+"en": "Median ksize (odd)",
+"vi": "Median ksize (lẻ)",
+"zh": "中值滤波核大小 (奇数)"
+},
+"Memory Area": {
+"en": "Memory Area",
+"vi": "Vùng nhớ",
+"zh": "存储区域"
+},
+"Message": {
+"en": "Message",
+"vi": "Thông điệp",
+"zh": "消息"
+},
+"Method": {
+"en": "Method",
+"vi": "Phương pháp",
+"zh": "方法"
+},
+"Min (mm)": {
+"en": "Min (mm)",
+"vi": "Tối thiểu (mm)",
+"zh": "最小值 (mm)"
+},
+"Min Angle (°)": {
+"en": "Min Angle (°)",
+"vi": "Góc tối thiểu (°)",
+"zh": "最小角度 (°)"
+},
+"Min Area (mm²)": {
+"en": "Min Area (mm²)",
+"vi": "Diện tích tối thiểu (mm²)",
+"zh": "最小面积 (mm²)"
+},
+"Min Area (px²)": {
+"en": "Min Area (px²)",
+"vi": "Diện tích tối thiểu (px²)",
+"zh": "最小面积 (px²)"
+},
+"Min Circularity": {
+"en": "Min Circularity",
+"vi": "Độ tròn tối thiểu",
+"zh": "最小圆度"
+},
+"Min Confidence (%)": {
+"en": "Min Confidence (%)",
+"vi": "Độ tin cậy tối thiểu (%)",
+"zh": "最小置信度 (%)"
+},
+"Min Count": {
+"en": "Min Count",
+"vi": "Số lượng tối thiểu",
+"zh": "最小数量"
+},
+"Min Defect (px²)": {
+"en": "Min Defect (px²)",
+"vi": "Lỗi tối thiểu (px²)",
+"zh": "最小缺陷 (px²)"
+},
+"Min Dist (px)": {
+"en": "Min Dist (px)",
+"vi": "Khoảng cách tối thiểu (px)",
+"zh": "最小距离 (px)"
+},
+"Min Distance": {
+"en": "Min Distance",
+"vi": "Khoảng cách tối thiểu",
+"zh": "最小距离"
+},
+"Min Edges": {
+"en": "Min Edges",
+"vi": "Số cạnh tối thiểu",
+"zh": "最小边缘数"
+},
+"Min Elongation": {
+"en": "Min Elongation",
+"vi": "Độ kéo dài tối thiểu",
+"zh": "最小伸长率"
+},
+"Min Length (px)": {
+"en": "Min Length (px)",
+"vi": "Chiều dài tối thiểu (px)",
+"zh": "最小长度 (px)"
+},
+"Min Mean (PASS)": {
+"en": "Min Mean (PASS)",
+"vi": "Trung bình tối thiểu (PASS)",
+"zh": "最小均值 (PASS)"
+},
+"Min Objects (PASS)": {
+"en": "Min Objects (PASS)",
+"vi": "Số đối tượng tối thiểu (PASS)",
+"zh": "最小对象数 (PASS)"
+},
+"Min Radius (mm)": {
+"en": "Min Radius (mm)",
+"vi": "Bán kính tối thiểu (mm)",
+"zh": "最小半径 (mm)"
+},
+"Min Radius (px)": {
+"en": "Min Radius (px)",
+"vi": "Bán kính tối thiểu (px)",
+"zh": "最小半径 (px)"
+},
+"Min Ratio": {
+"en": "Min Ratio",
+"vi": "Tỉ lệ tối thiểu",
+"zh": "最小比例"
+},
+"Min Width (mm)": {
+"en": "Min Width (mm)",
+"vi": "Chiều rộng tối thiểu (mm)",
+"zh": "最小宽度 (mm)"
+},
+"Min defect blob (px)": {
+"en": "Min defect blob (px)",
+"vi": "Blob lỗi tối thiểu (px)",
+"zh": "最小缺陷斑点 (px)"
+},
+"Min score (present)": {
+"en": "Min score (present)",
+"vi": "Điểm tối thiểu (present)",
+"zh": "最小分数 (present)"
+},
+"Modbus Write": {
+"en": "Modbus Write",
+"vi": "Ghi Modbus",
+"zh": "Modbus 写入"
+},
+"Mode": {
+"en": "Mode",
+"vi": "Chế độ",
+"zh": "模式"
+},
+"Model File": {
+"en": "Model File",
+"vi": "Tệp mô hình",
+"zh": "模型文件"
+},
+"Morph Kernel": {
+"en": "Morph Kernel",
+"vi": "Kernel hình thái học",
+"zh": "形态学核"
+},
+"Morph Open": {
+"en": "Morph Open",
+"vi": "Morph Open",
+"zh": "形态学开运算"
+},
+"Morph clean": {
+"en": "Morph clean",
+"vi": "Làm sạch hình thái học",
+"zh": "形态学清理"
+},
+"Morphology": {
+"en": "Morphology",
+"vi": "Hình thái học",
+"zh": "形态学"
+},
+"Mã ngôn ngữ: vie (tiếng Việt), en, japan, korean, ch… Tự map sang mã PaddleOCR.": {
+"en": "Language code: vie (Vietnamese), en, japan, korean, ch… Automatically mapped to PaddleOCR codes.",
+"vi": "Mã ngôn ngữ: vie (tiếng Việt), en, japan, korean, ch… Tự map sang mã PaddleOCR.",
+"zh": "语言代码：vie（越南语）、en、japan、korean、ch… 自动映射为 PaddleOCR 代码。"
+},
+"Mỗi lần Run sẽ tự sang ảnh kế tiếp (cycle qua folder)": {
+"en": "Each Run automatically advances to the next image (cycling through the folder)",
+"vi": "Mỗi lần Run sẽ tự sang ảnh kế tiếp (cycle qua folder)",
+"zh": "每次运行都会自动切换到下一张图像（循环遍历文件夹）"
+},
+"Mở Script Tool detail (double-click node) để dùng editor đầy đủ với syntax highlighting + autocomplete.": {
+"en": "Open the Script Tool detail (double-click the node) to use the full editor with syntax highlighting + autocomplete.",
+"vi": "Mở Script Tool detail (double-click node) để dùng editor đầy đủ với syntax highlighting + autocomplete.",
+"zh": "打开 Script Tool 详情（双击节点）以使用具备语法高亮 + 自动补全的完整编辑器。"
+},
+"Mở rộng khung để không cắt mất góc khi xoay.": {
+"en": "Expand the frame so corners are not cropped when rotating.",
+"vi": "Mở rộng khung để không cắt mất góc khi xoay.",
+"zh": "扩展画框以避免旋转时裁掉边角。"
+},
+"NOT Gate": {
+"en": "NOT Gate",
+"vi": "Cổng NOT",
+"zh": "NOT 门"
+},
+"Nearest": {
+"en": "Nearest",
+"vi": "Gần nhất",
+"zh": "最近邻"
+},
+"Ngưỡng cường độ gradient để nhận cạnh": {
+"en": "Gradient intensity threshold for detecting edges",
+"vi": "Ngưỡng cường độ gradient để nhận cạnh",
+"zh": "用于识别边缘的梯度强度阈值"
+},
+"Ngưỡng nhị phân đầy đủ — Binary/INV/Otsu/Triangle": {
+"en": "Full binary threshold — Binary/INV/Otsu/Triangle",
+"vi": "Ngưỡng nhị phân đầy đủ — Binary/INV/Otsu/Triangle",
+"zh": "完整二值化阈值 — Binary/INV/Otsu/Triangle"
+},
+"Ngưỡng so sánh khi operator ≠ none.": {
+"en": "Comparison threshold when operator ≠ none.",
+"vi": "Ngưỡng so sánh khi operator ≠ none.",
+"zh": "当 operator ≠ none 时的比较阈值。"
+},
+"Ngưỡng điểm số chấp nhận (0-1)": {
+"en": "Acceptance score threshold (0-1)",
+"vi": "Ngưỡng điểm số chấp nhận (0-1)",
+"zh": "可接受分数阈值 (0-1)"
+},
+"Num Edges": {
+"en": "Num Edges",
+"vi": "Số cạnh",
+"zh": "边缘数量"
+},
+"Nắn phối cảnh 4 điểm → hình chữ nhật out_w×out_h (deskew ảnh chụp nghiêng). 4 điểm nguồn mặc định = 4 góc ảnh; sửa toạ độ để nắn.": {
+"en": "4-point perspective correction → out_w×out_h rectangle (deskew tilted captures). The 4 default source points = the 4 image corners; edit the coordinates to correct.",
+"vi": "Nắn phối cảnh 4 điểm → hình chữ nhật out_w×out_h (deskew ảnh chụp nghiêng). 4 điểm nguồn mặc định = 4 góc ảnh; sửa toạ độ để nắn.",
+"zh": "4 点透视校正 → out_w×out_h 矩形（校正倾斜拍摄的图像）。默认 4 个源点 = 图像的 4 个角；修改坐标以进行校正。"
+},
+"Nới rộng mỗi kênh ± tolerance. Cũng dùng làm nửa-độ-rộng khi click Pick Color → set thresholds quanh pixel ± tol.": {
+"en": "Widen each channel by ± tolerance. Also used as the half-width when clicking Pick Color → sets thresholds around the pixel ± tol.",
+"vi": "Nới rộng mỗi kênh ± tolerance. Cũng dùng làm nửa-độ-rộng khi click Pick Color → set thresholds quanh pixel ± tol.",
+"zh": "对每个通道按 ± tolerance 进行扩展。点击 Pick Color 时也用作半宽度 → 围绕该像素 ± tol 设置阈值。"
+},
+"OCR Max": {
+"en": "OCR Max",
+"vi": "OCR Max",
+"zh": "OCR 最大值"
+},
+"OR Gate": {
+"en": "OR Gate",
+"vi": "Cổng OR",
+"zh": "OR 门"
+},
+"Off": {
+"en": "Off",
+"vi": "Tắt",
+"zh": "关闭"
+},
+"Off: giữ nguyên ảnh (không đổi format màu), chỉ resize nếu bật.": {
+"en": "Off: keeps the image unchanged (no color format conversion), only resizes if enabled.",
+"vi": "Off: giữ nguyên ảnh (không đổi format màu), chỉ resize nếu bật.",
+"zh": "Off：保持图像不变（不转换颜色格式），仅在启用时调整大小。"
+},
+"Off: không resize.\nScale: nhân tỉ lệ.\nWidth x Height: kích thước cố định (có thể méo tỉ lệ).\nFit (keep aspect): khớp 1 cạnh, giữ nguyên tỉ lệ.": {
+"en": "Off: no resizing.\nScale: multiply by ratio.\nWidth x Height: fixed size (may distort the ratio).\nFit (keep aspect): match one side, keep the aspect ratio.",
+"vi": "Off: không resize.\nScale: nhân tỉ lệ.\nWidth x Height: kích thước cố định (có thể méo tỉ lệ).\nFit (keep aspect): khớp 1 cạnh, giữ nguyên tỉ lệ.",
+"zh": "Off：不调整大小。\nScale：按比例缩放。\nWidth x Height：固定尺寸（可能导致比例失真）。\nFit (keep aspect)：匹配一条边，保持宽高比。"
+},
+"Offset X": {
+"en": "Offset X",
+"vi": "Offset X",
+"zh": "偏移 X"
+},
+"Offset Y": {
+"en": "Offset Y",
+"vi": "Offset Y",
+"zh": "偏移 Y"
+},
+"Open": {
+"en": "Open",
+"vi": "Mở",
+"zh": "打开"
+},
+"Open bỏ đốm nhiễu nhỏ. 0 = tắt.": {
+"en": "Open removes small noise specks. 0 = off.",
+"vi": "Open bỏ đốm nhiễu nhỏ. 0 = tắt.",
+"zh": "开运算（Open）可去除小的噪点。0 = 关闭。"
+},
+"Open+Close": {
+"en": "Open+Close",
+"vi": "Open+Close",
+"zh": "开运算+闭运算"
+},
+"OpenCV": {
+"en": "OpenCV",
+"vi": "OpenCV",
+"zh": "OpenCV"
+},
+"OpenCV cho USB UVC; HikRobot/Do3think dùng MVS SDK (Windows only)": {
+"en": "OpenCV for USB UVC; HikRobot/Do3think use MVS SDK (Windows only)",
+"vi": "OpenCV cho USB UVC; HikRobot/Do3think dùng MVS SDK (Windows only)",
+"zh": "USB UVC 使用 OpenCV；HikRobot/Do3think 使用 MVS SDK（仅限 Windows）"
+},
+"OpenCV index": {
+"en": "OpenCV index",
+"vi": "Chỉ số OpenCV",
+"zh": "OpenCV 索引"
+},
+"Operation": {
+"en": "Operation",
+"vi": "Phép toán",
+"zh": "操作"
+},
+"Operator": {
+"en": "Operator",
+"vi": "Toán tử",
+"zh": "运算符"
+},
+"Orange": {
+"en": "Orange",
+"vi": "Cam",
+"zh": "橙色"
+},
+"Origin X": {
+"en": "Origin X",
+"vi": "Gốc X",
+"zh": "原点 X"
+},
+"Origin Y": {
+"en": "Origin Y",
+"vi": "Gốc Y",
+"zh": "原点 Y"
+},
+"Otsu": {
+"en": "Otsu",
+"vi": "Otsu",
+"zh": "Otsu"
+},
+"Otsu INV": {
+"en": "Otsu INV",
+"vi": "Otsu INV",
+"zh": "Otsu INV"
+},
+"Output Height": {
+"en": "Output Height",
+"vi": "Chiều cao đầu ra",
+"zh": "输出高度"
+},
+"Output Selection": {
+"en": "Output Selection",
+"vi": "Lựa chọn đầu ra",
+"zh": "输出选择"
+},
+"Output Width": {
+"en": "Output Width",
+"vi": "Chiều rộng đầu ra",
+"zh": "输出宽度"
+},
+"P1 mm": {
+"en": "P1 mm",
+"vi": "P1 mm",
+"zh": "P1 mm"
+},
+"P1 pixels": {
+"en": "P1 pixels",
+"vi": "P1 pixels",
+"zh": "P1 像素"
+},
+"P2 mm": {
+"en": "P2 mm",
+"vi": "P2 mm",
+"zh": "P2 mm"
+},
+"P2 pixels": {
+"en": "P2 pixels",
+"vi": "P2 pixels",
+"zh": "P2 像素"
+},
+"PLC Write": {
+"en": "PLC Write",
+"vi": "Ghi PLC",
+"zh": "PLC 写入"
+},
+"POST kết quả tới URL qua urllib (stdlib, không cần requests). format 'json' gửi {pass,value,text,ts}; 'raw' gửi chuỗi theo template.": {
+"en": "POST results to a URL via urllib (stdlib, no requests needed). format 'json' sends {pass,value,text,ts}; 'raw' sends a string based on the template.",
+"vi": "POST kết quả tới URL qua urllib (stdlib, không cần requests). format 'json' gửi {pass,value,text,ts}; 'raw' gửi chuỗi theo template.",
+"zh": "通过 urllib（标准库，无需 requests）将结果 POST 到 URL。format 为 'json' 时发送 {pass,value,text,ts}；'raw' 则按模板发送字符串。"
+},
+"PaddleOCR models folder (offline)": {
+"en": "PaddleOCR models folder (offline)",
+"vi": "Thư mục mô hình PaddleOCR (offline)",
+"zh": "PaddleOCR 模型文件夹（离线）"
+},
+"Pass/Fail Judge": {
+"en": "Pass/Fail Judge",
+"vi": "Đánh giá Pass/Fail",
+"zh": "Pass/Fail 判定"
+},
+"PatFind": {
+"en": "PatFind",
+"vi": "PatFind",
+"zh": "PatFind"
+},
+"PatFlex": {
+"en": "PatFlex",
+"vi": "PatFlex",
+"zh": "PatFlex"
+},
+"PatMax": {
+"en": "PatMax",
+"vi": "PatMax",
+"zh": "PatMax"
+},
+"PatMax & PatQuick": {
+"en": "PatMax & PatQuick",
+"vi": "PatMax & PatQuick",
+"zh": "PatMax & PatQuick"
+},
+"PatMax - High Sensitivity": {
+"en": "PatMax - High Sensitivity",
+"vi": "PatMax - Độ nhạy cao",
+"zh": "PatMax - 高灵敏度"
+},
+"PatMax Align Tool": {
+"en": "PatMax Align Tool",
+"vi": "PatMax Align Tool",
+"zh": "PatMax Align Tool"
+},
+"PatMax Pattern Align — chọn Algorithm & Train Mode (TPMAlignTool)": {
+"en": "PatMax Pattern Align — choose Algorithm & Train Mode (TPMAlignTool)",
+"vi": "PatMax Pattern Align — chọn Algorithm & Train Mode (TPMAlignTool)",
+"zh": "PatMax Pattern Align — 选择 Algorithm 和 Train Mode（TPMAlignTool）"
+},
+"PatQuick": {
+"en": "PatQuick",
+"vi": "PatQuick",
+"zh": "PatQuick"
+},
+"Pattern matching nhanh (NCC) — TPMAlignTool": {
+"en": "Fast pattern matching (NCC) — TPMAlignTool",
+"vi": "Pattern matching nhanh (NCC) — TPMAlignTool",
+"zh": "快速模板匹配 (NCC) — TPMAlignTool"
+},
+"Pattern matching nâng cao với xoay góc — TPatMaxPatternAlignTool": {
+"en": "Advanced pattern matching with rotation — TPatMaxPatternAlignTool",
+"vi": "Pattern matching nâng cao với xoay góc — TPatMaxPatternAlignTool",
+"zh": "支持旋转的高级模板匹配 — TPatMaxPatternAlignTool"
+},
+"Perspective PatMax": {
+"en": "Perspective PatMax",
+"vi": "Perspective PatMax",
+"zh": "Perspective PatMax"
+},
+"Perspective Warp": {
+"en": "Perspective Warp",
+"vi": "Perspective Warp",
+"zh": "透视变换 (Perspective Warp)"
+},
+"Phát hiện khuyết tật bề mặt": {
+"en": "Detect surface defects",
+"vi": "Phát hiện khuyết tật bề mặt",
+"zh": "检测表面缺陷"
+},
+"Phát hiện vết xước dạng đường thẳng": {
+"en": "Detect line-shaped scratches",
+"vi": "Phát hiện vết xước dạng đường thẳng",
+"zh": "检测线状划痕"
+},
+"Phân tích vùng: area, circularity, elongation, bounding box — TBlobTool. Nối node Morphology phía trước nếu cần lọc nhiễu/vá lỗ.\nKhi mask đến từ ROI nhỏ hơn image (ví dụ crop_roi → color_segment → blob), nối crop_roi.x → offset_x, crop_roi.y → offset_y để contour/bbox/centroid vẽ đúng vị trí trên image và cx/cy ra ở hệ toạ độ full image.": {
+"en": "Region analysis: area, circularity, elongation, bounding box — TBlobTool. Connect a Morphology node beforehand if you need to filter noise/fill holes.\nWhen the mask comes from an ROI smaller than the image (e.g. crop_roi → color_segment → blob), connect crop_roi.x → offset_x and crop_roi.y → offset_y so the contour/bbox/centroid are drawn at the correct position on the image and cx/cy are output in full-image coordinates.",
+"vi": "Phân tích vùng: area, circularity, elongation, bounding box — TBlobTool. Nối node Morphology phía trước nếu cần lọc nhiễu/vá lỗ.\nKhi mask đến từ ROI nhỏ hơn image (ví dụ crop_roi → color_segment → blob), nối crop_roi.x → offset_x, crop_roi.y → offset_y để contour/bbox/centroid vẽ đúng vị trí trên image và cx/cy ra ở hệ toạ độ full image.",
+"zh": "区域分析：area、circularity、elongation、bounding box — TBlobTool。如需过滤噪声/填补孔洞，请在前面连接 Morphology 节点。\n当 mask 来自比 image 更小的 ROI 时（例如 crop_roi → color_segment → blob），请连接 crop_roi.x → offset_x、crop_roi.y → offset_y，以使 contour/bbox/centroid 在 image 上绘制于正确位置，且 cx/cy 以整张图像坐标系输出。"
+},
+"Phân đoạn màu (HSV/RGB/HSL/Lab/Gray) — TColorSegmenterTool": {
+"en": "Color segmentation (HSV/RGB/HSL/Lab/Gray) — TColorSegmenterTool",
+"vi": "Phân đoạn màu (HSV/RGB/HSL/Lab/Gray) — TColorSegmenterTool",
+"zh": "颜色分割 (HSV/RGB/HSL/Lab/Gray) — TColorSegmenterTool"
+},
+"Phép toán 2 ảnh: absdiff/subtract/add/blend/multiply/and/or/xor. Tự resize + khớp kênh ảnh B theo A. Dùng cho golden-compare thủ công, ghép mask, trộn ảnh…": {
+"en": "2-image operation: absdiff/subtract/add/blend/multiply/and/or/xor. Automatically resizes + matches image B's channels to A. Used for manual golden-compare, mask merging, image blending…",
+"vi": "Phép toán 2 ảnh: absdiff/subtract/add/blend/multiply/and/or/xor. Tự resize + khớp kênh ảnh B theo A. Dùng cho golden-compare thủ công, ghép mask, trộn ảnh…",
+"zh": "双图像运算：absdiff/subtract/add/blend/multiply/and/or/xor。自动调整大小并使图像 B 的通道与 A 匹配。可用于手动 golden-compare、合并 mask、图像混合…"
+},
+"Pick X": {
+"en": "Pick X",
+"vi": "Pick X",
+"zh": "拾取 X"
+},
+"Pick Y": {
+"en": "Pick Y",
+"vi": "Pick Y",
+"zh": "拾取 Y"
+},
+"Pixel → mm": {
+"en": "Pixel → mm",
+"vi": "Pixel → mm",
+"zh": "像素 → mm"
+},
+"Pixel→mm": {
+"en": "Pixel→mm",
+"vi": "Pixel→mm",
+"zh": "像素→mm"
+},
+"Plain": {
+"en": "Plain",
+"vi": "Thuần",
+"zh": "纯文本"
+},
+"Point + Angle": {
+"en": "Point + Angle",
+"vi": "Điểm + Góc",
+"zh": "点 + 角度"
+},
+"Point 1 X": {
+"en": "Point 1 X",
+"vi": "Điểm 1 X",
+"zh": "点 1 X"
+},
+"Point 1 Y": {
+"en": "Point 1 Y",
+"vi": "Điểm 1 Y",
+"zh": "点 1 Y"
+},
+"Point 2 X": {
+"en": "Point 2 X",
+"vi": "Điểm 2 X",
+"zh": "点 2 X"
+},
+"Point 2 Y": {
+"en": "Point 2 Y",
+"vi": "Điểm 2 Y",
+"zh": "点 2 Y"
+},
+"Point X": {
+"en": "Point X",
+"vi": "Điểm X",
+"zh": "点 X"
+},
+"Point Y": {
+"en": "Point Y",
+"vi": "Điểm Y",
+"zh": "点 Y"
+},
+"Polarity": {
+"en": "Polarity",
+"vi": "Cực tính",
+"zh": "极性"
+},
+"Polygon": {
+"en": "Polygon",
+"vi": "Đa giác",
+"zh": "多边形"
+},
+"Port": {
+"en": "Port",
+"vi": "Cổng",
+"zh": "端口"
+},
+"Preprocess": {
+"en": "Preprocess",
+"vi": "Tiền xử lý",
+"zh": "预处理"
+},
+"Presence / Absence": {
+"en": "Presence / Absence",
+"vi": "Có / Không có",
+"zh": "存在 / 不存在"
+},
+"Python Code": {
+"en": "Python Code",
+"vi": "Mã Python",
+"zh": "Python 代码"
+},
+"Quan hệ góc 2 đường: parallel (0°) / perpendicular (90°) / angle (target tuỳ). Nối angle1, angle2 từ Find Line / Line. deviation = |góc giữa − target|; PASS khi deviation ≤ tolerance.": {
+"en": "Angle relationship between 2 lines: parallel (0°) / perpendicular (90°) / angle (custom target). Connect angle1, angle2 from Find Line / Line. deviation = |angle between − target|; PASS when deviation ≤ tolerance.",
+"vi": "Quan hệ góc 2 đường: parallel (0°) / perpendicular (90°) / angle (target tuỳ). Nối angle1, angle2 từ Find Line / Line. deviation = |góc giữa − target|; PASS khi deviation ≤ tolerance.",
+"zh": "两条直线的角度关系：parallel (0°) / perpendicular (90°) / angle（自定义 target）。从 Find Line / Line 连接 angle1、angle2。deviation = |夹角 − target|；当 deviation ≤ tolerance 时为 PASS。"
+},
+"R High": {
+"en": "R High",
+"vi": "R Cao",
+"zh": "R 上限"
+},
+"R Low": {
+"en": "R Low",
+"vi": "R Thấp",
+"zh": "R 下限"
+},
+"RGB": {
+"en": "RGB",
+"vi": "RGB",
+"zh": "RGB"
+},
+"ROI H": {
+"en": "ROI H",
+"vi": "ROI H",
+"zh": "ROI 高"
+},
+"ROI H (0=full)": {
+"en": "ROI H (0=full)",
+"vi": "ROI H (0=toàn bộ)",
+"zh": "ROI 高 (0=全部)"
+},
+"ROI Shape": {
+"en": "ROI Shape",
+"vi": "Hình dạng ROI",
+"zh": "ROI 形状"
+},
+"ROI W": {
+"en": "ROI W",
+"vi": "ROI W",
+"zh": "ROI 宽"
+},
+"ROI W (0=full)": {
+"en": "ROI W (0=full)",
+"vi": "ROI W (0=toàn bộ)",
+"zh": "ROI 宽 (0=全部)"
+},
+"ROI X": {
+"en": "ROI X",
+"vi": "ROI X",
+"zh": "ROI X"
+},
+"ROI X1": {
+"en": "ROI X1",
+"vi": "ROI X1",
+"zh": "ROI X1"
+},
+"ROI X2": {
+"en": "ROI X2",
+"vi": "ROI X2",
+"zh": "ROI X2"
+},
+"ROI Y": {
+"en": "ROI Y",
+"vi": "ROI Y",
+"zh": "ROI Y"
+},
+"ROI Y1": {
+"en": "ROI Y1",
+"vi": "ROI Y1",
+"zh": "ROI Y1"
+},
+"ROI Y2": {
+"en": "ROI Y2",
+"vi": "ROI Y2",
+"zh": "ROI Y2"
+},
+"Radius (px)": {
+"en": "Radius (px)",
+"vi": "Bán kính (px)",
+"zh": "半径 (px)"
+},
+"Raw Template": {
+"en": "Raw Template",
+"vi": "Mẫu thô",
+"zh": "原始模板"
+},
+"Rect": {
+"en": "Rect",
+"vi": "Hình chữ nhật",
+"zh": "矩形"
+},
+"Rectangle": {
+"en": "Rectangle",
+"vi": "Hình chữ nhật",
+"zh": "矩形"
+},
+"Red": {
+"en": "Red",
+"vi": "Đỏ",
+"zh": "红色"
+},
+"Ref B": {
+"en": "Ref B",
+"vi": "Ref B",
+"zh": "参考 B"
+},
+"Ref G": {
+"en": "Ref G",
+"vi": "Ref G",
+"zh": "参考 G"
+},
+"Ref R": {
+"en": "Ref R",
+"vi": "Ref R",
+"zh": "Ref R"
+},
+"Reference image (nếu không nối port)": {
+"en": "Reference image (if port not connected)",
+"vi": "Reference image (nếu không nối port)",
+"zh": "参考图像（若未连接端口）"
+},
+"Register (0-based)": {
+"en": "Register (0-based)",
+"vi": "Register (0-based)",
+"zh": "寄存器（从0开始）"
+},
+"Regular Sides": {
+"en": "Regular Sides",
+"vi": "Số cạnh đa giác đều",
+"zh": "正多边形边数"
+},
+"Reset on Next Run": {
+"en": "Reset on Next Run",
+"vi": "Reset ở lần chạy tiếp theo",
+"zh": "下次运行时重置"
+},
+"Resize": {
+"en": "Resize",
+"vi": "Resize",
+"zh": "缩放"
+},
+"Retrieval": {
+"en": "Retrieval",
+"vi": "Retrieval",
+"zh": "检索模式"
+},
+"Rotate / Flip": {
+"en": "Rotate / Flip",
+"vi": "Xoay / Lật",
+"zh": "旋转 / 翻转"
+},
+"S High": {
+"en": "S High",
+"vi": "S High",
+"zh": "S 上限"
+},
+"S Low": {
+"en": "S Low",
+"vi": "S Low",
+"zh": "S 下限"
+},
+"Save Image": {
+"en": "Save Image",
+"vi": "Lưu ảnh",
+"zh": "保存图像"
+},
+"Save Path": {
+"en": "Save Path",
+"vi": "Đường dẫn lưu",
+"zh": "保存路径"
+},
+"Scale": {
+"en": "Scale",
+"vi": "Scale",
+"zh": "比例"
+},
+"Scale (cho scaled_*)": {
+"en": "Scale (for scaled_*)",
+"vi": "Scale (cho scaled_*)",
+"zh": "比例（用于 scaled_*）"
+},
+"Scale (scaled_*)": {
+"en": "Scale (scaled_*)",
+"vi": "Scale (scaled_*)",
+"zh": "比例（scaled_*）"
+},
+"Scale Factor": {
+"en": "Scale Factor",
+"vi": "Hệ số tỷ lệ",
+"zh": "缩放系数"
+},
+"Scale: mm = px × pixel_to_mm.\nTwo Points: nội suy tuyến tính qua 2 mốc đã đo (vd 150px↔2.1mm, 210px↔2.5mm).": {
+"en": "Scale: mm = px × pixel_to_mm.\nTwo Points: linear interpolation through 2 measured reference points (e.g. 150px↔2.1mm, 210px↔2.5mm).",
+"vi": "Scale: mm = px × pixel_to_mm.\nTwo Points: nội suy tuyến tính qua 2 mốc đã đo (vd 150px↔2.1mm, 210px↔2.5mm).",
+"zh": "Scale: mm = px × pixel_to_mm。\nTwo Points：通过 2 个已测量基准点线性插值（例如 150px↔2.1mm、210px↔2.5mm）。"
+},
+"Scratch Detection": {
+"en": "Scratch Detection",
+"vi": "Phát hiện vết xước",
+"zh": "划痕检测"
+},
+"Script Complex": {
+"en": "Script Complex",
+"vi": "Script Complex",
+"zh": "Script Complex"
+},
+"Script Simplex": {
+"en": "Script Simplex",
+"vi": "Script Simplex",
+"zh": "Script Simplex"
+},
+"Script Tool": {
+"en": "Script Tool",
+"vi": "Script Tool",
+"zh": "Script Tool"
+},
+"Search PatMax": {
+"en": "Search PatMax",
+"vi": "Tìm kiếm PatMax",
+"zh": "搜索 PatMax"
+},
+"Seg model: tô màu nửa-trong-suốt bên trong polygon. Mặc định OFF — chỉ vẽ outline cho ảnh sạch.": {
+"en": "Seg model: fills semi-transparent color inside the polygon. Default OFF — only draws outline for a clean image.",
+"vi": "Seg model: tô màu nửa-trong-suốt bên trong polygon. Mặc định OFF — chỉ vẽ outline cho ảnh sạch.",
+"zh": "分割模型：在多边形内部填充半透明颜色。默认关闭 — 仅绘制轮廓线以保持图像干净。"
+},
+"Seg model: vẽ bbox bao polygon (clean) thay vì polyline polygon (zigzag). Bbox detection không bị ảnh hưởng.": {
+"en": "Seg model: draws the bbox enclosing the polygon (clean) instead of the polygon polyline (zigzag). Bbox detection is not affected.",
+"vi": "Seg model: vẽ bbox bao polygon (clean) thay vì polyline polygon (zigzag). Bbox detection không bị ảnh hưởng.",
+"zh": "分割模型：绘制包围多边形的 bbox（整洁）而不是多边形折线（锯齿状）。Bbox 检测不受影响。"
+},
+"Seg: draw bbox instead of polygon": {
+"en": "Seg: draw bbox instead of polygon",
+"vi": "Seg: vẽ bbox thay vì polygon",
+"zh": "分割：绘制 bbox 而非多边形"
+},
+"Seg: fill polygon (30% alpha)": {
+"en": "Seg: fill polygon (30% alpha)",
+"vi": "Seg: tô màu polygon (alpha 30%)",
+"zh": "分割：填充多边形（30% 透明度）"
+},
+"Shape Color": {
+"en": "Shape Color",
+"vi": "Màu hình dạng",
+"zh": "形状颜色"
+},
+"Shape Models with Image": {
+"en": "Shape Models with Image",
+"vi": "Shape Models with Image",
+"zh": "Shape Models with Image"
+},
+"Shape Models with Transform": {
+"en": "Shape Models with Transform",
+"vi": "Shape Models with Transform",
+"zh": "Shape Models with Transform"
+},
+"Sharpen": {
+"en": "Sharpen",
+"vi": "Làm sắc nét",
+"zh": "锐化"
+},
+"Short side": {
+"en": "Short side",
+"vi": "Cạnh ngắn",
+"zh": "短边"
+},
+"Show BBox": {
+"en": "Show BBox",
+"vi": "Hiện BBox",
+"zh": "显示 BBox"
+},
+"Show Background": {
+"en": "Show Background",
+"vi": "Hiện nền",
+"zh": "显示背景"
+},
+"Show Centroid": {
+"en": "Show Centroid",
+"vi": "Hiện trọng tâm",
+"zh": "显示质心"
+},
+"Show Contours": {
+"en": "Show Contours",
+"vi": "Hiện đường viền",
+"zh": "显示轮廓"
+},
+"Show Labels": {
+"en": "Show Labels",
+"vi": "Hiện nhãn",
+"zh": "显示标签"
+},
+"Show Mask": {
+"en": "Show Mask",
+"vi": "Hiện mặt nạ",
+"zh": "显示掩膜"
+},
+"Show Overlay": {
+"en": "Show Overlay",
+"vi": "Hiện lớp phủ",
+"zh": "显示叠加层"
+},
+"Show PASS/FAIL": {
+"en": "Show PASS/FAIL",
+"vi": "Hiện PASS/FAIL",
+"zh": "显示 PASS/FAIL"
+},
+"Show X,Y reference": {
+"en": "Show X,Y reference",
+"vi": "Hiện tham chiếu X,Y",
+"zh": "显示 X,Y 参考"
+},
+"Show bounding box": {
+"en": "Show bounding box",
+"vi": "Hiện bounding box",
+"zh": "显示边界框"
+},
+"Show label on image": {
+"en": "Show label on image",
+"vi": "Hiện nhãn trên ảnh",
+"zh": "在图像上显示标签"
+},
+"Sigma": {
+"en": "Sigma",
+"vi": "Sigma",
+"zh": "Sigma"
+},
+"Sigma Color": {
+"en": "Sigma Color",
+"vi": "Sigma Color",
+"zh": "Sigma Color"
+},
+"Sigma Space": {
+"en": "Sigma Space",
+"vi": "Sigma Space",
+"zh": "Sigma Space"
+},
+"Simplex": {
+"en": "Simplex",
+"vi": "Simplex",
+"zh": "Simplex"
+},
+"Smooth (Median/Bilateral)": {
+"en": "Smooth (Median/Bilateral)",
+"vi": "Làm mịn (Median/Bilateral)",
+"zh": "平滑（中值/双边）"
+},
+"So khớp màu trung bình ROI — TColorMatchTool": {
+"en": "Match average ROI color — TColorMatchTool",
+"vi": "So khớp màu trung bình ROI — TColorMatchTool",
+"zh": "匹配 ROI 平均颜色 — TColorMatchTool"
+},
+"So sánh 2 giá trị số": {
+"en": "Compare 2 numeric values",
+"vi": "So sánh 2 giá trị số",
+"zh": "比较 2 个数值"
+},
+"So ảnh với MẪU CHUẨN (golden): absdiff → threshold → đếm vùng khác biệt. Nối ảnh chuẩn vào port 'reference', hoặc đặt 'reference_path' tới 1 file ảnh. PASS khi tổng diện tích lỗi ≤ max_defect_area.": {
+"en": "Compare image with a GOLDEN reference: absdiff → threshold → count differing regions. Connect the reference image to port 'reference', or set 'reference_path' to an image file. PASS when total defect area ≤ max_defect_area.",
+"vi": "So ảnh với MẪU CHUẨN (golden): absdiff → threshold → đếm vùng khác biệt. Nối ảnh chuẩn vào port 'reference', hoặc đặt 'reference_path' tới 1 file ảnh. PASS khi tổng diện tích lỗi ≤ max_defect_area.",
+"zh": "将图像与标准模板（golden）比较：absdiff → threshold → 统计差异区域。将基准图像连接到 'reference' 端口，或将 'reference_path' 设为图像文件路径。当缺陷总面积 ≤ max_defect_area 时为 PASS。"
+},
+"Source Mode": {
+"en": "Source Mode",
+"vi": "Chế độ nguồn",
+"zh": "来源模式"
+},
+"Speed-up: search ở 1/ds resolution. 2 ≈ 4× nhanh, 4 ≈ 16× nhanh. Vị trí ±ds pixel; Perspective/PatFlex tự refine ở full-res": {
+"en": "Speed-up: search at 1/ds resolution. 2 ≈ 4× faster, 4 ≈ 16× faster. Position ±ds pixels; Perspective/PatFlex auto-refines at full resolution",
+"vi": "Speed-up: search ở 1/ds resolution. 2 ≈ 4× nhanh, 4 ≈ 16× nhanh. Vị trí ±ds pixel; Perspective/PatFlex tự refine ở full-res",
+"zh": "加速：以 1/ds 分辨率搜索。2 ≈ 快 4× ，4 ≈ 快 16×。位置误差 ±ds 像素；Perspective/PatFlex 会在全分辨率下自动精修"
+},
+"Speed-up: search ở 1/ds resolution. 2 ≈ 4× nhanh, 4 ≈ 16× nhanh. Độ chính xác ±ds pixel": {
+"en": "Speed-up: search at 1/ds resolution. 2 ≈ 4× faster, 4 ≈ 16× faster. Accuracy ±ds pixels",
+"vi": "Speed-up: search ở 1/ds resolution. 2 ≈ 4× nhanh, 4 ≈ 16× nhanh. Độ chính xác ±ds pixel",
+"zh": "加速：以 1/ds 分辨率搜索。2 ≈ 快 4× ，4 ≈ 快 16×。精度 ±ds 像素"
+},
+"Square Size (mm)": {
+"en": "Square Size (mm)",
+"vi": "Kích thước ô vuông (mm)",
+"zh": "方格尺寸（mm）"
+},
+"Strength": {
+"en": "Strength",
+"vi": "Cường độ",
+"zh": "强度"
+},
+"Surface Defect": {
+"en": "Surface Defect",
+"vi": "Lỗi bề mặt",
+"zh": "表面缺陷"
+},
+"Số cạnh đa giác đều khi chưa vẽ tay.": {
+"en": "Number of regular polygon sides when not drawn manually.",
+"vi": "Số cạnh đa giác đều khi chưa vẽ tay.",
+"zh": "未手动绘制时的正多边形边数。"
+},
+"Số góc nội (cols-1)": {
+"en": "Number of inner corners (cols-1)",
+"vi": "Số góc nội (cols-1)",
+"zh": "内角点数量（cols-1）"
+},
+"TCP Send": {
+"en": "TCP Send",
+"vi": "Gửi TCP",
+"zh": "TCP 发送"
+},
+"Target angle (°)": {
+"en": "Target angle (°)",
+"vi": "Góc mục tiêu (°)",
+"zh": "目标角度（°）"
+},
+"Template": {
+"en": "Template",
+"vi": "Mẫu",
+"zh": "模板"
+},
+"Text X": {
+"en": "Text X",
+"vi": "Text X",
+"zh": "文本 X"
+},
+"Text Y": {
+"en": "Text Y",
+"vi": "Text Y",
+"zh": "文本 Y"
+},
+"Text khi FAIL": {
+"en": "Text when FAIL",
+"vi": "Text khi FAIL",
+"zh": "FAIL 时的文本"
+},
+"Text khi PASS": {
+"en": "Text when PASS",
+"vi": "Text khi PASS",
+"zh": "PASS 时的文本"
+},
+"Text khi chưa có port": {
+"en": "Text when no port connected",
+"vi": "Text khi chưa có port",
+"zh": "未连接端口时的文本"
+},
+"Thickness": {
+"en": "Thickness",
+"vi": "Độ dày",
+"zh": "粗细"
+},
+"Thiết lập hệ tọa độ theo part — TFixtureTool": {
+"en": "Set up part-relative coordinate system — TFixtureTool",
+"vi": "Thiết lập hệ tọa độ theo part — TFixtureTool",
+"zh": "建立基于工件的坐标系 — TFixtureTool"
+},
+"Thread chạy nền grab liên tục, pipeline lấy frame buffered <1ms. Tắt nếu cần single-frame chính xác lúc PLC trigger.": {
+"en": "Background thread continuously grabs frames; the pipeline fetches a buffered frame in <1ms. Turn off if you need an exact single frame at PLC trigger time.",
+"vi": "Thread chạy nền grab liên tục, pipeline lấy frame buffered <1ms. Tắt nếu cần single-frame chính xác lúc PLC trigger.",
+"zh": "后台线程持续抓取画面，pipeline 在 <1ms 内取得缓冲帧。若需在 PLC 触发时获取精确的单帧，请关闭此项。"
+},
+"Threshold": {
+"en": "Threshold",
+"vi": "Ngưỡng",
+"zh": "阈值"
+},
+"Thuật toán matching pattern": {
+"en": "Pattern matching algorithm",
+"vi": "Thuật toán matching pattern",
+"zh": "模板匹配算法"
+},
+"Thuật toán nội suy (chỉ dùng khi Resize ≠ Off). Auto = Area khi thu nhỏ, Linear khi phóng to.": {
+"en": "Interpolation algorithm (used only when Resize ≠ Off). Auto = Area when shrinking, Linear when enlarging.",
+"vi": "Thuật toán nội suy (chỉ dùng khi Resize ≠ Off). Auto = Area khi thu nhỏ, Linear khi phóng to.",
+"zh": "插值算法（仅在 Resize ≠ Off 时使用）。Auto = 缩小时用 Area，放大时用 Linear。"
+},
+"Thư mục chứa ảnh": {
+"en": "Folder containing images",
+"vi": "Thư mục chứa ảnh",
+"zh": "图像所在文件夹"
+},
+"Thư mục model PaddleOCR (chứa subfolder det/ rec/ cls/) để chạy OFFLINE. TRỐNG = tự dò <app>/models/paddle; chưa có thì Paddle tự tải (cần mạng). Lấy model: tools/fetch_ocr_models.py --paddle-only.": {
+"en": "PaddleOCR model folder (containing subfolders det/ rec/ cls/) to run OFFLINE. EMPTY = auto-detect <app>/models/paddle; if not found, Paddle downloads it automatically (requires network). Get the model with: tools/fetch_ocr_models.py --paddle-only.",
+"vi": "Thư mục model PaddleOCR (chứa subfolder det/ rec/ cls/) để chạy OFFLINE. TRỐNG = tự dò <app>/models/paddle; chưa có thì Paddle tự tải (cần mạng). Lấy model: tools/fetch_ocr_models.py --paddle-only.",
+"zh": "PaddleOCR 模型文件夹（包含 det/ rec/ cls/ 子文件夹）以离线运行。留空 = 自动查找 <app>/models/paddle；若不存在，Paddle 会自动下载（需联网）。获取模型：tools/fetch_ocr_models.py --paddle-only。"
+},
+"Thống kê cường độ trong ROI: mean / std / min / max (kiểm sáng, exposure, hỗ trợ presence). ROI W/H = 0 → full ảnh. PASS khi mean ∈ [min_mean, max_mean].": {
+"en": "Intensity statistics within the ROI: mean / std / min / max (brightness check, exposure, presence support). ROI W/H = 0 → full image. PASS when mean ∈ [min_mean, max_mean].",
+"vi": "Thống kê cường độ trong ROI: mean / std / min / max (kiểm sáng, exposure, hỗ trợ presence). ROI W/H = 0 → full ảnh. PASS khi mean ∈ [min_mean, max_mean].",
+"zh": "统计 ROI 内的强度：mean / std / min / max（用于检测亮度、曝光、辅助 presence 判断）。ROI W/H = 0 → 整幅图像。当 mean ∈ [min_mean, max_mean] 时为 PASS。"
+},
+"Tick + Run pipeline → reset counter về 0 ngay lần chạy đó.": {
+"en": "Tick + Run pipeline → resets the counter to 0 on that run.",
+"vi": "Tick + Run pipeline → reset counter về 0 ngay lần chạy đó.",
+"zh": "勾选 + 运行 pipeline → 在该次运行中立即将计数器重置为 0。"
+},
+"Timeout (s)": {
+"en": "Timeout (s)",
+"vi": "Timeout (s)",
+"zh": "超时（秒）"
+},
+"To Zero": {
+"en": "To Zero",
+"vi": "To Zero",
+"zh": "归零"
+},
+"To Zero INV": {
+"en": "To Zero INV",
+"vi": "To Zero INV",
+"zh": "归零 INV"
+},
+"Tolerance": {
+"en": "Tolerance",
+"vi": "Dung sai",
+"zh": "公差"
+},
+"Tolerance (°)": {
+"en": "Tolerance (°)",
+"vi": "Dung sai (°)",
+"zh": "公差（°）"
+},
+"Top Hat": {
+"en": "Top Hat",
+"vi": "Top Hat",
+"zh": "顶帽变换"
+},
+"Top Ratio (0..1)": {
+"en": "Top Ratio (0..1)",
+"vi": "Tỉ lệ cạnh trên (0..1)",
+"zh": "顶边比例（0..1）"
+},
+"Top-Center": {
+"en": "Top-Center",
+"vi": "Trên-Giữa",
+"zh": "顶部居中"
+},
+"Top-Left": {
+"en": "Top-Left",
+"vi": "Trên-Trái",
+"zh": "左上"
+},
+"Top-Left X": {
+"en": "Top-Left X",
+"vi": "Trên-Trái X",
+"zh": "左上 X"
+},
+"Top-Left Y": {
+"en": "Top-Left Y",
+"vi": "Trên-Trái Y",
+"zh": "左上 Y"
+},
+"Top-Right": {
+"en": "Top-Right",
+"vi": "Trên-Phải",
+"zh": "右上"
+},
+"Top-Right X": {
+"en": "Top-Right X",
+"vi": "Trên-Phải X",
+"zh": "右上 X"
+},
+"Top-Right Y": {
+"en": "Top-Right Y",
+"vi": "Trên-Phải Y",
+"zh": "右上 Y"
+},
+"Train Mode": {
+"en": "Train Mode",
+"vi": "Chế độ huấn luyện",
+"zh": "训练模式"
+},
+"Tree": {
+"en": "Tree",
+"vi": "Tree",
+"zh": "树形"
+},
+"Triangle": {
+"en": "Triangle",
+"vi": "Triangle",
+"zh": "三角形"
+},
+"Triangle INV": {
+"en": "Triangle INV",
+"vi": "Triangle INV",
+"zh": "三角形 INV"
+},
+"Triplex": {
+"en": "Triplex",
+"vi": "Triplex",
+"zh": "Triplex"
+},
+"Trunc": {
+"en": "Trunc",
+"vi": "Trunc",
+"zh": "截断"
+},
+"Trích cạnh — Canny / Sobel / Laplacian → ảnh cạnh (port 'edges' + 'image').": {
+"en": "Extract edges — Canny / Sobel / Laplacian → edge image (port 'edges' + 'image').",
+"vi": "Trích cạnh — Canny / Sobel / Laplacian → ảnh cạnh (port 'edges' + 'image').",
+"zh": "提取边缘 — Canny / Sobel / Laplacian → 边缘图像（端口 'edges' + 'image'）。"
+},
+"Trích giá trị": {
+"en": "Extract value",
+"vi": "Trích giá trị",
+"zh": "提取数值"
+},
+"Two Points": {
+"en": "Two Points",
+"vi": "Hai điểm",
+"zh": "两点"
+},
+"Two Points: dùng lx1/ly1 + lx2/ly2. Point + Angle: lx1/ly1 + line_angle (nối từ Find Line).": {
+"en": "Two Points: uses lx1/ly1 + lx2/ly2. Point + Angle: lx1/ly1 + line_angle (connected from Find Line).",
+"vi": "Two Points: dùng lx1/ly1 + lx2/ly2. Point + Angle: lx1/ly1 + line_angle (nối từ Find Line).",
+"zh": "Two Points：使用 lx1/ly1 + lx2/ly2。Point + Angle：lx1/ly1 + line_angle（从 Find Line 连接）。"
+},
+"Tìm contour từ mask": {
+"en": "Find contour from mask",
+"vi": "Tìm contour từ mask",
+"zh": "从掩膜查找轮廓"
+},
+"Tìm kiếm trong ±angle_range độ. 0=không xoay": {
+"en": "Search within ±angle_range degrees. 0 = no rotation",
+"vi": "Tìm kiếm trong ±angle_range độ. 0=không xoay",
+"zh": "在 ±angle_range 度范围内搜索。0 = 不旋转"
+},
+"Tìm tất cả cạnh trong vùng — TCaliperTool": {
+"en": "Find all edges within a region — TCaliperTool",
+"vi": "Tìm tất cả cạnh trong vùng — TCaliperTool",
+"zh": "查找区域内所有边缘 — TCaliperTool"
+},
+"Tìm đường thẳng từ edge — TFindLineTool": {
+"en": "Find a line from edges — TFindLineTool",
+"vi": "Tìm đường thẳng từ edge — TFindLineTool",
+"zh": "从边缘查找直线 — TFindLineTool"
+},
+"Tích lũy PASS/FAIL/TOTAL/Yield Rate qua nhiều lần chạy pipeline. Nối port pass từ Pass/Fail Judge (hoặc bất kỳ tool nào có output pass) → counter cộng dồn mỗi lần Run. Panel Inspection Results sẽ đọc trực tiếp output của tool này nếu có trong pipeline; bấm Clear Log để reset.": {
+"en": "Accumulates PASS/FAIL/TOTAL/Yield Rate over multiple pipeline runs. Connect the pass port from Pass/Fail Judge (or any tool with a pass output) → the counter accumulates on every Run. The Inspection Results panel reads this tool's output directly if present in the pipeline; click Clear Log to reset.",
+"vi": "Tích lũy PASS/FAIL/TOTAL/Yield Rate qua nhiều lần chạy pipeline. Nối port pass từ Pass/Fail Judge (hoặc bất kỳ tool nào có output pass) → counter cộng dồn mỗi lần Run. Panel Inspection Results sẽ đọc trực tiếp output của tool này nếu có trong pipeline; bấm Clear Log để reset.",
+"zh": "在多次 pipeline 运行中累计 PASS/FAIL/TOTAL/Yield Rate。将 Pass/Fail Judge（或任何带 pass 输出的工具）的 pass 端口连接到此处 → 每次运行计数器都会累加。若 pipeline 中存在此工具，Inspection Results 面板会直接读取其输出；点击 Clear Log 可重置。"
+},
+"Tính công thức số học từ các input A, B, C… (chuột phải → Add Input để thêm). Hàm cho phép: sqrt sin cos tan atan2 log log10 exp floor ceil abs min max round hypot, hằng pi/e. Vd: (A+B)/2, hypot(A,B), abs(A-B). Tuỳ chọn so sánh ngưỡng → port 'pass' để nối Judge.": {
+"en": "Computes an arithmetic formula from inputs A, B, C… (right-click → Add Input to add more). Allowed functions: sqrt sin cos tan atan2 log log10 exp floor ceil abs min max round hypot, constants pi/e. E.g.: (A+B)/2, hypot(A,B), abs(A-B). Optional threshold comparison → port 'pass' to connect to Judge.",
+"vi": "Tính công thức số học từ các input A, B, C… (chuột phải → Add Input để thêm). Hàm cho phép: sqrt sin cos tan atan2 log log10 exp floor ceil abs min max round hypot, hằng pi/e. Vd: (A+B)/2, hypot(A,B), abs(A-B). Tuỳ chọn so sánh ngưỡng → port 'pass' để nối Judge.",
+"zh": "根据输入 A、B、C… 计算算术公式（右键 → Add Input 可添加更多输入）。允许的函数：sqrt sin cos tan atan2 log log10 exp floor ceil abs min max round hypot，常量 pi/e。例如：(A+B)/2、hypot(A,B)、abs(A-B)。可选阈值比较 → 'pass' 端口以连接到 Judge。"
+},
+"Tăng tương phản / cân bằng sáng — CLAHE, Equalize, Gamma, Brightness-Contrast. Giúp OCR/khuyết tật khi ảnh sáng không đều hoặc nhạt.": {
+"en": "Increase contrast / balance brightness — CLAHE, Equalize, Gamma, Brightness-Contrast. Helps OCR/defect detection when the image is unevenly lit or faint.",
+"vi": "Tăng tương phản / cân bằng sáng — CLAHE, Equalize, Gamma, Brightness-Contrast. Giúp OCR/khuyết tật khi ảnh sáng không đều hoặc nhạt.",
+"zh": "增强对比度／均衡亮度 — CLAHE、Equalize、Gamma、Brightness-Contrast。在图像光照不均或偏淡时有助于 OCR／缺陷检测。"
+},
+"Tạo hình chữ nhật cố định trên ảnh. Nhập toạ độ (x,y,w,h) ở Params hoặc double-click node → kéo chuột vẽ trực tiếp. Xuất center / area / perimeter để chain hoặc làm region annotation.": {
+"en": "Creates a fixed rectangle on the image. Enter coordinates (x,y,w,h) in Params or double-click the node → drag to draw directly. Outputs center / area / perimeter for chaining or as a region annotation.",
+"vi": "Tạo hình chữ nhật cố định trên ảnh. Nhập toạ độ (x,y,w,h) ở Params hoặc double-click node → kéo chuột vẽ trực tiếp. Xuất center / area / perimeter để chain hoặc làm region annotation.",
+"zh": "在图像上创建一个固定矩形。可在 Params 中输入坐标 (x,y,w,h)，或双击节点 → 直接拖动鼠标绘制。输出 center / area / perimeter，便于链式连接或作为区域标注。"
+},
+"Tạo hình elip nội tiếp bbox (x,y,w,h). Nhập tham số ở Params hoặc double-click node → kéo chuột vẽ. Xuất center / area / perimeter (perimeter xấp xỉ Ramanujan).": {
+"en": "Creates an ellipse inscribed in a bbox (x,y,w,h). Enter parameters in Params or double-click the node → drag to draw. Outputs center / area / perimeter (perimeter approximated via Ramanujan).",
+"vi": "Tạo hình elip nội tiếp bbox (x,y,w,h). Nhập tham số ở Params hoặc double-click node → kéo chuột vẽ. Xuất center / area / perimeter (perimeter xấp xỉ Ramanujan).",
+"zh": "创建一个内接于 bbox (x,y,w,h) 的椭圆。可在 Params 中输入参数，或双击节点 → 拖动鼠标绘制。输出 center / area / perimeter（周长按 Ramanujan 公式近似计算）。"
+},
+"Tạo hình thang cân nội tiếp bbox (x,y,w,h); cạnh trên = Width×Top Ratio (canh giữa). Nhập tham số ở Params hoặc double-click node → kéo chuột vẽ bbox. Xuất center / area / perimeter.": {
+"en": "Creates an isosceles trapezoid inscribed in a bbox (x,y,w,h); top edge = Width×Top Ratio (centered). Enter parameters in Params or double-click the node → drag to draw the bbox. Outputs center / area / perimeter.",
+"vi": "Tạo hình thang cân nội tiếp bbox (x,y,w,h); cạnh trên = Width×Top Ratio (canh giữa). Nhập tham số ở Params hoặc double-click node → kéo chuột vẽ bbox. Xuất center / area / perimeter.",
+"zh": "创建一个内接于 bbox (x,y,w,h) 的等腰梯形；顶边 = Width×Top Ratio（居中对齐）。可在 Params 中输入参数，或双击节点 → 拖动鼠标绘制 bbox。输出 center / area / perimeter。"
+},
+"Tạo hình tròn cố định trên ảnh. Nhập tâm (cx,cy) + bán kính r ở Params hoặc double-click node → kéo chuột vẽ. Xuất center / radius / area / perimeter.": {
+"en": "Creates a fixed circle on the image. Enter the center (cx,cy) + radius r in Params or double-click the node → drag to draw. Outputs center / radius / area / perimeter.",
+"vi": "Tạo hình tròn cố định trên ảnh. Nhập tâm (cx,cy) + bán kính r ở Params hoặc double-click node → kéo chuột vẽ. Xuất center / radius / area / perimeter.",
+"zh": "在图像上创建一个固定圆形。可在 Params 中输入圆心 (cx,cy) 和半径 r，或双击节点 → 拖动鼠标绘制。输出 center / radius / area / perimeter。"
+},
+"Tạo đa giác. Double-click node → click từng đỉnh trên ảnh, double-click để chốt (≥3 điểm). Không vẽ tay → dùng đa giác đều từ (cx,cy,r,Sides). Xuất center / area / perimeter / số đỉnh.": {
+"en": "Creates a polygon. Double-click the node → click each vertex on the image, double-click to finish (≥3 points). If not drawn manually → uses a regular polygon from (cx,cy,r,Sides). Outputs center / area / perimeter / vertex count.",
+"vi": "Tạo đa giác. Double-click node → click từng đỉnh trên ảnh, double-click để chốt (≥3 điểm). Không vẽ tay → dùng đa giác đều từ (cx,cy,r,Sides). Xuất center / area / perimeter / số đỉnh.",
+"zh": "创建一个多边形。双击节点 → 在图像上依次点击各顶点，双击完成（≥3 个点）。若不手动绘制 → 使用 (cx,cy,r,Sides) 生成的正多边形。输出 center / area / perimeter / 顶点数。"
+},
+"Tắt để giảm ~30% thời gian khi pattern có texture rõ": {
+"en": "Turn off to cut ~30% of the time when the pattern has clear texture",
+"vi": "Tắt để giảm ~30% thời gian khi pattern có texture rõ",
+"zh": "当模板纹理清晰时，关闭此项可减少约 30% 的耗时"
+},
+"Tắt để giảm ~30% thời gian khi pattern không phụ thuộc edges": {
+"en": "Turn off to cut ~30% of the time when the pattern does not depend on edges",
+"vi": "Tắt để giảm ~30% thời gian khi pattern không phụ thuộc edges",
+"zh": "当模板不依赖边缘时，关闭此项可减少约 30% 的耗时"
+},
+"Tỉ lệ cạnh trên so với đáy. 1.0 = chữ nhật, 0 = tam giác.": {
+"en": "Ratio of the top edge to the base. 1.0 = rectangle, 0 = triangle.",
+"vi": "Tỉ lệ cạnh trên so với đáy. 1.0 = chữ nhật, 0 = tam giác.",
+"zh": "顶边相对于底边的比例。1.0 = 矩形，0 = 三角形。"
+},
+"Tỉ lệ dài/rộng của bounding box": {
+"en": "Length/width ratio of the bounding box",
+"vi": "Tỉ lệ dài/rộng của bounding box",
+"zh": "边界框的长宽比"
+},
+"Từ khóa / Regex": {
+"en": "Keyword / Regex",
+"vi": "Từ khóa / Regex",
+"zh": "关键词 / 正则表达式"
+},
+"Tự kết nối nếu PLC chưa connect (dùng config ở PLC dialog).": {
+"en": "Auto-connect if the PLC is not connected (uses the config from the PLC dialog).",
+"vi": "Tự kết nối nếu PLC chưa connect (dùng config ở PLC dialog).",
+"zh": "若 PLC 尚未连接则自动连接（使用 PLC 对话框中的配置）。"
+},
+"Tự động ngưỡng Otsu trước morph. Bật khi input là ảnh xám/màu (chưa phải mask nhị phân).": {
+"en": "Auto Otsu thresholding before morphology. Enable when the input is a grayscale/color image (not yet a binary mask).",
+"vi": "Tự động ngưỡng Otsu trước morph. Bật khi input là ảnh xám/màu (chưa phải mask nhị phân).",
+"zh": "在形态学处理前自动执行 Otsu 阈值化。当输入为灰度/彩色图像（尚非二值掩膜）时启用。"
+},
+"URL": {
+"en": "URL",
+"vi": "URL",
+"zh": "URL"
+},
+"Unit/Slave ID": {
+"en": "Unit/Slave ID",
+"vi": "Unit/Slave ID",
+"zh": "Unit/Slave ID"
+},
+"Use SQDIFF channel": {
+"en": "Use SQDIFF channel",
+"vi": "Dùng kênh SQDIFF",
+"zh": "使用 SQDIFF 通道"
+},
+"Use edge channel": {
+"en": "Use edge channel",
+"vi": "Dùng kênh edge",
+"zh": "使用边缘通道"
+},
+"V High": {
+"en": "V High",
+"vi": "V High",
+"zh": "V 上限"
+},
+"V Low": {
+"en": "V Low",
+"vi": "V Low",
+"zh": "V 下限"
+},
+"Value (nếu không nối port 'value')": {
+"en": "Value (if port 'value' not connected)",
+"vi": "Value (nếu không nối port 'value')",
+"zh": "数值（若未连接 'value' 端口）"
+},
+"Value (nếu không nối port)": {
+"en": "Value (if port not connected)",
+"vi": "Value (nếu không nối port)",
+"zh": "数值（若未连接端口）"
+},
+"Value B (if not connected)": {
+"en": "Value B (if not connected)",
+"vi": "Giá trị B (nếu không kết nối)",
+"zh": "数值 B（若未连接）"
+},
+"Vật tối trên nền sáng": {
+"en": "Dark object on light background",
+"vi": "Vật tối trên nền sáng",
+"zh": "亮背景下的暗色物体"
+},
+"Vẽ contour quanh từng blob.": {
+"en": "Draw a contour around each blob.",
+"vi": "Vẽ contour quanh từng blob.",
+"zh": "在每个斑点周围绘制轮廓。"
+},
+"Vẽ label 'L=… angle=…' tại trung điểm — kéo được trên ảnh.": {
+"en": "Draw the label 'L=… angle=…' at the midpoint — draggable on the image.",
+"vi": "Vẽ label 'L=… angle=…' tại trung điểm — kéo được trên ảnh.",
+"zh": "在中点绘制标签 'L=… angle=…' — 可在图像上拖动。"
+},
+"Vẽ label '…mm' lên ảnh và cho phép kéo trên canvas.": {
+"en": "Draw the label '…mm' on the image and allow dragging on the canvas.",
+"vi": "Vẽ label '…mm' lên ảnh và cho phép kéo trên canvas.",
+"zh": "在图像上绘制标签 '…mm' 并允许在画布上拖动。"
+},
+"Vẽ nền đen sau text để dễ đọc.": {
+"en": "Draw a black background behind the text for readability.",
+"vi": "Vẽ nền đen sau text để dễ đọc.",
+"zh": "在文本后方绘制黑色背景以便阅读。"
+},
+"Vẽ rotated bounding box.": {
+"en": "Draw a rotated bounding box.",
+"vi": "Vẽ rotated bounding box.",
+"zh": "绘制旋转边界框。"
+},
+"Vẽ đường thẳng kéo dài hết ảnh qua 2 điểm thay vì chỉ đoạn thẳng.": {
+"en": "Draw a line extended across the entire image through 2 points instead of just a segment.",
+"vi": "Vẽ đường thẳng kéo dài hết ảnh qua 2 điểm thay vì chỉ đoạn thẳng.",
+"zh": "绘制一条贯穿整幅图像并经过 2 个点的直线，而不仅是线段。"
+},
+"Vị trí giá trị": {
+"en": "Value position",
+"vi": "Vị trí giá trị",
+"zh": "数值位置"
+},
+"Vị trí gốc. Offset X/Y dưới đây dịch tiếp từ điểm này — hoặc kéo text trực tiếp trên ảnh để sync slider.": {
+"en": "Origin position. The Offset X/Y below shifts further from this point — or drag the text directly on the image to sync the slider.",
+"vi": "Vị trí gốc. Offset X/Y dưới đây dịch tiếp từ điểm này — hoặc kéo text trực tiếp trên ảnh để sync slider.",
+"zh": "原点位置。下方的 Offset X/Y 会从该点继续偏移 — 也可直接在图像上拖动文本以同步滑块。"
+},
+"W_WORD": {
+"en": "W_WORD",
+"vi": "W_WORD",
+"zh": "W_WORD"
+},
+"White": {
+"en": "White",
+"vi": "Trắng",
+"zh": "白色"
+},
+"Width": {
+"en": "Width",
+"vi": "Chiều rộng",
+"zh": "宽度"
+},
+"Width (px)": {
+"en": "Width (px)",
+"vi": "Chiều rộng (px)",
+"zh": "宽度（px）"
+},
+"Width khi shape được sinh từ port x/y (không vẽ tay) hoặc fallback khi port w không kết nối. Tự sync với shape khi vẽ tay để giữ ngữ cảnh khi sau này nối port.": {
+"en": "Width when the shape is generated from the x/y port (not drawn manually) or as a fallback when port w is not connected. Auto-syncs with the shape when drawn manually to preserve context when a port is connected later.",
+"vi": "Width khi shape được sinh từ port x/y (không vẽ tay) hoặc fallback khi port w không kết nối. Tự sync với shape khi vẽ tay để giữ ngữ cảnh khi sau này nối port.",
+"zh": "当形状由 x/y 端口生成时（非手动绘制）使用的宽度，或在 w 端口未连接时作为回退值。手动绘制时会自动与形状同步，以便日后连接端口时保留上下文。"
+},
+"Width x Height": {
+"en": "Width x Height",
+"vi": "Chiều rộng x Chiều cao",
+"zh": "宽度 x 高度"
+},
+"Word Order (32-bit)": {
+"en": "Word Order (32-bit)",
+"vi": "Thứ tự Word (32-bit)",
+"zh": "字序（32位）"
+},
+"X": {
+"en": "X",
+"vi": "X",
+"zh": "X"
+},
+"X1": {
+"en": "X1",
+"vi": "X1",
+"zh": "X1"
+},
+"X2": {
+"en": "X2",
+"vi": "X2",
+"zh": "X2"
+},
+"Xoay ảnh góc bất kỳ + lật. expand=True mở rộng canvas để không cắt góc. Nối port 'angle' (vd từ PatMax) để xoay theo góc đo được.": {
+"en": "Rotate the image by any angle + flip. expand=True enlarges the canvas so corners are not cropped. Connect port 'angle' (e.g. from PatMax) to rotate by the measured angle.",
+"vi": "Xoay ảnh góc bất kỳ + lật. expand=True mở rộng canvas để không cắt góc. Nối port 'angle' (vd từ PatMax) để xoay theo góc đo được.",
+"zh": "按任意角度旋转图像并翻转。expand=True 会扩展画布以避免裁切边角。连接 'angle' 端口（例如来自 PatMax）可按测得的角度旋转。"
+},
+"Xuất ảnh màu (BGR)": {
+"en": "Output color image (BGR)",
+"vi": "Xuất ảnh màu (BGR)",
+"zh": "输出彩色图像（BGR）"
+},
+"Y": {
+"en": "Y",
+"vi": "Y",
+"zh": "Y"
+},
+"Y1": {
+"en": "Y1",
+"vi": "Y1",
+"zh": "Y1"
+},
+"Y2": {
+"en": "Y2",
+"vi": "Y2",
+"zh": "Y2"
+},
+"YCrCb": {
+"en": "YCrCb",
+"vi": "YCrCb",
+"zh": "YCrCb"
+},
+"YOLO Detect": {
+"en": "YOLO Detect",
+"vi": "YOLO Detect",
+"zh": "YOLO 检测"
+},
+"YOLOv8/v11 Object Detection & Segmentation. Add file model train sẵn (.pt hoặc .onnx) rồi chỉnh threshold predict bên dưới. 'Inference Engine' chọn .pt (chính xác gốc) hay .onnx (nhanh CPU). Train mới: mở YOLO Studio từ toolbar. 'Output Selection' chọn 1 điểm (px,py) trên MỖI vật thể (góc/giữa cạnh trên/dưới/trái/phải); top-level x/y = điểm của primary object để chain vào Crop ROI / Fixture. Right-click node → ➕ Add / Manage Output Terminals để thêm port px_obj1, py_obj2, conf_3... cho per-object access.": {
+"en": "YOLOv8/v11 Object Detection & Segmentation. Add a pre-trained model file (.pt or .onnx), then adjust the predict threshold below. 'Inference Engine' selects .pt (original accuracy) or .onnx (faster on CPU). To train a new model: open YOLO Studio from the toolbar. 'Output Selection' picks 1 point (px,py) on EACH object (corner/middle of top/bottom/left/right edge); top-level x/y = the point of the primary object, for chaining into Crop ROI / Fixture. Right-click the node → ➕ Add / Manage Output Terminals to add ports px_obj1, py_obj2, conf_3... for per-object access.",
+"vi": "YOLOv8/v11 Object Detection & Segmentation. Add file model train sẵn (.pt hoặc .onnx) rồi chỉnh threshold predict bên dưới. 'Inference Engine' chọn .pt (chính xác gốc) hay .onnx (nhanh CPU). Train mới: mở YOLO Studio từ toolbar. 'Output Selection' chọn 1 điểm (px,py) trên MỖI vật thể (góc/giữa cạnh trên/dưới/trái/phải); top-level x/y = điểm của primary object để chain vào Crop ROI / Fixture. Right-click node → ➕ Add / Manage Output Terminals để thêm port px_obj1, py_obj2, conf_3... cho per-object access.",
+"zh": "YOLOv8/v11 目标检测与分割。添加已训练好的模型文件（.pt 或 .onnx），然后在下方调整预测阈值。'Inference Engine' 选择 .pt（保持原始精度）或 .onnx（CPU 上更快）。训练新模型：从工具栏打开 YOLO Studio。'Output Selection' 在每个物体上选择 1 个点 (px,py)（角点/上下左右边的中点）；顶层 x/y = 主物体的点，用于链接到 Crop ROI / Fixture。右键点击节点 → ➕ Add / Manage Output Terminals 可添加 px_obj1、py_obj2、conf_3 等端口，实现逐物体访问。"
+},
+"Yellow": {
+"en": "Yellow",
+"vi": "Vàng",
+"zh": "黄色"
+},
+"Yield Statistics": {
+"en": "Yield Statistics",
+"vi": "Thống kê Yield",
+"zh": "良率统计"
+},
+"a High": {
+"en": "a High",
+"vi": "a High",
+"zh": "a 上限"
+},
+"a Low": {
+"en": "a Low",
+"vi": "a Low",
+"zh": "a 下限"
+},
+"absdiff": {
+"en": "absdiff",
+"vi": "absdiff",
+"zh": "absdiff"
+},
+"adaptive": {
+"en": "adaptive",
+"vi": "adaptive",
+"zh": "adaptive"
+},
+"angle": {
+"en": "angle",
+"vi": "angle",
+"zh": "angle"
+},
+"area(mm²)=area(px)×ptm²,  perimeter(mm)=perimeter(px)×ptm.": {
+"en": "area(mm²)=area(px)×ptm²,  perimeter(mm)=perimeter(px)×ptm.",
+"vi": "diện tích(mm²)=diện tích(px)×ptm²,  chu vi(mm)=chu vi(px)×ptm.",
+"zh": "面积(mm²)=面积(px)×ptm²，周长(mm)=周长(px)×ptm。"
+},
+"b High": {
+"en": "b High",
+"vi": "b High",
+"zh": "b High"
+},
+"b Low": {
+"en": "b Low",
+"vi": "b Low",
+"zh": "b Low"
+},
+"below": {
+"en": "below",
+"vi": "below",
+"zh": "below"
+},
+"bilateral": {
+"en": "bilateral",
+"vi": "bilateral",
+"zh": "bilateral"
+},
+"binary": {
+"en": "binary",
+"vi": "binary",
+"zh": "binary"
+},
+"blend": {
+"en": "blend",
+"vi": "blend",
+"zh": "blend"
+},
+"both": {
+"en": "both",
+"vi": "both",
+"zh": "both"
+},
+"brightness_contrast": {
+"en": "brightness_contrast",
+"vi": "brightness_contrast",
+"zh": "brightness_contrast"
+},
+"canny": {
+"en": "canny",
+"vi": "canny",
+"zh": "canny"
+},
+"clahe": {
+"en": "clahe",
+"vi": "clahe",
+"zh": "clahe"
+},
+"control": {
+"en": "control",
+"vi": "control",
+"zh": "control"
+},
+"edge_density": {
+"en": "edge_density",
+"vi": "edge_density",
+"zh": "edge_density"
+},
+"equalize": {
+"en": "equalize",
+"vi": "equalize",
+"zh": "equalize"
+},
+"exclusive": {
+"en": "exclusive",
+"vi": "exclusive",
+"zh": "exclusive"
+},
+"fill_ratio": {
+"en": "fill_ratio",
+"vi": "fill_ratio",
+"zh": "fill_ratio"
+},
+"float32": {
+"en": "float32",
+"vi": "float32",
+"zh": "float32"
+},
+"gamma": {
+"en": "gamma",
+"vi": "gamma",
+"zh": "gamma"
+},
+"horizontal": {
+"en": "horizontal",
+"vi": "horizontal",
+"zh": "horizontal"
+},
+"int16": {
+"en": "int16",
+"vi": "int16",
+"zh": "int16"
+},
+"int32": {
+"en": "int32",
+"vi": "int32",
+"zh": "int32"
+},
+"intensity": {
+"en": "intensity",
+"vi": "intensity",
+"zh": "intensity"
+},
+"intensity: độ sáng TB. edge_density: %điểm cạnh. fill_ratio: %điểm foreground.": {
+"en": "intensity: average brightness. edge_density: % edge pixels. fill_ratio: % foreground pixels.",
+"vi": "intensity: độ sáng TB. edge_density: %điểm cạnh. fill_ratio: %điểm foreground.",
+"zh": "intensity：平均亮度。edge_density：边缘像素百分比。fill_ratio：前景像素百分比。"
+},
+"json": {
+"en": "json",
+"vi": "json",
+"zh": "json"
+},
+"keyword": {
+"en": "keyword",
+"vi": "keyword",
+"zh": "keyword"
+},
+"keyword: 'Total' hoặc nhiều 'Total, Charge'. regex: pattern có nhóm vd Total\\s*:?\\s*([\\d.,]+). Gõ chữ thuần ở mode regex = keyword.": {
+"en": "keyword: 'Total' or multiple 'Total, Charge'. regex: pattern with a group e.g. Total\\s*:?\\s*([\\d.,]+). Typing plain text in regex mode = keyword.",
+"vi": "keyword: 'Total' hoặc nhiều 'Total, Charge'. regex: pattern có nhóm vd Total\\s*:?\\s*([\\d.,]+). Gõ chữ thuần ở mode regex = keyword.",
+"zh": "keyword：'Total' 或多个 'Total, Charge'。regex：带分组的 pattern，例如 Total\\s*:?\\s*([\\d.,]+)。在 regex 模式下输入纯文字 = keyword。"
+},
+"laplacian": {
+"en": "laplacian",
+"vi": "laplacian",
+"zh": "laplacian"
+},
+"left": {
+"en": "left",
+"vi": "left",
+"zh": "left"
+},
+"length(mm) = length(px) × pixel_to_mm.": {
+"en": "length(mm) = length(px) × pixel_to_mm.",
+"vi": "chiều dài(mm) = chiều dài(px) × pixel_to_mm.",
+"zh": "长度(mm) = 长度(px) × pixel_to_mm。"
+},
+"median": {
+"en": "median",
+"vi": "median",
+"zh": "median"
+},
+"monitor": {
+"en": "monitor",
+"vi": "monitor",
+"zh": "monitor"
+},
+"multiply": {
+"en": "multiply",
+"vi": "multiply",
+"zh": "multiply"
+},
+"none": {
+"en": "none",
+"vi": "none",
+"zh": "none"
+},
+"none = pass luôn True (chỉ tính result). Khác → pass = result OP threshold.": {
+"en": "none = pass is always True (only computes result). Otherwise → pass = result OP threshold.",
+"vi": "none = pass luôn True (chỉ tính result). Khác → pass = result OP threshold.",
+"zh": "none = pass 始终为 True（仅计算 result）。否则 → pass = result OP threshold。"
+},
+"off: chỉ đọc text. keyword: tìm từ khóa rồi lấy giá trị bên cạnh — NHIỀU từ cách nhau ','. regex: lấy nhóm bắt () đầu tiên.": {
+"en": "off: only reads text. keyword: finds the keyword then takes the value next to it — MULTIPLE keywords separated by ','. regex: takes the first capture group ().",
+"vi": "off: chỉ đọc text. keyword: tìm từ khóa rồi lấy giá trị bên cạnh — NHIỀU từ cách nhau ','. regex: lấy nhóm bắt () đầu tiên.",
+"zh": "off：仅读取文字。keyword：查找关键词后取其旁边的值 — 多个关键词以 ',' 分隔。regex：取第一个捕获分组 ()。"
+},
+"otsu": {
+"en": "otsu",
+"vi": "otsu",
+"zh": "otsu"
+},
+"parallel": {
+"en": "parallel",
+"vi": "parallel",
+"zh": "parallel"
+},
+"pass_fail": {
+"en": "pass_fail",
+"vi": "pass_fail",
+"zh": "pass_fail"
+},
+"pass_fail: ghi mã PASS/FAIL vào vùng result đã cấu hình. value: ghi số ở port 'value' vào địa chỉ bên dưới.": {
+"en": "pass_fail: writes PASS/FAIL code into the configured result region. value: writes the number from the 'value' port to the address below.",
+"vi": "pass_fail: ghi mã PASS/FAIL vào vùng result đã cấu hình. value: ghi số ở port 'value' vào địa chỉ bên dưới.",
+"zh": "pass_fail：将 PASS/FAIL 代码写入已配置的 result 区域。value：将 'value' 端口的数值写入下方地址。"
+},
+"perpendicular": {
+"en": "perpendicular",
+"vi": "perpendicular",
+"zh": "perpendicular"
+},
+"px²→mm²": {
+"en": "px²→mm²",
+"vi": "px²→mm²",
+"zh": "px²→mm²"
+},
+"regex": {
+"en": "regex",
+"vi": "regex",
+"zh": "regex"
+},
+"right": {
+"en": "right",
+"vi": "right",
+"zh": "right"
+},
+"same_line": {
+"en": "same_line",
+"vi": "same_line",
+"zh": "same_line"
+},
+"scaled_int16": {
+"en": "scaled_int16",
+"vi": "scaled_int16",
+"zh": "scaled_int16"
+},
+"scaled_int32": {
+"en": "scaled_int32",
+"vi": "scaled_int32",
+"zh": "scaled_int32"
+},
+"sobel": {
+"en": "sobel",
+"vi": "sobel",
+"zh": "sobel"
+},
+"subtract": {
+"en": "subtract",
+"vi": "subtract",
+"zh": "subtract"
+},
+"value": {
+"en": "value",
+"vi": "value",
+"zh": "value"
+},
+"vd http://192.168.1.50:8080/result": {
+"en": "e.g. http://192.168.1.50:8080/result",
+"vi": "vd http://192.168.1.50:8080/result",
+"zh": "例如 http://192.168.1.50:8080/result"
+},
+"vertical": {
+"en": "vertical",
+"vi": "vertical",
+"zh": "vertical"
+},
+"Điền {pass}/{value}/{text}/{ts}. Dùng \\r \\n cho CR/LF.": {
+"en": "Fill in {pass}/{value}/{text}/{ts}. Use \\r \\n for CR/LF.",
+"vi": "Điền {pass}/{value}/{text}/{ts}. Dùng \\r \\n cho CR/LF.",
+"zh": "填入 {pass}/{value}/{text}/{ts}。使用 \\r \\n 表示 CR/LF。"
+},
+"Điểm cuối caliper": {
+"en": "Caliper end point",
+"vi": "Điểm cuối caliper",
+"zh": "卡尺终点"
+},
+"Điểm cuối — bị override nếu port x2 được nối.": {
+"en": "End point — overridden if port x2 is connected.",
+"vi": "Điểm cuối — bị override nếu port x2 được nối.",
+"zh": "终点 — 若 x2 端口已连接则会被覆盖。"
+},
+"Điểm đầu caliper": {
+"en": "Caliper start point",
+"vi": "Điểm đầu caliper",
+"zh": "卡尺起点"
+},
+"Điểm đầu — bị override nếu port x1 được nối.": {
+"en": "Start point — overridden if port x1 is connected.",
+"vi": "Điểm đầu — bị override nếu port x1 được nối.",
+"zh": "起点 — 若 x1 端口已连接则会被覆盖。"
+},
+"Đo cạnh & khoảng cách 2 cạnh sub-pixel — TCaliperTool": {
+"en": "Measure edges & sub-pixel distance between 2 edges — TCaliperTool",
+"vi": "Đo cạnh & khoảng cách 2 cạnh sub-pixel — TCaliperTool",
+"zh": "测量边缘及两条边缘间的亚像素距离 — TCaliperTool"
+},
+"Đo diện tích vùng từ mask/contours": {
+"en": "Measure region area from mask/contours",
+"vi": "Đo diện tích vùng từ mask/contours",
+"zh": "根据 mask/轮廓测量区域面积"
+},
+"Đo góc giữa 2 đường — TAngleLineLineTool": {
+"en": "Measure the angle between 2 lines — TAngleLineLineTool",
+"vi": "Đo góc giữa 2 đường — TAngleLineLineTool",
+"zh": "测量两条直线间的角度 — TAngleLineLineTool"
+},
+"Đo khoảng cách 2 điểm — TDistancePointPointTool. Calib 'Two Points' = nội suy tuyến tính từ 2 cặp (px, mm) đã đo.": {
+"en": "Measure the distance between 2 points — TDistancePointPointTool. 'Two Points' calibration = linear interpolation from 2 measured (px, mm) pairs.",
+"vi": "Đo khoảng cách 2 điểm — TDistancePointPointTool. Calib 'Two Points' = nội suy tuyến tính từ 2 cặp (px, mm) đã đo.",
+"zh": "测量两点间的距离 — TDistancePointPointTool。'Two Points' 标定 = 根据已测量的 2 组 (px, mm) 数据对进行线性插值。"
+},
+"Đường dẫn 1 file ảnh": {
+"en": "Path to an image file",
+"vi": "Đường dẫn 1 file ảnh",
+"zh": "图像文件的路径"
+},
+"Đảo trắng ↔ đen trước khi morph. Dùng khi object là pixel đen trên nền trắng (vì morph thao tác trên vùng sáng).": {
+"en": "Invert white ↔ black before morph. Use when the object is black pixels on a white background (since morph operates on bright regions).",
+"vi": "Đảo trắng ↔ đen trước khi morph. Dùng khi object là pixel đen trên nền trắng (vì morph thao tác trên vùng sáng).",
+"zh": "在 morph 之前反转黑白。当目标对象是白色背景上的黑色像素时使用（因为 morph 是对明亮区域进行操作）。"
+},
+"Đảo trắng-đen (cho text sáng trên nền tối).": {
+"en": "Invert black-white (for light text on a dark background).",
+"vi": "Đảo trắng-đen (cho text sáng trên nền tối).",
+"zh": "反转黑白（用于深色背景上的浅色文字）。"
+},
+"Để trống = chấp nhận mọi code": {
+"en": "Leave empty = accept any code",
+"vi": "Để trống = chấp nhận mọi code",
+"zh": "留空 = 接受任意代码"
+},
+"Để trống nếu đã nối port 'reference'; hoặc trỏ tới 1 file ảnh chuẩn.": {
+"en": "Leave empty if the 'reference' port is already connected; or point to a reference image file.",
+"vi": "Để trống nếu đã nối port 'reference'; hoặc trỏ tới 1 file ảnh chuẩn.",
+"zh": "若已连接 'reference' 端口则留空；否则指向一个基准图像文件。"
+},
+"Để trống để dùng device_index. Khuyến nghị dùng serial khi có nhiều cam.": {
+"en": "Leave empty to use device_index. Recommended to use serial when there are multiple cameras.",
+"vi": "Để trống để dùng device_index. Khuyến nghị dùng serial khi có nhiều cam.",
+"zh": "留空则使用 device_index。当存在多个相机时建议使用 serial。"
+},
+"Đọc Barcode 1D/2D, QR, DataMatrix — TIDReaderTool": {
+"en": "Read 1D/2D Barcode, QR, DataMatrix — TIDReaderTool",
+"vi": "Đọc Barcode 1D/2D, QR, DataMatrix — TIDReaderTool",
+"zh": "读取 1D/2D 条码、QR、DataMatrix — TIDReaderTool"
+},
+"Đọc ký tự bằng PaddleOCR (chính xác cao, tiếng Việt tốt). Cài: pip install paddlepaddle paddleocr. CHẠY OFFLINE: đặt model vào models/paddle/{det,rec,cls} (xem models/README.md). TRÍCH GIÁ TRỊ theo từ khóa (vd 'Total') hoặc regex; nhiều từ cách nhau ',' (vd 'Total, Charge') -> cổng items + Output Terminal (number_obj1, value_obj2).": {
+"en": "Read characters using PaddleOCR (high accuracy, good for Vietnamese). Install: pip install paddlepaddle paddleocr. RUN OFFLINE: place the model into models/paddle/{det,rec,cls} (see models/README.md). EXTRACT VALUE by keyword (e.g. 'Total') or regex; multiple keywords separated by ',' (e.g. 'Total, Charge') -> items port + Output Terminal (number_obj1, value_obj2).",
+"vi": "Đọc ký tự bằng PaddleOCR (chính xác cao, tiếng Việt tốt). Cài: pip install paddlepaddle paddleocr. CHẠY OFFLINE: đặt model vào models/paddle/{det,rec,cls} (xem models/README.md). TRÍCH GIÁ TRỊ theo từ khóa (vd 'Total') hoặc regex; nhiều từ cách nhau ',' (vd 'Total, Charge') -> cổng items + Output Terminal (number_obj1, value_obj2).",
+"zh": "使用 PaddleOCR 识别文字（精度高，对越南语支持好）。安装：pip install paddlepaddle paddleocr。离线运行：将模型放入 models/paddle/{det,rec,cls}（参见 models/README.md）。按关键词（如 'Total'）或 regex 提取数值；多个关键词以 ',' 分隔（如 'Total, Charge'）-> items 端口 + Output Terminal（number_obj1、value_obj2）。"
+},
+"Độ dày nét bounding box (px, scale theo ảnh).": {
+"en": "Bounding box stroke thickness (px, scaled to the image).",
+"vi": "Độ dày nét bounding box (px, scale theo ảnh).",
+"zh": "边界框线条粗细（px，按图像缩放）。"
+},
+"Độ dày nét chữ.": {
+"en": "Text stroke thickness.",
+"vi": "Độ dày nét chữ.",
+"zh": "文字笔画粗细。"
+},
+"Độ dày nét contour (px, scale theo ảnh).": {
+"en": "Contour stroke thickness (px, scaled to the image).",
+"vi": "Độ dày nét contour (px, scale theo ảnh).",
+"zh": "轮廓线条粗细（px，按图像缩放）。"
+},
+"Đợi phản hồi": {
+"en": "Wait for response",
+"vi": "Đợi phản hồi",
+"zh": "等待响应"
+},
+"ΔE Euclidean RGB distance": {
+"en": "ΔE Euclidean RGB distance",
+"vi": "ΔE Euclidean RGB distance",
+"zh": "ΔE 欧几里得 RGB 距离"
+},
+"• Erode: co vùng sáng — xoá đốm trắng nhỏ, làm mảnh nét.\n• Dilate: phình vùng sáng — vá lỗ đen, làm dày nét.\n• Open  = Erode → Dilate — xoá noise trắng nhưng giữ hình.\n• Close = Dilate → Erode — vá lỗ đen bên trong object.\n• Gradient: viền (Dilate − Erode) — trích biên.\n• Top Hat: ảnh − Open — nổi đốm sáng nhỏ.\n• Black Hat: Close − ảnh — nổi đốm tối nhỏ.\n• Open+Close: xoá noise rồi vá lỗ (mask sạch).\n• Close+Open: vá lỗ rồi xoá noise.": {
+"en": "• Erode: shrinks bright regions — removes small white specks, thins strokes.\n• Dilate: expands bright regions — fills black holes, thickens strokes.\n• Open  = Erode → Dilate — removes white noise while keeping the shape.\n• Close = Dilate → Erode — fills black holes inside the object.\n• Gradient: outline (Dilate − Erode) — extracts edges.\n• Top Hat: image − Open — highlights small bright specks.\n• Black Hat: Close − image — highlights small dark specks.\n• Open+Close: removes noise then fills holes (clean mask).\n• Close+Open: fills holes then removes noise.",
+"vi": "• Erode: co vùng sáng — xoá đốm trắng nhỏ, làm mảnh nét.\n• Dilate: phình vùng sáng — vá lỗ đen, làm dày nét.\n• Open  = Erode → Dilate — xoá noise trắng nhưng giữ hình.\n• Close = Dilate → Erode — vá lỗ đen bên trong object.\n• Gradient: viền (Dilate − Erode) — trích biên.\n• Top Hat: ảnh − Open — nổi đốm sáng nhỏ.\n• Black Hat: Close − ảnh — nổi đốm tối nhỏ.\n• Open+Close: xoá noise rồi vá lỗ (mask sạch).\n• Close+Open: vá lỗ rồi xoá noise.",
+"zh": "• Erode（腐蚀）：收缩亮区 — 去除细小白点，使线条变细。\n• Dilate（膨胀）：扩张亮区 — 填补黑色孔洞，使线条变粗。\n• Open（开运算）= Erode → Dilate — 去除白色噪点同时保持形状。\n• Close（闭运算）= Dilate → Erode — 填补对象内部的黑色孔洞。\n• Gradient（梯度）：轮廓 (Dilate − Erode) — 提取边缘。\n• Top Hat（顶帽）：图像 − Open — 突出细小亮点。\n• Black Hat（黑帽）：Close − 图像 — 突出细小暗点。\n• Open+Close：先去噪点再补孔洞（mask 更干净）。\n• Close+Open：先补孔洞再去噪点。"
+},
+"0 = search entire image": {
+"en": "0 = search entire image",
+"vi": "0 = tìm kiếm toàn bộ ảnh",
+"zh": "0 = 搜索整张图像"
+},
+"1. Chọn loại shape ROI (Rect/Circle/Ellipse/Polygon)\n2. Vẽ vùng Pattern trên ảnh — Polygon: click từng đỉnh,\n    double-click để đóng, right-click để huỷ\n3. Chỉnh tham số Train → ▶ Train Pattern": {
+"en": "1. Choose ROI shape type (Rect/Circle/Ellipse/Polygon)\n2. Draw the Pattern region on the image — Polygon: click each vertex,\n    double-click to close, right-click to cancel\n3. Adjust Train parameters → ▶ Train Pattern",
+"vi": "1. Chọn loại shape ROI (Rect/Circle/Ellipse/Polygon)\n2. Vẽ vùng Pattern trên ảnh — Polygon: click từng đỉnh,\n    double-click để đóng, right-click để huỷ\n3. Chỉnh tham số Train → ▶ Train Pattern",
+"zh": "1. 选择 ROI 形状类型 (Rect/Circle/Ellipse/Polygon)\n2. 在图像上绘制 Pattern 区域 — Polygon：依次点击各顶点，\n    双击以闭合，右键取消\n3. 调整 Train 参数 → ▶ Train Pattern"
+},
+"Acceptance Threshold": {
+"en": "Acceptance Threshold",
+"vi": "Ngưỡng chấp nhận",
+"zh": "接受阈值"
+},
+"Add Reference": {
+"en": "Add Reference",
+"vi": "Thêm tham chiếu",
+"zh": "添加参考"
+},
+"Angle Search": {
+"en": "Angle Search",
+"vi": "Tìm kiếm góc",
+"zh": "角度搜索"
+},
+"Angle:": {
+"en": "Angle:",
+"vi": "Góc:",
+"zh": "角度："
+},
+"Bottom-Center (50%, 100%)": {
+"en": "Bottom-Center (50%, 100%)",
+"vi": "Giữa-Dưới (50%, 100%)",
+"zh": "底部居中 (50%, 100%)"
+},
+"Bật/tắt từng phần overlay vẽ lên ảnh output pipeline.": {
+"en": "Toggle each overlay part drawn on the pipeline output image.",
+"vi": "Bật/tắt từng phần overlay vẽ lên ảnh output pipeline.",
+"zh": "开启/关闭绘制在 pipeline 输出图像上的各个叠加层部分。"
+},
+"Cannot load model or model invalid.": {
+"en": "Cannot load model or model invalid.",
+"vi": "Không thể nạp model hoặc model không hợp lệ.",
+"zh": "无法加载模型或模型无效。"
+},
+"Center (50%, 50%)": {
+"en": "Center (50%, 50%)",
+"vi": "Giữa (50%, 50%)",
+"zh": "居中 (50%, 50%)"
+},
+"Chưa có ROI nào. Vẽ ít nhất 1 vùng Pattern.": {
+"en": "No ROI yet. Draw at least 1 Pattern region.",
+"vi": "Chưa có ROI nào. Vẽ ít nhất 1 vùng Pattern.",
+"zh": "尚无 ROI。请至少绘制 1 个 Pattern 区域。"
+},
+"Chưa có model để lưu.": {
+"en": "No model to save yet.",
+"vi": "Chưa có model để lưu.",
+"zh": "尚无模型可保存。"
+},
+"Chưa có ảnh. Hãy chạy pipeline trước.": {
+"en": "No image yet. Please run the pipeline first.",
+"vi": "Chưa có ảnh. Hãy chạy pipeline trước.",
+"zh": "尚无图像。请先运行 pipeline。"
+},
+"Chưa train model.": {
+"en": "Model not trained yet.",
+"vi": "Chưa train model.",
+"zh": "尚未训练模型。"
+},
+"Chọn điểm tham chiếu trước.": {
+"en": "Please select a reference point first.",
+"vi": "Chọn điểm tham chiếu trước.",
+"zh": "请先选择参考点。"
+},
+"Config:": {
+"en": "Config:",
+"vi": "Cấu hình:",
+"zh": "配置："
+},
+"Create DOF Templates": {
+"en": "Create DOF Templates",
+"vi": "Tạo mẫu DOF",
+"zh": "创建 DOF 模板"
+},
+"Custom...": {
+"en": "Custom...",
+"vi": "Tùy chỉnh...",
+"zh": "自定义…"
+},
+"Delete": {
+"en": "Delete",
+"vi": "Xóa",
+"zh": "删除"
+},
+"Delete Reference": {
+"en": "Delete Reference",
+"vi": "Xóa tham chiếu",
+"zh": "删除参考"
+},
+"EXTRA REFERENCE POINTS  (Tham chiếu bổ sung)": {
+"en": "EXTRA REFERENCE POINTS  (Additional references)",
+"vi": "EXTRA REFERENCE POINTS  (Tham chiếu bổ sung)",
+"zh": "EXTRA REFERENCE POINTS  (附加参考点)"
+},
+"Edge Detection (Canny)": {
+"en": "Edge Detection (Canny)",
+"vi": "Phát hiện biên (Canny)",
+"zh": "边缘检测 (Canny)"
+},
+"Enable angle search": {
+"en": "Enable angle search",
+"vi": "Bật tìm kiếm góc",
+"zh": "启用角度搜索"
+},
+"Enable scale search": {
+"en": "Enable scale search",
+"vi": "Bật tìm kiếm tỉ lệ",
+"zh": "启用比例搜索"
+},
+"Error": {
+"en": "Error",
+"vi": "Lỗi",
+"zh": "错误"
+},
+"Evaluate DOFs At Runtime": {
+"en": "Evaluate DOFs At Runtime",
+"vi": "Đánh giá DOF lúc chạy",
+"zh": "运行时评估 DOF"
+},
+"Hãy kéo chuột trên ảnh để vẽ vùng Pattern trước.": {
+"en": "Please drag the mouse on the image to draw the Pattern region first.",
+"vi": "Hãy kéo chuột trên ảnh để vẽ vùng Pattern trước.",
+"zh": "请先在图像上拖动鼠标以绘制 Pattern 区域。"
+},
+"Image mới — chạy search lại.": {
+"en": "New image — run search again.",
+"vi": "Image mới — chạy search lại.",
+"zh": "新图像 — 请重新运行搜索。"
+},
+"Image reset — chạy search lại nếu cần.": {
+"en": "Image reset — run search again if needed.",
+"vi": "Image reset — chạy search lại nếu cần.",
+"zh": "图像已重置 — 如有需要请重新运行搜索。"
+},
+"Input phải là ảnh GRAY.\n\nHãy nối tool Convert to Grayscale (hoặc tương đương) trước PatMax Align Tool rồi thử lại.": {
+"en": "Input must be a GRAY image.\n\nPlease connect a Convert to Grayscale tool (or equivalent) before the PatMax Align Tool, then try again.",
+"vi": "Input phải là ảnh GRAY.\n\nHãy nối tool Convert to Grayscale (hoặc tương đương) trước PatMax Align Tool rồi thử lại.",
+"zh": "输入必须是 GRAY 图像。\n\n请在 PatMax Align Tool 之前连接 Convert to Grayscale 工具（或等效工具），然后重试。"
+},
+"Không có ảnh để search.": {
+"en": "No image to search.",
+"vi": "Không có ảnh để search.",
+"zh": "没有可供搜索的图像。"
+},
+"Không có ảnh.": {
+"en": "No image.",
+"vi": "Không có ảnh.",
+"zh": "没有图像。"
+},
+"Load": {
+"en": "Load",
+"vi": "Nạp",
+"zh": "加载"
+},
+"Load image source → Run pipeline → Draw ROI → Train": {
+"en": "Load image source → Run pipeline → Draw ROI → Train",
+"vi": "Nạp image source → Chạy pipeline → Vẽ ROI → Train",
+"zh": "加载图像源 → 运行 pipeline → 绘制 ROI → 训练"
+},
+"Lấy ảnh mới từ upstream — xoá result_vis/score_map cũ, giữ ROI + origin": {
+"en": "Fetch a new image from upstream — clear old result_vis/score_map, keep ROI + origin",
+"vi": "Lấy ảnh mới từ upstream — xoá result_vis/score_map cũ, giữ ROI + origin",
+"zh": "从上游获取新图像 — 清除旧的 result_vis/score_map，保留 ROI + origin"
+},
+"MODEL STATUS": {
+"en": "MODEL STATUS",
+"vi": "TRẠNG THÁI MODEL",
+"zh": "模型状态"
+},
+"Middle-Left (0%, 50%)": {
+"en": "Middle-Left (0%, 50%)",
+"vi": "Giữa-Trái (0%, 50%)",
+"zh": "左侧居中 (0%, 50%)"
+},
+"Middle-Right (100%, 50%)": {
+"en": "Middle-Right (100%, 50%)",
+"vi": "Giữa-Phải (100%, 50%)",
+"zh": "右侧居中 (100%, 50%)"
+},
+"Multi-Pattern (nhiều pattern độc lập)": {
+"en": "Multi-Pattern (multiple independent patterns)",
+"vi": "Multi-Pattern (nhiều pattern độc lập)",
+"zh": "Multi-Pattern（多个独立模板）"
+},
+"Multi-Region (gộp 1 pattern)": {
+"en": "Multi-Region (merged into 1 pattern)",
+"vi": "Multi-Region (gộp 1 pattern)",
+"zh": "Multi-Region（合并为 1 个模板）"
+},
+"Multi-Result": {
+"en": "Multi-Result",
+"vi": "Đa kết quả",
+"zh": "多结果"
+},
+"NOT FOUND\nModel không match với ảnh này.\nThử: retrain với ảnh này, hoặc giảm Canny threshold khi train.": {
+"en": "NOT FOUND\nModel does not match this image.\nTry: retrain with this image, or lower the Canny threshold when training.",
+"vi": "NOT FOUND\nModel không match với ảnh này.\nThử: retrain với ảnh này, hoặc giảm Canny threshold khi train.",
+"zh": "NOT FOUND\n模型与此图像不匹配。\n请尝试：用此图像重新训练，或在训练时降低 Canny threshold。"
+},
+"Name:": {
+"en": "Name:",
+"vi": "Tên:",
+"zh": "名称："
+},
+"No search run yet.": {
+"en": "No search run yet.",
+"vi": "Chưa chạy search lần nào.",
+"zh": "尚未运行搜索。"
+},
+"Output image with results": {
+"en": "Output image with results",
+"vi": "Ảnh đầu ra kèm kết quả",
+"zh": "带结果的输出图像"
+},
+"PatMax Align — Train": {
+"en": "PatMax Align — Train",
+"vi": "PatMax Align — Train",
+"zh": "PatMax Align — 训练"
+},
+"Pattern Origin Point": {
+"en": "Pattern Origin Point",
+"vi": "Điểm gốc Pattern",
+"zh": "模板原点"
+},
+"Preset:": {
+"en": "Preset:",
+"vi": "Cài đặt sẵn:",
+"zh": "预设："
+},
+"RESULTS": {
+"en": "RESULTS",
+"vi": "KẾT QUẢ",
+"zh": "结果"
+},
+"ROI Mode:": {
+"en": "ROI Mode:",
+"vi": "Chế độ ROI:",
+"zh": "ROI 模式："
+},
+"Run": {
+"en": "Run",
+"vi": "Chạy",
+"zh": "运行"
+},
+"Run search first": {
+"en": "Run search first",
+"vi": "Chạy search trước",
+"zh": "请先运行搜索"
+},
+"Save": {
+"en": "Save",
+"vi": "Lưu",
+"zh": "保存"
+},
+"Scale Search": {
+"en": "Scale Search",
+"vi": "Tìm kiếm tỉ lệ",
+"zh": "比例搜索"
+},
+"Score heatmap (red=high match)": {
+"en": "Score heatmap (red=high match)",
+"vi": "Bản đồ nhiệt điểm số (đỏ=khớp cao)",
+"zh": "分数热力图（红色=高匹配度）"
+},
+"Search": {
+"en": "Search",
+"vi": "Tìm kiếm",
+"zh": "搜索"
+},
+"Search Region (optional)": {
+"en": "Search Region (optional)",
+"vi": "Vùng tìm kiếm (tùy chọn)",
+"zh": "搜索区域（可选）"
+},
+"Shapes: 0": {
+"en": "Shapes: 0",
+"vi": "Shapes: 0",
+"zh": "Shapes: 0"
+},
+"Show X, Y reference (origin + axes)": {
+"en": "Show X, Y reference (origin + axes)",
+"vi": "Hiện tham chiếu X, Y (gốc + trục)",
+"zh": "显示 X、Y 参考（原点 + 坐标轴）"
+},
+"Show bounding box (+ score label)": {
+"en": "Show bounding box (+ score label)",
+"vi": "Hiện khung bao (+ nhãn điểm số)",
+"zh": "显示边界框（+ 分数标签）"
+},
+"Single ROI": {
+"en": "Single ROI",
+"vi": "ROI đơn",
+"zh": "单个 ROI"
+},
+"Single: 1 ROI duy nhất (vẽ lại = thay).\nMulti-Region: vẽ nhiều ROI → gộp thành 1 pattern duy nhất.\nMulti-Pattern: vẽ nhiều ROI → train mỗi cái 1 pattern riêng,\nsearch trả kết quả gộp từ tất cả pattern.": {
+"en": "Single: only 1 ROI (redrawing = replace).\nMulti-Region: draw multiple ROIs → merged into a single pattern.\nMulti-Pattern: draw multiple ROIs → train each as its own pattern,\nsearch returns combined results from all patterns.",
+"vi": "Single: 1 ROI duy nhất (vẽ lại = thay).\nMulti-Region: vẽ nhiều ROI → gộp thành 1 pattern duy nhất.\nMulti-Pattern: vẽ nhiều ROI → train mỗi cái 1 pattern riêng,\nsearch trả kết quả gộp từ tất cả pattern.",
+"zh": "Single：仅 1 个 ROI（重新绘制 = 替换）。\nMulti-Region：绘制多个 ROI → 合并为单个模板。\nMulti-Pattern：绘制多个 ROI → 各自训练为独立模板，\n搜索时返回所有模板的合并结果。"
+},
+"Top-Center (50%, 0%)": {
+"en": "Top-Center (50%, 0%)",
+"vi": "Giữa-Trên (50%, 0%)",
+"zh": "顶部居中 (50%, 0%)"
+},
+"Top-Left (0%, 0%)": {
+"en": "Top-Left (0%, 0%)",
+"vi": "Trên-Trái (0%, 0%)",
+"zh": "左上角 (0%, 0%)"
+},
+"Top-Right (100%, 0%)": {
+"en": "Top-Right (100%, 0%)",
+"vi": "Trên-Phải (100%, 0%)",
+"zh": "右上角 (100%, 0%)"
+},
+"Train": {
+"en": "Train",
+"vi": "Train",
+"zh": "训练"
+},
+"Train Mode (DOF)": {
+"en": "Train Mode (DOF)",
+"vi": "Chế độ Train (DOF)",
+"zh": "训练模式 (DOF)"
+},
+"Train model first": {
+"en": "Train model first",
+"vi": "Train model trước",
+"zh": "请先训练模型"
+},
+"Train model trước khi thêm điểm tham chiếu.": {
+"en": "Train the model before adding a reference point.",
+"vi": "Train model trước khi thêm điểm tham chiếu.",
+"zh": "请先训练模型，再添加参考点。"
+},
+"Train model trước.": {
+"en": "Train the model first.",
+"vi": "Train model trước.",
+"zh": "请先训练模型。"
+},
+"Training...": {
+"en": "Training...",
+"vi": "Đang train...",
+"zh": "训练中…"
+},
+"VIEW:": {
+"en": "VIEW:",
+"vi": "XEM:",
+"zh": "视图："
+},
+"Vùng ROI quá nhỏ (min 8×8 px).": {
+"en": "ROI region is too small (min 8×8 px).",
+"vi": "Vùng ROI quá nhỏ (min 8×8 px).",
+"zh": "ROI 区域太小（最小 8×8 px）。"
+},
+"X:": {
+"en": "X:",
+"vi": "X:",
+"zh": "X："
+},
+"Y:": {
+"en": "Y:",
+"vi": "Y:",
+"zh": "Y："
+},
+"• Evaluate DOFs At Runtime: train nhanh, search xử lý DOF khi run\n• Create DOF Templates: precompute mọi (angle, scale) — search\n  nhanh hơn nhưng train tốn thời gian + bộ nhớ": {
+"en": "• Evaluate DOFs At Runtime: fast training, search handles DOF at runtime\n• Create DOF Templates: precompute every (angle, scale) — search\n  is faster but training costs more time + memory",
+"vi": "• Evaluate DOFs At Runtime: train nhanh, search xử lý DOF khi run\n• Create DOF Templates: precompute mọi (angle, scale) — search\n  nhanh hơn nhưng train tốn thời gian + bộ nhớ",
+"zh": "• Evaluate DOFs At Runtime：训练快，搜索时再处理 DOF\n• Create DOF Templates：预先计算所有 (angle, scale) — 搜索\n  更快，但训练耗费更多时间和内存"
+},
+"▶  Run Search": {
+"en": "▶  Run Search",
+"vi": "▶  Chạy Search",
+"zh": "▶  运行搜索"
+},
+"▶ Search": {
+"en": "▶ Search",
+"vi": "▶ Tìm kiếm",
+"zh": "▶ 搜索"
+},
+"● UNTRAINED": {
+"en": "● UNTRAINED",
+"vi": "● CHƯA TRAIN",
+"zh": "● 未训练"
+},
+"⚒ Settings": {
+"en": "⚒ Settings",
+"vi": "⚒ Cài đặt",
+"zh": "⚒ 设置"
+},
+"⚙  Train Pattern": {
+"en": "⚙  Train Pattern",
+"vi": "⚙  Train Pattern",
+"zh": "⚙  训练模板"
+},
+"⚙ Train": {
+"en": "⚙ Train",
+"vi": "⚙ Train",
+"zh": "⚙ 训练"
+},
+"⚠  Không có ảnh.  Kết nối node Image Source → Run pipeline node trước.": {
+"en": "⚠  No image.  Connect an Image Source node → Run the pipeline node first.",
+"vi": "⚠  Không có ảnh.  Kết nối node Image Source → Run pipeline node trước.",
+"zh": "⚠  没有图像。请先连接 Image Source 节点 → 运行 pipeline 节点。"
+},
+"⚠ Không có ảnh upstream để refresh.": {
+"en": "⚠ No upstream image to refresh.",
+"vi": "⚠ Không có ảnh upstream để refresh.",
+"zh": "⚠ 没有可刷新的上游图像。"
+},
+"⚠ Không có ảnh upstream để reset.": {
+"en": "⚠ No upstream image to reset.",
+"vi": "⚠ Không có ảnh upstream để reset.",
+"zh": "⚠ 没有可重置的上游图像。"
+},
+"➕ Add": {
+"en": "➕ Add",
+"vi": "➕ Thêm",
+"zh": "➕ 添加"
+},
+"🎯  TPatMaxPatternAlignTool": {
+"en": "🎯  TPatMaxPatternAlignTool",
+"vi": "🎯  TPatMaxPatternAlignTool",
+"zh": "🎯  TPatMaxPatternAlignTool"
+},
+"💡 Kéo dấu O vàng — có thể kéo ra ngoài ROI": {
+"en": "💡 Drag the yellow O mark — it can be dragged outside the ROI",
+"vi": "💡 Kéo dấu O vàng — có thể kéo ra ngoài ROI",
+"zh": "💡 拖动黄色 O 标记 — 可拖到 ROI 外部"
+},
+"🔄  Reset Image": {
+"en": "🔄  Reset Image",
+"vi": "🔄  Đặt lại ảnh",
+"zh": "🔄  重置图像"
+},
+"🗑  Clear All Shapes": {
+"en": "🗑  Clear All Shapes",
+"vi": "🗑  Xóa tất cả Shapes",
+"zh": "🗑  清除所有形状"
+},
+"🗑 Delete": {
+"en": "🗑 Delete",
+"vi": "🗑 Xóa",
+"zh": "🗑 删除"
+},
+"🗺  View Score Map": {
+"en": "🗺  View Score Map",
+"vi": "🗺  Xem bản đồ điểm số",
+"zh": "🗺  查看分数图"
+},
+"Model Trained ✔": {
+"en": "Model Trained ✔",
+"vi": "Model đã train ✔",
+"zh": "模型已训练 ✔"
+},
+"No model trained": {
+"en": "No model trained",
+"vi": "Chưa có model nào được train",
+"zh": "尚未训练模型"
+},
+"No thumb": {
+"en": "No thumb",
+"vi": "Không có thumbnail",
+"zh": "无缩略图"
+},
+"TRAINED": {
+"en": "TRAINED",
+"vi": "ĐÃ TRAIN",
+"zh": "已训练"
+},
+"UNTRAINED": {
+"en": "UNTRAINED",
+"vi": "CHƯA TRAIN",
+"zh": "未训练"
+},
+"(Chưa có chart — train chưa sinh results.png)": {
+"en": "(No chart yet — training hasn't generated results.png)",
+"vi": "(Chưa có chart — train chưa sinh results.png)",
+"zh": "(暂无图表 — 训练尚未生成 results.png)"
+},
+"(chart sẽ hiện sau epoch đầu tiên)": {
+"en": "(chart will appear after the first epoch)",
+"vi": "(chart sẽ hiện sau epoch đầu tiên)",
+"zh": "(图表将在第一个 epoch 后显示)"
+},
+"Annotations: 0": {
+"en": "Annotations: 0",
+"vi": "Annotations: 0",
+"zh": "标注数: 0"
+},
+"Auto (CUDA nếu có, fallback CPU)": {
+"en": "Auto (CUDA if available, fallback to CPU)",
+"vi": "Auto (CUDA nếu có, fallback CPU)",
+"zh": "自动 (有 CUDA 则用 CUDA，否则回退 CPU)"
+},
+"Auto: ultralytics tự chọn.\nCPU: ép train trên CPU (chậm nhưng luôn chạy được).\nGPU 0: yêu cầu torch build CUDA + máy có GPU NVIDIA, không có sẽ lỗi.": {
+"en": "Auto: ultralytics chooses automatically.\nCPU: force training on CPU (slow but always works).\nGPU 0: requires a CUDA torch build + an NVIDIA GPU; otherwise it will error.",
+"vi": "Auto: ultralytics tự chọn.\nCPU: ép train trên CPU (chậm nhưng luôn chạy được).\nGPU 0: yêu cầu torch build CUDA + máy có GPU NVIDIA, không có sẽ lỗi.",
+"zh": "Auto: 由 ultralytics 自动选择。\nCPU: 强制在 CPU 上训练（较慢但总能运行）。\nGPU 0: 需要 CUDA 版 torch 且设备有 NVIDIA GPU，否则会报错。"
+},
+"BBox: drag  |  Poly: click pts\nRight-click / close = finish\nCtrl+Z = undo  |  Esc = cancel": {
+"en": "BBox: drag  |  Poly: click pts\nRight-click / close = finish\nCtrl+Z = undo  |  Esc = cancel",
+"vi": "BBox: kéo  |  Poly: click các điểm\nClick phải / đóng = hoàn tất\nCtrl+Z = hoàn tác  |  Esc = hủy",
+"zh": "BBox: 拖拽  |  Poly: 点击节点\n右键 / 闭合 = 完成\nCtrl+Z = 撤销  |  Esc = 取消"
+},
+"Base Model": {
+"en": "Base Model",
+"vi": "Mô hình nền",
+"zh": "基础模型"
+},
+"CPU": {
+"en": "CPU",
+"vi": "CPU",
+"zh": "CPU"
+},
+"Chưa có training nào hoàn tất.": {
+"en": "No training has completed yet.",
+"vi": "Chưa có training nào hoàn tất.",
+"zh": "尚无已完成的训练。"
+},
+"Chọn data.yaml trước. Vào tab Dataset → Generate data.yaml.": {
+"en": "Select data.yaml first. Go to the Dataset tab → Generate data.yaml.",
+"vi": "Chọn data.yaml trước. Vào tab Dataset → Generate data.yaml.",
+"zh": "请先选择 data.yaml。前往 Dataset 标签页 → Generate data.yaml。"
+},
+"Classes": {
+"en": "Classes",
+"vi": "Lớp",
+"zh": "类别"
+},
+"Created": {
+"en": "Created",
+"vi": "Đã tạo",
+"zh": "已创建"
+},
+"Device": {
+"en": "Device",
+"vi": "Thiết bị",
+"zh": "设备"
+},
+"Draw Mode": {
+"en": "Draw Mode",
+"vi": "Chế độ vẽ",
+"zh": "绘制模式"
+},
+"Error!": {
+"en": "Error!",
+"vi": "Lỗi!",
+"zh": "错误！"
+},
+"Exists": {
+"en": "Exists",
+"vi": "Đã tồn tại",
+"zh": "已存在"
+},
+"Export Failed": {
+"en": "Export Failed",
+"vi": "Xuất thất bại",
+"zh": "导出失败"
+},
+"Export OK": {
+"en": "Export OK",
+"vi": "Xuất thành công",
+"zh": "导出成功"
+},
+"Export best.pt → best.onnx (FP32) cho CPU inference nhanh hơn 3-4x.\nTách khỏi pipeline train để nếu lỗi cũng không crash app.": {
+"en": "Export best.pt → best.onnx (FP32) for CPU inference 3-4x faster.\nSeparated from the training pipeline so an error here won't crash the app.",
+"vi": "Export best.pt → best.onnx (FP32) cho CPU inference nhanh hơn 3-4x.\nTách khỏi pipeline train để nếu lỗi cũng không crash app.",
+"zh": "将 best.pt → best.onnx (FP32) 导出，使 CPU 推理速度提升 3-4 倍。\n与训练流程分离，出错也不会导致应用崩溃。"
+},
+"GPU 0 (CUDA)": {
+"en": "GPU 0 (CUDA)",
+"vi": "GPU 0 (CUDA)",
+"zh": "GPU 0 (CUDA)"
+},
+"Hyperparameters": {
+"en": "Hyperparameters",
+"vi": "Siêu tham số",
+"zh": "超参数"
+},
+"Idle": {
+"en": "Idle",
+"vi": "Nhàn rỗi",
+"zh": "空闲"
+},
+"Images": {
+"en": "Images",
+"vi": "Ảnh",
+"zh": "图像"
+},
+"Info": {
+"en": "Info",
+"vi": "Thông tin",
+"zh": "信息"
+},
+"Không tìm thấy file model nào trong weights/.": {
+"en": "No model file found in weights/.",
+"vi": "Không tìm thấy file model nào trong weights/.",
+"zh": "在 weights/ 中未找到任何模型文件。"
+},
+"Label Statistics": {
+"en": "Label Statistics",
+"vi": "Thống kê nhãn",
+"zh": "标签统计"
+},
+"Last Training Result": {
+"en": "Last Training Result",
+"vi": "Kết quả train gần nhất",
+"zh": "最近一次训练结果"
+},
+"Live Metrics": {
+"en": "Live Metrics",
+"vi": "Chỉ số trực tiếp",
+"zh": "实时指标"
+},
+"Loaded image from AOI pipeline.": {
+"en": "Loaded image from AOI pipeline.",
+"vi": "Đã nạp ảnh từ pipeline AOI.",
+"zh": "已从 AOI 流程加载图像。"
+},
+"Missing YAML": {
+"en": "Missing YAML",
+"vi": "Thiếu YAML",
+"zh": "缺少 YAML"
+},
+"Missing best.pt": {
+"en": "Missing best.pt",
+"vi": "Thiếu best.pt",
+"zh": "缺少 best.pt"
+},
+"Model Saved": {
+"en": "Model Saved",
+"vi": "Đã lưu mô hình",
+"zh": "模型已保存"
+},
+"Mở YOLO Studio từ node AOI có output image để dùng tính năng này.": {
+"en": "Open YOLO Studio from an AOI node with an image output to use this feature.",
+"vi": "Mở YOLO Studio từ node AOI có output image để dùng tính năng này.",
+"zh": "请从带有图像输出的 AOI 节点打开 YOLO Studio 以使用此功能。"
+},
+"No Model": {
+"en": "No Model",
+"vi": "Không có mô hình",
+"zh": "无模型"
+},
+"No Project": {
+"en": "No Project",
+"vi": "Không có dự án",
+"zh": "无项目"
+},
+"No project open": {
+"en": "No project open",
+"vi": "Không có dự án nào đang mở",
+"zh": "没有打开的项目"
+},
+"Not Found": {
+"en": "Not Found",
+"vi": "Không tìm thấy",
+"zh": "未找到"
+},
+"ONNX packages missing": {
+"en": "ONNX packages missing",
+"vi": "Thiếu gói ONNX",
+"zh": "缺少 ONNX 软件包"
+},
+"Open a project first.": {
+"en": "Open a project first.",
+"vi": "Hãy mở dự án trước.",
+"zh": "请先打开一个项目。"
+},
+"Open a project to see dataset info.": {
+"en": "Open a project to see dataset info.",
+"vi": "Mở dự án để xem thông tin dataset.",
+"zh": "打开项目以查看数据集信息。"
+},
+"Path to data.yaml...": {
+"en": "Path to data.yaml...",
+"vi": "Đường dẫn đến data.yaml...",
+"zh": "data.yaml 的路径…"
+},
+"Project Info": {
+"en": "Project Info",
+"vi": "Thông tin dự án",
+"zh": "项目信息"
+},
+"Ready": {
+"en": "Ready",
+"vi": "Sẵn sàng",
+"zh": "就绪"
+},
+"Run Name": {
+"en": "Run Name",
+"vi": "Tên lần chạy",
+"zh": "运行名称"
+},
+"Save Failed": {
+"en": "Save Failed",
+"vi": "Lưu thất bại",
+"zh": "保存失败"
+},
+"Stopped": {
+"en": "Stopped",
+"vi": "Đã dừng",
+"zh": "已停止"
+},
+"TRAINING LOG": {
+"en": "TRAINING LOG",
+"vi": "NHẬT KÝ TRAINING",
+"zh": "训练日志"
+},
+"Test-Time Augmentation cho validation phase. Training augmentation (mosaic/hsv/flip) luôn bật theo default ultralytics, không control được ở đây.": {
+"en": "Test-Time Augmentation for the validation phase. Training augmentation (mosaic/hsv/flip) is always on by ultralytics default and cannot be controlled here.",
+"vi": "Test-Time Augmentation cho validation phase. Training augmentation (mosaic/hsv/flip) luôn bật theo default ultralytics, không control được ở đây.",
+"zh": "用于验证阶段的 Test-Time Augmentation。训练增强 (mosaic/hsv/flip) 按 ultralytics 默认设置始终开启，此处无法控制。"
+},
+"Train %:": {
+"en": "Train %:",
+"vi": "Train %:",
+"zh": "训练占比 %:"
+},
+"Train/Val Split": {
+"en": "Train/Val Split",
+"vi": "Chia Train/Val",
+"zh": "训练/验证集划分"
+},
+"Training Complete": {
+"en": "Training Complete",
+"vi": "Hoàn tất training",
+"zh": "训练完成"
+},
+"Training Error": {
+"en": "Training Error",
+"vi": "Lỗi training",
+"zh": "训练错误"
+},
+"Val %:": {
+"en": "Val %:",
+"vi": "Val %:",
+"zh": "验证占比 %:"
+},
+"Validation TTA  (chậm hơn, mAP nhỉnh hơn)": {
+"en": "Validation TTA  (slower, slightly higher mAP)",
+"vi": "Validation TTA  (chậm hơn, mAP nhỉnh hơn)",
+"zh": "验证 TTA  (速度更慢，mAP 略高)"
+},
+"box_loss: —   cls_loss: —   dfl_loss: —": {
+"en": "box_loss: —   cls_loss: —   dfl_loss: —",
+"vi": "box_loss: —   cls_loss: —   dfl_loss: —",
+"zh": "box_loss: —   cls_loss: —   dfl_loss: —"
+},
+"data.yaml": {
+"en": "data.yaml",
+"vi": "data.yaml",
+"zh": "data.yaml"
+},
+"data.yaml Generator": {
+"en": "data.yaml Generator",
+"vi": "Trình tạo data.yaml",
+"zh": "data.yaml 生成器"
+},
+"yolo11m.pt": {
+"en": "yolo11m.pt",
+"vi": "yolo11m.pt",
+"zh": "yolo11m.pt"
+},
+"yolo11n.pt": {
+"en": "yolo11n.pt",
+"vi": "yolo11n.pt",
+"zh": "yolo11n.pt"
+},
+"yolo11s.pt": {
+"en": "yolo11s.pt",
+"vi": "yolo11s.pt",
+"zh": "yolo11s.pt"
+},
+"yolov8l.pt": {
+"en": "yolov8l.pt",
+"vi": "yolov8l.pt",
+"zh": "yolov8l.pt"
+},
+"yolov8m-seg.pt": {
+"en": "yolov8m-seg.pt",
+"vi": "yolov8m-seg.pt",
+"zh": "yolov8m-seg.pt"
+},
+"yolov8m.pt": {
+"en": "yolov8m.pt",
+"vi": "yolov8m.pt",
+"zh": "yolov8m.pt"
+},
+"yolov8n-seg.pt": {
+"en": "yolov8n-seg.pt",
+"vi": "yolov8n-seg.pt",
+"zh": "yolov8n-seg.pt"
+},
+"yolov8n.pt": {
+"en": "yolov8n.pt",
+"vi": "yolov8n.pt",
+"zh": "yolov8n.pt"
+},
+"yolov8s-seg.pt": {
+"en": "yolov8s-seg.pt",
+"vi": "yolov8s-seg.pt",
+"zh": "yolov8s-seg.pt"
+},
+"yolov8s.pt": {
+"en": "yolov8s.pt",
+"vi": "yolov8s.pt",
+"zh": "yolov8s.pt"
+},
+"yolov8x.pt": {
+"en": "yolov8x.pt",
+"vi": "yolov8x.pt",
+"zh": "yolov8x.pt"
+},
+"■  Stop": {
+"en": "■  Stop",
+"vi": "■  Dừng",
+"zh": "■  停止"
+},
+"⚡ Auto Split": {
+"en": "⚡ Auto Split",
+"vi": "⚡ Tự động chia",
+"zh": "⚡ 自动划分"
+},
+"✅ Done!": {
+"en": "✅ Done!",
+"vi": "✅ Xong!",
+"zh": "✅ 完成！"
+},
+"✏  Label": {
+"en": "✏  Label",
+"vi": "✏  Gán nhãn",
+"zh": "✏  标注"
+},
+"💾  Save Labels": {
+"en": "💾  Save Labels",
+"vi": "💾  Lưu nhãn",
+"zh": "💾  保存标签"
+},
+"📊 Model Evaluation": {
+"en": "📊 Model Evaluation",
+"vi": "📊 Đánh giá mô hình",
+"zh": "📊 模型评估"
+},
+"📦  Dataset": {
+"en": "📦  Dataset",
+"vi": "📦  Dataset",
+"zh": "📦  数据集"
+},
+"🚀  Start Training": {
+"en": "🚀  Start Training",
+"vi": "🚀  Bắt đầu Training",
+"zh": "🚀  开始训练"
+},
+"🚀  Train": {
+"en": "🚀  Train",
+"vi": "🚀  Train",
+"zh": "🚀  训练"
+},
+"🤖  YOLO Studio": {
+"en": "🤖  YOLO Studio",
+"vi": "🤖  YOLO Studio",
+"zh": "🤖  YOLO Studio"
+},
+"🤖  YOLO Studio  —  Label · Dataset · Train": {
+"en": "🤖  YOLO Studio  —  Label · Dataset · Train",
+"vi": "🤖  YOLO Studio  —  Gán nhãn · Dataset · Train",
+"zh": "🤖  YOLO Studio  —  标注 · 数据集 · 训练"
+},
+"(builtin) SN — mã scan": {
+"en": "(builtin) SN — scan code",
+"vi": "(builtin) SN — mã scan",
+"zh": "(内置) SN — 扫描码"
+},
+"(builtin) api_get.text": {
+"en": "(builtin) api_get.text",
+"vi": "(builtin) api_get.text",
+"zh": "(内置) api_get.text"
+},
+"(builtin) api_get.value": {
+"en": "(builtin) api_get.value",
+"vi": "(builtin) api_get.value",
+"zh": "(内置) api_get.value"
+},
+"(không phát hiện cổng — cắm scanner rồi Refresh)": {
+"en": "(no port detected — plug in scanner then Refresh)",
+"vi": "(không phát hiện cổng — cắm scanner rồi Refresh)",
+"zh": "(未检测到端口 — 请插入扫描枪后点击 Refresh)"
+},
+"(no port)": {
+"en": "(no port)",
+"vi": "(không có cổng)",
+"zh": "(无端口)"
+},
+"(tuỳ chọn) data phải chứa chuỗi này": {
+"en": "(optional) data must contain this string",
+"vi": "(tuỳ chọn) data phải chứa chuỗi này",
+"zh": "(可选) data 必须包含此字符串"
+},
+"(tuỳ chọn) response phải chứa chuỗi này": {
+"en": "(optional) response must contain this string",
+"vi": "(tuỳ chọn) response phải chứa chuỗi này",
+"zh": "(可选) response 必须包含此字符串"
+},
+"(tuỳ chọn) response.text phải chứa chuỗi này → pass": {
+"en": "(optional) response.text must contain this string → pass",
+"vi": "(tuỳ chọn) response.text phải chứa chuỗi này → pass",
+"zh": "(可选) response.text 必须包含此字符串 → pass"
+},
+"1.  Hand Scanner  (Serial / COM)": {
+"en": "1.  Hand Scanner  (Serial / COM)",
+"vi": "1.  Hand Scanner  (Serial / COM)",
+"zh": "1.  手持扫描枪  (Serial / COM)"
+},
+"2.  API GET  (lookup SN trên SFC)": {
+"en": "2.  API GET  (look up SN on SFC)",
+"vi": "2.  API GET  (lookup SN trên SFC)",
+"zh": "2.  API GET  (在 SFC 上查询 SN)"
+},
+"3.  API POST  (gửi kết quả sau pipeline)": {
+"en": "3.  API POST  (send result after pipeline)",
+"vi": "3.  API POST  (gửi kết quả sau pipeline)",
+"zh": "3.  API POST  (在 pipeline 之后发送结果)"
+},
+"Baudrate:": {
+"en": "Baudrate:",
+"vi": "Baudrate:",
+"zh": "Baudrate:"
+},
+"Body template (JSON):": {
+"en": "Body template (JSON):",
+"vi": "Body template (JSON):",
+"zh": "Body 模板 (JSON):"
+},
+"Bypass system proxy (cho IP nội bộ LAN)": {
+"en": "Bypass system proxy (for internal LAN IP)",
+"vi": "Bypass system proxy (cho IP nội bộ LAN)",
+"zh": "绕过系统代理 (用于内部局域网 IP)"
+},
+"Byte:": {
+"en": "Byte:",
+"vi": "Byte:",
+"zh": "Byte:"
+},
+"Bật để bỏ qua HTTP_PROXY / corporate Squid proxy — tránh request về IP LAN (10.x, 192.168.x) bị proxy chặn / trả HTML lỗi.": {
+"en": "Enable to bypass HTTP_PROXY / corporate Squid proxy — avoid requests to LAN IP (10.x, 192.168.x) being blocked by proxy / returning error HTML.",
+"vi": "Bật để bỏ qua HTTP_PROXY / corporate Squid proxy — tránh request về IP LAN (10.x, 192.168.x) bị proxy chặn / trả HTML lỗi.",
+"zh": "启用以绕过 HTTP_PROXY / 企业 Squid 代理 — 避免对局域网 IP (10.x, 192.168.x) 的请求被代理拦截 / 返回错误 HTML。"
+},
+"Bật để bỏ qua HTTP_PROXY / corporate Squid proxy.": {
+"en": "Enable to bypass HTTP_PROXY / corporate Squid proxy.",
+"vi": "Bật để bỏ qua HTTP_PROXY / corporate Squid proxy.",
+"zh": "启用以绕过 HTTP_PROXY / 企业 Squid 代理。"
+},
+"COM port:": {
+"en": "COM port:",
+"vi": "COM port:",
+"zh": "COM 端口:"
+},
+"Contains:": {
+"en": "Contains:",
+"vi": "Contains:",
+"zh": "包含:"
+},
+"Dot path, vd \"data.token\"": {
+"en": "Dot path, e.g. \"data.token\"",
+"vi": "Dot path, vd \"data.token\"",
+"zh": "点路径，例如 \"data.token\""
+},
+"E": {
+"en": "E",
+"vi": "E",
+"zh": "E"
+},
+"Enable API GET": {
+"en": "Enable API GET",
+"vi": "Enable API GET",
+"zh": "启用 API GET"
+},
+"Enable API POST": {
+"en": "Enable API POST",
+"vi": "Enable API POST",
+"zh": "启用 API POST"
+},
+"Encoding:": {
+"en": "Encoding:",
+"vi": "Encoding:",
+"zh": "编码:"
+},
+"Expected len:": {
+"en": "Expected len:",
+"vi": "Expected len:",
+"zh": "预期长度:"
+},
+"Expected status:": {
+"en": "Expected status:",
+"vi": "Expected status:",
+"zh": "预期状态码:"
+},
+"Headers (JSON):": {
+"en": "Headers (JSON):",
+"vi": "Headers (JSON):",
+"zh": "Headers (JSON):"
+},
+"Hex bytes (vd 02 F4 03). Để trống nếu scanner auto-trigger.": {
+"en": "Hex bytes (e.g. 02 F4 03). Leave blank if scanner auto-triggers.",
+"vi": "Hex bytes (vd 02 F4 03). Để trống nếu scanner auto-trigger.",
+"zh": "十六进制字节 (例如 02 F4 03)。若扫描枪自动触发，请留空。"
+},
+"JSON path:": {
+"en": "JSON path:",
+"vi": "JSON path:",
+"zh": "JSON 路径:"
+},
+"Không nhận được data (timeout?)": {
+"en": "No data received (timeout?)",
+"vi": "Không nhận được data (timeout?)",
+"zh": "未收到数据 (超时？)"
+},
+"Last SN: (chưa scan)": {
+"en": "Last SN: (not scanned yet)",
+"vi": "Last SN: (chưa scan)",
+"zh": "Last SN: (尚未扫描)"
+},
+"M": {
+"en": "M",
+"vi": "M",
+"zh": "M"
+},
+"Method:": {
+"en": "Method:",
+"vi": "Method:",
+"zh": "Method:"
+},
+"Must contain:": {
+"en": "Must contain:",
+"vi": "Must contain:",
+"zh": "必须包含:"
+},
+"N": {
+"en": "N",
+"vi": "N",
+"zh": "N"
+},
+"O": {
+"en": "O",
+"vi": "O",
+"zh": "O"
+},
+"POST": {
+"en": "POST",
+"vi": "POST",
+"zh": "POST"
+},
+"PUT": {
+"en": "PUT",
+"vi": "PUT",
+"zh": "PUT"
+},
+"Parity:": {
+"en": "Parity:",
+"vi": "Parity:",
+"zh": "Parity:"
+},
+"Parse JSON": {
+"en": "Parse JSON",
+"vi": "Parse JSON",
+"zh": "解析 JSON"
+},
+"Read size:": {
+"en": "Read size:",
+"vi": "Read size:",
+"zh": "读取大小:"
+},
+"Response sẽ hiện ở đây sau khi Test GET": {
+"en": "Response will appear here after Test GET",
+"vi": "Response sẽ hiện ở đây sau khi Test GET",
+"zh": "响应将在点击 Test GET 后显示于此处"
+},
+"Response sẽ hiện ở đây sau khi Test POST": {
+"en": "Response will appear here after Test POST",
+"vi": "Response sẽ hiện ở đây sau khi Test POST",
+"zh": "响应将在点击 Test POST 后显示于此处"
+},
+"S": {
+"en": "S",
+"vi": "S",
+"zh": "S"
+},
+"SFC / MES Integration": {
+"en": "SFC / MES Integration",
+"vi": "SFC / MES Integration",
+"zh": "SFC / MES 集成"
+},
+"SN": {
+"en": "SN",
+"vi": "SN",
+"zh": "SN"
+},
+"Saved": {
+"en": "Saved",
+"vi": "Đã lưu",
+"zh": "已保存"
+},
+"Scan": {
+"en": "Scan",
+"vi": "Scan",
+"zh": "扫描"
+},
+"Stop bits:": {
+"en": "Stop bits:",
+"vi": "Stop bits:",
+"zh": "Stop bits:"
+},
+"Timeout:": {
+"en": "Timeout:",
+"vi": "Timeout:",
+"zh": "超时:"
+},
+"Trigger (hex):": {
+"en": "Trigger (hex):",
+"vi": "Trigger (hex):",
+"zh": "触发 (hex):"
+},
+"URL template:": {
+"en": "URL template:",
+"vi": "URL template:",
+"zh": "URL 模板:"
+},
+"URL:": {
+"en": "URL:",
+"vi": "URL:",
+"zh": "URL:"
+},
+"Vd:\n{\n  \"sn\": \"{SN}\",\n  \"result\": \"{patmax.found}\",\n  \"stationName\": \"OPLEUATTACHMENT\"\n}\n\nGõ `{` để xem gợi ý các tool đang có trong pipeline.\nSau khi chọn tool, gõ `.` (tự thêm) để xem các port output.\nTab / Enter để chấp nhận lựa chọn, Esc để đóng popup.": {
+"en": "E.g.:\n{\n  \"sn\": \"{SN}\",\n  \"result\": \"{patmax.found}\",\n  \"stationName\": \"OPLEUATTACHMENT\"\n}\n\nType `{` to see suggestions for the tools in the pipeline.\nAfter selecting a tool, type `.` (auto-added) to see the output ports.\nTab / Enter to accept the selection, Esc to close the popup.",
+"vi": "Vd:\n{\n  \"sn\": \"{SN}\",\n  \"result\": \"{patmax.found}\",\n  \"stationName\": \"OPLEUATTACHMENT\"\n}\n\nGõ `{` để xem gợi ý các tool đang có trong pipeline.\nSau khi chọn tool, gõ `.` (tự thêm) để xem các port output.\nTab / Enter để chấp nhận lựa chọn, Esc để đóng popup.",
+"zh": "例如:\n{\n  \"sn\": \"{SN}\",\n  \"result\": \"{patmax.found}\",\n  \"stationName\": \"OPLEUATTACHMENT\"\n}\n\n输入 `{` 可查看 pipeline 中现有 tool 的建议列表。\n选择 tool 后，输入 `.` (自动补全) 可查看其 output 端口。\nTab / Enter 接受所选项，Esc 关闭弹出框。"
+},
+"Vd: http://10.222.48.213:8888/v2/pass/mes/tsc/check/TSC-VN/TSC_VN1/OPLEUATTACHMENT?sn={SN}&station_id=OPLEUATTACHMENT": {
+"en": "E.g.: http://10.222.48.213:8888/v2/pass/mes/tsc/check/TSC-VN/TSC_VN1/OPLEUATTACHMENT?sn={SN}&station_id=OPLEUATTACHMENT",
+"vi": "Vd: http://10.222.48.213:8888/v2/pass/mes/tsc/check/TSC-VN/TSC_VN1/OPLEUATTACHMENT?sn={SN}&station_id=OPLEUATTACHMENT",
+"zh": "例如: http://10.222.48.213:8888/v2/pass/mes/tsc/check/TSC-VN/TSC_VN1/OPLEUATTACHMENT?sn={SN}&station_id=OPLEUATTACHMENT"
+},
+"Vd: http://10.222.48.213:8888/v2/sfc/result": {
+"en": "E.g.: http://10.222.48.213:8888/v2/sfc/result",
+"vi": "Vd: http://10.222.48.213:8888/v2/sfc/result",
+"zh": "例如: http://10.222.48.213:8888/v2/sfc/result"
+},
+"Vd: {\"Content-Type\":\"application/json\",\"token\":\"abc\"}": {
+"en": "E.g.: {\"Content-Type\":\"application/json\",\"token\":\"abc\"}",
+"vi": "Vd: {\"Content-Type\":\"application/json\",\"token\":\"abc\"}",
+"zh": "例如: {\"Content-Type\":\"application/json\",\"token\":\"abc\"}"
+},
+"api_get.text": {
+"en": "api_get.text",
+"vi": "api_get.text",
+"zh": "api_get.text"
+},
+"api_get.value": {
+"en": "api_get.value",
+"vi": "api_get.value",
+"zh": "api_get.value"
+},
+"ascii": {
+"en": "ascii",
+"vi": "ascii",
+"zh": "ascii"
+},
+"latin-1": {
+"en": "latin-1",
+"vi": "latin-1",
+"zh": "latin-1"
+},
+"utf-16": {
+"en": "utf-16",
+"vi": "utf-16",
+"zh": "utf-16"
+},
+"utf-8": {
+"en": "utf-8",
+"vi": "utf-8",
+"zh": "utf-8"
+},
+"{\"token\":\"abc\",\"X-API-Key\":\"xxx\"}": {
+"en": "{\"token\":\"abc\",\"X-API-Key\":\"xxx\"}",
+"vi": "{\"token\":\"abc\",\"X-API-Key\":\"xxx\"}",
+"zh": "{\"token\":\"abc\",\"X-API-Key\":\"xxx\"}"
+},
+"Đã lưu cấu hình SFC.": {
+"en": "SFC configuration saved.",
+"vi": "Đã lưu cấu hình SFC.",
+"zh": "已保存 SFC 配置。"
+},
+"➕  Insert {ref}": {
+"en": "➕  Insert {ref}",
+"vi": "➕  Insert {ref}",
+"zh": "➕  插入 {ref}"
+},
+"🌐  Test GET": {
+"en": "🌐  Test GET",
+"vi": "🌐  Test GET",
+"zh": "🌐  测试 GET"
+},
+"👁  Preview body": {
+"en": "👁  Preview body",
+"vi": "👁  Preview body",
+"zh": "👁  预览 body"
+},
+"💾  Save": {
+"en": "💾  Save",
+"vi": "💾  Lưu",
+"zh": "💾  保存"
+},
+"📟  Test Scan": {
+"en": "📟  Test Scan",
+"vi": "📟  Test Scan",
+"zh": "📟  测试扫描"
+},
+"📤  Test POST": {
+"en": "📤  Test POST",
+"vi": "📤  Test POST",
+"zh": "📤  测试 POST"
+},
+"🔄  Refresh": {
+"en": "🔄  Refresh",
+"vi": "🔄  Refresh",
+"zh": "🔄  刷新"
+},
+"(All Acquire — toàn pipeline)": {
+"en": "(All Acquire — entire pipeline)",
+"vi": "(All Acquire — toàn pipeline)",
+"zh": "(All Acquire — 整个 pipeline)"
+},
+"(Auto: all nodes pass)": {
+"en": "(Auto: all nodes pass)",
+"vi": "(Auto: all nodes pass)",
+"zh": "(Auto: 所有节点 pass)"
+},
+"+ Add trigger": {
+"en": "+ Add trigger",
+"vi": "+ Thêm trigger",
+"zh": "+ 添加触发器"
+},
+"ABCD (high word first)": {
+"en": "ABCD (high word first)",
+"vi": "ABCD (high word first)",
+"zh": "ABCD (高字在前)"
+},
+"Address:": {
+"en": "Address:",
+"vi": "Address:",
+"zh": "地址:"
+},
+"Area:": {
+"en": "Area:",
+"vi": "Area:",
+"zh": "区域:"
+},
+"Bật: PLC fire trigger DM → tự động chạy Scan → API GET → Pipeline → API POST.\nTắt: PLC trigger chỉ chạy Pipeline (behaviour cũ).": {
+"en": "On: PLC fires trigger DM → automatically runs Scan → API GET → Pipeline → API POST.\nOff: PLC trigger only runs Pipeline (old behaviour).",
+"vi": "Bật: PLC fire trigger DM → tự động chạy Scan → API GET → Pipeline → API POST.\nTắt: PLC trigger chỉ chạy Pipeline (behaviour cũ).",
+"zh": "开启：PLC 触发 trigger DM → 自动运行 Scan → API GET → Pipeline → API POST。\n关闭：PLC trigger 仅运行 Pipeline (旧行为)。"
+},
+"Bật: scan timeout / GET trả status ≠ expected → abort, không chạy pipeline.\nTắt: vẫn chạy pipeline kể cả khi scan/GET fail.": {
+"en": "On: scan timeout / GET returns status ≠ expected → abort, pipeline does not run.\nOff: pipeline still runs even if scan/GET fails.",
+"vi": "Bật: scan timeout / GET trả status ≠ expected → abort, không chạy pipeline.\nTắt: vẫn chạy pipeline kể cả khi scan/GET fail.",
+"zh": "开启：scan 超时 / GET 返回状态 ≠ expected → 中止，不运行 pipeline。\n关闭：即使 scan/GET 失败仍运行 pipeline。"
+},
+"Bỏ tích nếu PLC trigger không cần scan (vd SN đã có sẵn từ camera/QR khác).": {
+"en": "Uncheck if PLC trigger does not need scan (e.g. SN already available from another camera/QR).",
+"vi": "Bỏ tích nếu PLC trigger không cần scan (vd SN đã có sẵn từ camera/QR khác).",
+"zh": "若 PLC trigger 不需要 scan，请取消勾选 (例如 SN 已可从其他 camera/QR 获取)。"
+},
+"CDAB (low word first)": {
+"en": "CDAB (low word first)",
+"vi": "CDAB (low word first)",
+"zh": "CDAB (低字在前)"
+},
+"Chọn node có port 'pass' để quyết định OK/NG gửi PLC. Auto = pass khi mọi node trong pipeline pass.": {
+"en": "Select the node with a 'pass' port to decide the OK/NG sent to PLC. Auto = pass when every node in the pipeline passes.",
+"vi": "Chọn node có port 'pass' để quyết định OK/NG gửi PLC. Auto = pass khi mọi node trong pipeline pass.",
+"zh": "选择带有 'pass' 端口的节点，以决定发送给 PLC 的 OK/NG。Auto = 当 pipeline 中所有节点都 pass 时为 pass。"
+},
+"Connect PLC trước đã.": {
+"en": "Connect to PLC first.",
+"vi": "Connect PLC trước đã.",
+"zh": "请先连接 PLC。"
+},
+"Connect failed": {
+"en": "Connect failed",
+"vi": "Connect thất bại",
+"zh": "连接失败"
+},
+"Connection": {
+"en": "Connection",
+"vi": "Kết nối",
+"zh": "连接"
+},
+"Data mappings (output của node → vùng nhớ PLC)": {
+"en": "Data mappings (node output → PLC memory area)",
+"vi": "Data mappings (output của node → vùng nhớ PLC)",
+"zh": "数据映射 (节点 output → PLC 内存区域)"
+},
+"Default data area:": {
+"en": "Default data area:",
+"vi": "Default data area:",
+"zh": "默认数据区域:"
+},
+"Default start:": {
+"en": "Default start:",
+"vi": "Default start:",
+"zh": "默认起始地址:"
+},
+"Dừng sequence nếu Scan/GET fail (không chạy pipeline & POST)": {
+"en": "Stop sequence if Scan/GET fails (pipeline & POST will not run)",
+"vi": "Dừng sequence nếu Scan/GET fail (không chạy pipeline & POST)",
+"zh": "若 Scan/GET 失败则停止 sequence (不运行 pipeline 与 POST)"
+},
+"Enable SFC sequence khi PLC trigger": {
+"en": "Enable SFC sequence on PLC trigger",
+"vi": "Enable SFC sequence khi PLC trigger",
+"zh": "PLC trigger 时启用 SFC sequence"
+},
+"FAIL value:": {
+"en": "FAIL value:",
+"vi": "FAIL value:",
+"zh": "FAIL 值:"
+},
+"FINS dest node:": {
+"en": "FINS dest node:",
+"vi": "FINS dest node:",
+"zh": "FINS 目标节点:"
+},
+"FINS src node:": {
+"en": "FINS src node:",
+"vi": "FINS src node:",
+"zh": "FINS 源节点:"
+},
+"Float/int32 word order:": {
+"en": "Float/int32 word order:",
+"vi": "Float/int32 word order:",
+"zh": "Float/int32 字序:"
+},
+"Gọi API GET với {SN} từ bước scan. Tắt nếu không cần lookup trước khi chạy pipeline.": {
+"en": "Call API GET with {SN} from the scan step. Disable if no lookup is needed before running the pipeline.",
+"vi": "Gọi API GET với {SN} từ bước scan. Tắt nếu không cần lookup trước khi chạy pipeline.",
+"zh": "使用扫描步骤得到的 {SN} 调用 API GET。若运行 pipeline 前不需要查询，可关闭此项。"
+},
+"IP:": {
+"en": "IP:",
+"vi": "IP:",
+"zh": "IP:"
+},
+"Judge node:": {
+"en": "Judge node:",
+"vi": "Judge node:",
+"zh": "判定节点:"
+},
+"Không có pipeline.": {
+"en": "No pipeline.",
+"vi": "Không có pipeline.",
+"zh": "没有 pipeline。"
+},
+"Model:": {
+"en": "Model:",
+"vi": "Model:",
+"zh": "型号:"
+},
+"Mở Tools → SFC / MES Integration… từ main window để cấu hình.": {
+"en": "Open Tools → SFC / MES Integration… from the main window to configure.",
+"vi": "Mở Tools → SFC / MES Integration… từ main window để cấu hình.",
+"zh": "请从主窗口打开 Tools → SFC / MES Integration… 进行配置。"
+},
+"Mở dialog cấu hình Scanner / API GET / API POST": {
+"en": "Open the Scanner / API GET / API POST configuration dialog",
+"vi": "Mở dialog cấu hình Scanner / API GET / API POST",
+"zh": "打开 Scanner / API GET / API POST 配置对话框"
+},
+"No graph": {
+"en": "No graph",
+"vi": "Không có graph",
+"zh": "无 graph"
+},
+"Not connected": {
+"en": "Not connected",
+"vi": "Chưa kết nối",
+"zh": "未连接"
+},
+"PASS value:": {
+"en": "PASS value:",
+"vi": "PASS value:",
+"zh": "PASS 值:"
+},
+"PLC Connection": {
+"en": "PLC Connection",
+"vi": "Kết nối PLC",
+"zh": "PLC 连接"
+},
+"Poll:": {
+"en": "Poll:",
+"vi": "Poll:",
+"zh": "轮询:"
+},
+"Port:": {
+"en": "Port:",
+"vi": "Port:",
+"zh": "端口:"
+},
+"Result (AOI → PLC)": {
+"en": "Result (AOI → PLC)",
+"vi": "Result (AOI → PLC)",
+"zh": "结果 (AOI → PLC)"
+},
+"SFC": {
+"en": "SFC",
+"vi": "SFC",
+"zh": "SFC"
+},
+"SFC Trigger Sequence (PLC trigger → Scan → GET → Pipeline → POST)": {
+"en": "SFC Trigger Sequence (PLC trigger → Scan → GET → Pipeline → POST)",
+"vi": "SFC Trigger Sequence (PLC trigger → Scan → GET → Pipeline → POST)",
+"zh": "SFC 触发序列 (PLC trigger → Scan → GET → Pipeline → POST)"
+},
+"Sau khi pipeline run xong → tự động POST kết quả với body template đã cấu hình. Tắt nếu chỉ muốn lưu local.": {
+"en": "After the pipeline finishes running → automatically POST the result using the configured body template. Disable if you only want to save locally.",
+"vi": "Sau khi pipeline run xong → tự động POST kết quả với body template đã cấu hình. Tắt nếu chỉ muốn lưu local.",
+"zh": "pipeline 运行结束后 → 使用已配置的 body 模板自动 POST 结果。若只想保存到本地，请关闭此项。"
+},
+"Send FAIL (test)": {
+"en": "Send FAIL (test)",
+"vi": "Gửi FAIL (test)",
+"zh": "发送 FAIL (测试)"
+},
+"Send PASS (test)": {
+"en": "Send PASS (test)",
+"vi": "Gửi PASS (test)",
+"zh": "发送 PASS (测试)"
+},
+"Start monitor failed": {
+"en": "Start monitor failed",
+"vi": "Start monitor thất bại",
+"zh": "启动监控失败"
+},
+"Triggers (PLC → AOI) — mỗi row 1 trigger độc lập": {
+"en": "Triggers (PLC → AOI) — each row is an independent trigger",
+"vi": "Triggers (PLC → AOI) — mỗi row 1 trigger độc lập",
+"zh": "触发器 (PLC → AOI) — 每行为一个独立的 trigger"
+},
+"Write failed": {
+"en": "Write failed",
+"vi": "Write thất bại",
+"zh": "写入失败"
+},
+"• Bước 1: Scan barcode/QR (Scanner section của SFC)": {
+"en": "• Step 1: Scan barcode/QR (Scanner section of SFC)",
+"vi": "• Bước 1: Scan barcode/QR (Scanner section của SFC)",
+"zh": "• 步骤 1: 扫描条码/QR (SFC 的 Scanner 部分)"
+},
+"• Bước 2: API GET (check SN trên SFC)": {
+"en": "• Step 2: API GET (check SN on SFC)",
+"vi": "• Bước 2: API GET (check SN trên SFC)",
+"zh": "• 步骤 2: API GET (在 SFC 上检查 SN)"
+},
+"• Bước 4: API POST (gửi kết quả sau pipeline)": {
+"en": "• Step 4: API POST (send result after pipeline)",
+"vi": "• Bước 4: API POST (gửi kết quả sau pipeline)",
+"zh": "• 步骤 4: API POST (在 pipeline 之后发送结果)"
+},
+"↻  Refresh node list": {
+"en": "↻  Refresh node list",
+"vi": "↻  Refresh danh sách node",
+"zh": "↻  刷新节点列表"
+},
+"⇡  Test send mappings": {
+"en": "⇡  Test send mappings",
+"vi": "⇡  Test gửi mappings",
+"zh": "⇡  测试发送映射"
+},
+"■  Stop monitor": {
+"en": "■  Stop monitor",
+"vi": "■  Dừng monitor",
+"zh": "■  停止监控"
+},
+"▶  Start monitor": {
+"en": "▶  Start monitor",
+"vi": "▶  Bắt đầu monitor",
+"zh": "▶  开始监控"
+},
+"● Disconnected": {
+"en": "● Disconnected",
+"vi": "● Đã ngắt kết nối",
+"zh": "● 已断开连接"
+},
+"⚙  Open SFC configuration…": {
+"en": "⚙  Open SFC configuration…",
+"vi": "⚙  Mở cấu hình SFC…",
+"zh": "⚙  打开 SFC 配置…"
+},
+"✖  Disconnect": {
+"en": "✖  Disconnect",
+"vi": "✖  Ngắt kết nối",
+"zh": "✖  断开连接"
+},
+"➕  Add mapping": {
+"en": "➕  Add mapping",
+"vi": "➕  Thêm mapping",
+"zh": "➕  添加映射"
+},
+"🔌  Connect": {
+"en": "🔌  Connect",
+"vi": "🔌  Kết nối",
+"zh": "🔌  连接"
+},
+"(?)": {
+"en": "(?)",
+"vi": "(?)",
+"zh": "(?)"
+},
+"(keep)": {
+"en": "(keep)",
+"vi": "(giữ nguyên)",
+"zh": "(保持不变)"
+},
+"(no MVS camera found)": {
+"en": "(no MVS camera found)",
+"vi": "(không tìm thấy camera MVS)",
+"zh": "(未找到 MVS 相机)"
+},
+"(no UVC camera found)": {
+"en": "(no UVC camera found)",
+"vi": "(không tìm thấy camera UVC)",
+"zh": "(未找到 UVC 相机)"
+},
+"(open cam to see range)": {
+"en": "(open cam to see range)",
+"vi": "(mở camera để xem phạm vi)",
+"zh": "(打开相机以查看范围)"
+},
+"(unsupported)": {
+"en": "(unsupported)",
+"vi": "(không hỗ trợ)",
+"zh": "(不支持)"
+},
+"0.0 fps": {
+"en": "0.0 fps",
+"vi": "0.0 fps",
+"zh": "0.0 fps"
+},
+"Apply ROI": {
+"en": "Apply ROI",
+"vi": "Áp dụng ROI",
+"zh": "应用 ROI"
+},
+"Apply image params": {
+"en": "Apply image params",
+"vi": "Áp dụng tham số ảnh",
+"zh": "应用图像参数"
+},
+"Apply trigger": {
+"en": "Apply trigger",
+"vi": "Áp dụng trigger",
+"zh": "应用触发"
+},
+"BGR8Packed": {
+"en": "BGR8Packed",
+"vi": "BGR8Packed",
+"zh": "BGR8Packed"
+},
+"Backend:": {
+"en": "Backend:",
+"vi": "Backend:",
+"zh": "后端:"
+},
+"BayerBG8": {
+"en": "BayerBG8",
+"vi": "BayerBG8",
+"zh": "BayerBG8"
+},
+"BayerGB8": {
+"en": "BayerGB8",
+"vi": "BayerGB8",
+"zh": "BayerGB8"
+},
+"BayerGR8": {
+"en": "BayerGR8",
+"vi": "BayerGR8",
+"zh": "BayerGR8"
+},
+"BayerRG8": {
+"en": "BayerRG8",
+"vi": "BayerRG8",
+"zh": "BayerRG8"
+},
+"Camera Setup & Live Preview": {
+"en": "Camera Setup & Live Preview",
+"vi": "Thiết lập Camera & Xem trước trực tiếp",
+"zh": "相机设置与实时预览"
+},
+"Chọn 1 device hợp lệ trước.": {
+"en": "Select a valid device first.",
+"vi": "Chọn 1 device hợp lệ trước.",
+"zh": "请先选择一个有效设备。"
+},
+"Counter0": {
+"en": "Counter0",
+"vi": "Counter0",
+"zh": "Counter0"
+},
+"Device:": {
+"en": "Device:",
+"vi": "Device:",
+"zh": "设备:"
+},
+"Exposure:": {
+"en": "Exposure:",
+"vi": "Exposure:",
+"zh": "曝光:"
+},
+"Feature file (.mfs)": {
+"en": "Feature file (.mfs)",
+"vi": "Tệp đặc tính (.mfs)",
+"zh": "特性文件 (.mfs)"
+},
+"Frame rate:": {
+"en": "Frame rate:",
+"vi": "Tốc độ khung hình:",
+"zh": "帧率:"
+},
+"Gain:": {
+"en": "Gain:",
+"vi": "Gain:",
+"zh": "增益:"
+},
+"Height:": {
+"en": "Height:",
+"vi": "Height:",
+"zh": "高度:"
+},
+"Image acquisition": {
+"en": "Image acquisition",
+"vi": "Thu nhận ảnh",
+"zh": "图像采集"
+},
+"Line0": {
+"en": "Line0",
+"vi": "Line0",
+"zh": "Line0"
+},
+"Line1": {
+"en": "Line1",
+"vi": "Line1",
+"zh": "Line1"
+},
+"Line2": {
+"en": "Line2",
+"vi": "Line2",
+"zh": "Line2"
+},
+"Line3": {
+"en": "Line3",
+"vi": "Line3",
+"zh": "Line3"
+},
+"Load failed": {
+"en": "Load failed",
+"vi": "Nạp thất bại",
+"zh": "加载失败"
+},
+"Mono8": {
+"en": "Mono8",
+"vi": "Mono8",
+"zh": "Mono8"
+},
+"No device": {
+"en": "No device",
+"vi": "Không có device",
+"zh": "无设备"
+},
+"No preview": {
+"en": "No preview",
+"vi": "Không có xem trước",
+"zh": "无预览"
+},
+"Not opened": {
+"en": "Not opened",
+"vi": "Chưa mở",
+"zh": "未打开"
+},
+"OffsetX:": {
+"en": "OffsetX:",
+"vi": "OffsetX:",
+"zh": "OffsetX:"
+},
+"OffsetY:": {
+"en": "OffsetY:",
+"vi": "OffsetY:",
+"zh": "OffsetY:"
+},
+"Open camera trước.": {
+"en": "Open camera first.",
+"vi": "Open camera trước.",
+"zh": "请先打开相机。"
+},
+"Open failed": {
+"en": "Open failed",
+"vi": "Mở thất bại",
+"zh": "打开失败"
+},
+"Pixel format:": {
+"en": "Pixel format:",
+"vi": "Định dạng pixel:",
+"zh": "像素格式:"
+},
+"RGB8Packed": {
+"en": "RGB8Packed",
+"vi": "RGB8Packed",
+"zh": "RGB8Packed"
+},
+"ROI (sensor max hiển thị bên cạnh)": {
+"en": "ROI (sensor max shown alongside)",
+"vi": "ROI (sensor max hiển thị bên cạnh)",
+"zh": "ROI(旁边显示传感器最大值)"
+},
+"Save failed": {
+"en": "Save failed",
+"vi": "Lưu thất bại",
+"zh": "保存失败"
+},
+"Software": {
+"en": "Software",
+"vi": "Software",
+"zh": "软件"
+},
+"Source:": {
+"en": "Source:",
+"vi": "Nguồn:",
+"zh": "来源:"
+},
+"Trigger": {
+"en": "Trigger",
+"vi": "Trigger",
+"zh": "触发"
+},
+"Trigger mode ON": {
+"en": "Trigger mode ON",
+"vi": "Chế độ Trigger BẬT",
+"zh": "触发模式已开启"
+},
+"Use sensor max": {
+"en": "Use sensor max",
+"vi": "Dùng giá trị max của sensor",
+"zh": "使用传感器最大值"
+},
+"Width:": {
+"en": "Width:",
+"vi": "Width:",
+"zh": "宽度:"
+},
+"Đặt Width/Height = max của sensor, Offset = 0 (full FOV)": {
+"en": "Set Width/Height = sensor max, Offset = 0 (full FOV)",
+"vi": "Đặt Width/Height = max của sensor, Offset = 0 (full FOV)",
+"zh": "将 Width/Height 设为传感器最大值,Offset = 0(全视野)"
+},
+"↻  Scan": {
+"en": "↻  Scan",
+"vi": "↻  Quét",
+"zh": "↻  扫描"
+},
+"▶  Start preview": {
+"en": "▶  Start preview",
+"vi": "▶  Bắt đầu xem trước",
+"zh": "▶  开始预览"
+},
+"⚡  Software trigger": {
+"en": "⚡  Software trigger",
+"vi": "⚡  Trigger phần mềm",
+"zh": "⚡  软件触发"
+},
+"✖  Close": {
+"en": "✖  Close",
+"vi": "✖  Đóng",
+"zh": "✖  关闭"
+},
+"💾  Save…": {
+"en": "💾  Save…",
+"vi": "💾  Lưu…",
+"zh": "💾  保存…"
+},
+"📂  Load…": {
+"en": "📂  Load…",
+"vi": "📂  Nạp…",
+"zh": "📂  加载…"
+},
+"📷  Snapshot": {
+"en": "📷  Snapshot",
+"vi": "📷  Chụp ảnh",
+"zh": "📷  快照"
+},
+"🔌  Open": {
+"en": "🔌  Open",
+"vi": "🔌  Mở",
+"zh": "🔌  打开"
+},
+"<span style='color:#94a3b8'>Inputs:</span> <span style='color:#4ec9b0'>a, b, c</span> (lowercase của port name) hoặc <span style='color:#4ec9b0'>inputs['A']</span><br><span style='color:#94a3b8'>Outputs:</span> gán biến cùng tên port (<span style='color:#dcdcaa'>result = 100</span>), <span style='color:#dcdcaa'>pass_value = True</span> cho port pass, hoặc <span style='color:#dcdcaa'>outputs['name'] = ...</span><br><span style='color:#94a3b8'>Add port:</span> right-click node → Add Input / Add Output. <span style='color:#94a3b8'>Autocomplete:</span> <span style='color:#569cd6'>Ctrl+Space</span>": {
+"en": "<span style='color:#94a3b8'>Inputs:</span> <span style='color:#4ec9b0'>a, b, c</span> (lowercase of port name) or <span style='color:#4ec9b0'>inputs['A']</span><br><span style='color:#94a3b8'>Outputs:</span> assign a variable with the same name as the port (<span style='color:#dcdcaa'>result = 100</span>), <span style='color:#dcdcaa'>pass_value = True</span> for the pass port, or <span style='color:#dcdcaa'>outputs['name'] = ...</span><br><span style='color:#94a3b8'>Add port:</span> right-click node → Add Input / Add Output. <span style='color:#94a3b8'>Autocomplete:</span> <span style='color:#569cd6'>Ctrl+Space</span>",
+"vi": "<span style='color:#94a3b8'>Inputs:</span> <span style='color:#4ec9b0'>a, b, c</span> (lowercase của port name) hoặc <span style='color:#4ec9b0'>inputs['A']</span><br><span style='color:#94a3b8'>Outputs:</span> gán biến cùng tên port (<span style='color:#dcdcaa'>result = 100</span>), <span style='color:#dcdcaa'>pass_value = True</span> cho port pass, hoặc <span style='color:#dcdcaa'>outputs['name'] = ...</span><br><span style='color:#94a3b8'>Add port:</span> right-click node → Add Input / Add Output. <span style='color:#94a3b8'>Autocomplete:</span> <span style='color:#569cd6'>Ctrl+Space</span>",
+"zh": "<span style='color:#94a3b8'>Inputs:</span> <span style='color:#4ec9b0'>a, b, c</span>(端口名小写)或 <span style='color:#4ec9b0'>inputs['A']</span><br><span style='color:#94a3b8'>Outputs:</span> 赋值与端口同名的变量(<span style='color:#dcdcaa'>result = 100</span>)、<span style='color:#dcdcaa'>pass_value = True</span> 用于 pass 端口,或 <span style='color:#dcdcaa'>outputs['name'] = ...</span><br><span style='color:#94a3b8'>Add port:</span> 右键节点 → Add Input / Add Output。<span style='color:#94a3b8'>Autocomplete:</span> <span style='color:#569cd6'>Ctrl+Space</span>"
+},
+"All": {
+"en": "All",
+"vi": "Tất cả",
+"zh": "全部"
+},
+"Auto Run": {
+"en": "Auto Run",
+"vi": "Tự động chạy",
+"zh": "自动运行"
+},
+"Chưa có ảnh nguồn — chạy pipeline trước rồi reset.": {
+"en": "No source image yet — run the pipeline first, then reset.",
+"vi": "Chưa có ảnh nguồn — chạy pipeline trước rồi reset.",
+"zh": "尚无源图像 — 请先运行流程,然后再重置。"
+},
+"Click rồi click vào ảnh để lấy màu pixel làm màu lọc. Ngưỡng kênh sẽ được set quanh giá trị pick ± Tolerance.": {
+"en": "Click, then click on the image to pick a pixel color as the filter color. Channel thresholds will be set around the picked value ± Tolerance.",
+"vi": "Click rồi click vào ảnh để lấy màu pixel làm màu lọc. Ngưỡng kênh sẽ được set quanh giá trị pick ± Tolerance.",
+"zh": "点击后再点击图像以拾取像素颜色作为过滤颜色。通道阈值将围绕拾取值 ± Tolerance 设置。"
+},
+"Cần ảnh để cắt template.\nKết nối node Image Source và Run Node trước.": {
+"en": "An image is needed to crop the template.\nConnect an Image Source node and Run Node first.",
+"vi": "Cần ảnh để cắt template.\nKết nối node Image Source và Run Node trước.",
+"zh": "需要图像才能裁剪模板。\n请先连接 Image Source 节点并 Run Node。"
+},
+"HEX": {
+"en": "HEX",
+"vi": "HEX",
+"zh": "HEX"
+},
+"Không gian màu dùng để lọc. Đổi mode → params channel thresholds cũng đổi theo (HSV/RGB/HSL/Lab/Gray).": {
+"en": "Color space used for filtering. Changing the mode → the params channel thresholds change accordingly (HSV/RGB/HSL/Lab/Gray).",
+"vi": "Không gian màu dùng để lọc. Đổi mode → params channel thresholds cũng đổi theo (HSV/RGB/HSL/Lab/Gray).",
+"zh": "用于过滤的颜色空间。切换模式 → 参数通道阈值也会相应改变(HSV/RGB/HSL/Lab/Gray)。"
+},
+"No Image\nRun pipeline first or load image source.": {
+"en": "No Image\nRun pipeline first or load image source.",
+"vi": "Không có ảnh\nChạy pipeline trước hoặc nạp nguồn ảnh.",
+"zh": "无图像\n请先运行流程或加载图像源。"
+},
+"No parameters.": {
+"en": "No parameters.",
+"vi": "Không có tham số.",
+"zh": "无参数。"
+},
+"OUTPUT IMAGE": {
+"en": "OUTPUT IMAGE",
+"vi": "ẢNH ĐẦU RA",
+"zh": "输出图像"
+},
+"Output Values": {
+"en": "Output Values",
+"vi": "Giá trị đầu ra",
+"zh": "输出值"
+},
+"Reset Image": {
+"en": "Reset Image",
+"vi": "Đặt lại ảnh",
+"zh": "重置图像"
+},
+"Status: IDLE": {
+"en": "Status: IDLE",
+"vi": "Trạng thái: NHÀN RỖI",
+"zh": "状态: 空闲"
+},
+"Tự động chạy node khi thay đổi tham số": {
+"en": "Automatically run the node when parameters change",
+"vi": "Tự động chạy node khi thay đổi tham số",
+"zh": "参数更改时自动运行节点"
+},
+"Định dạng giá trị màu khi rê chuột trên ảnh.": {
+"en": "Color value format when hovering the mouse over the image.",
+"vi": "Định dạng giá trị màu khi rê chuột trên ảnh.",
+"zh": "鼠标悬停在图像上时的颜色值格式。"
+},
+"⏳  Đang chạy…": {
+"en": "⏳  Running…",
+"vi": "⏳  Đang chạy…",
+"zh": "⏳  运行中…"
+},
+"▶  Run Node": {
+"en": "▶  Run Node",
+"vi": "▶  Chạy Node",
+"zh": "▶  运行节点"
+},
+"▶ Run Node để áp dụng thay đổi": {
+"en": "▶ Run Node to apply changes",
+"vi": "▶ Run Node để áp dụng thay đổi",
+"zh": "▶ 运行节点以应用更改"
+},
+"⚙ Params": {
+"en": "⚙ Params",
+"vi": "⚙ Tham số",
+"zh": "⚙ 参数"
+},
+"✏  Kéo vẽ ROI; sau khi vẽ kéo body để di chuyển hoặc 4 góc để resize.": {
+"en": "✏  Drag to draw the ROI; after drawing, drag the body to move it or the 4 corners to resize.",
+"vi": "✏  Kéo vẽ ROI; sau khi vẽ kéo body để di chuyển hoặc 4 góc để resize.",
+"zh": "✏  拖动绘制 ROI;绘制后拖动主体可移动,拖动 4 个角可调整大小。"
+},
+"🎨  Chọn ROI Shape ở params → vẽ vùng cần lọc trên ảnh (Full Image = không giới hạn). Click 'Pick Color' rồi click ảnh để lấy màu lọc theo Color Space đang chọn.": {
+"en": "🎨  Choose the ROI Shape in params → draw the area to filter on the image (Full Image = unrestricted). Click 'Pick Color' then click the image to pick the filter color according to the selected Color Space.",
+"vi": "🎨  Chọn ROI Shape ở params → vẽ vùng cần lọc trên ảnh (Full Image = không giới hạn). Click 'Pick Color' rồi click ảnh để lấy màu lọc theo Color Space đang chọn.",
+"zh": "🎨  在参数中选择 ROI Shape → 在图像上绘制要过滤的区域(Full Image = 不限制)。点击 'Pick Color' 然后点击图像,按当前选择的 Color Space 拾取过滤颜色。"
+},
+"🎨  Click chuột vào ảnh để lấy màu tại điểm đó. Rê chuột để xem màu live theo mode (RGB/HSV/Lab/HEX…) ở thanh dưới ảnh.": {
+"en": "🎨  Click on the image to pick the color at that point. Hover the mouse to see the live color by mode (RGB/HSV/Lab/HEX…) in the bar below the image.",
+"vi": "🎨  Click chuột vào ảnh để lấy màu tại điểm đó. Rê chuột để xem màu live theo mode (RGB/HSV/Lab/HEX…) ở thanh dưới ảnh.",
+"zh": "🎨  点击图像以拾取该点的颜色。将鼠标悬停在图像上,可在下方栏中按模式(RGB/HSV/Lab/HEX…)实时查看颜色。"
+},
+"🎯  PatMax dialog mở — Train & Search tại đó.": {
+"en": "🎯  PatMax dialog opened — Train & Search there.",
+"vi": "🎯  PatMax dialog mở — Train & Search tại đó.",
+"zh": "🎯  PatMax 对话框已打开 — 在其中进行 Train 和 Search。"
+},
+"🎯  PatMax/PatFind — Cửa sổ Train & Search chuyên dụng đang mở...": {
+"en": "🎯  PatMax/PatFind — Dedicated Train & Search window is opening...",
+"vi": "🎯  PatMax/PatFind — Cửa sổ Train & Search chuyên dụng đang mở...",
+"zh": "🎯  PatMax/PatFind — 专用的 Train & Search 窗口正在打开..."
+},
+"🎯 Pick Color": {
+"en": "🎯 Pick Color",
+"vi": "🎯 Chọn màu",
+"zh": "🎯 拾取颜色"
+},
+"🐍  PYTHON SCRIPT": {
+"en": "🐍  PYTHON SCRIPT",
+"vi": "🐍  PYTHON SCRIPT",
+"zh": "🐍  PYTHON 脚本"
+},
+"📂  Add file .pt hoặc .onnx để bắt đầu": {
+"en": "📂  Add a .pt or .onnx file to get started",
+"vi": "📂  Add file .pt hoặc .onnx để bắt đầu",
+"zh": "📂  添加 .pt 或 .onnx 文件以开始"
+},
+"🔌 Ports": {
+"en": "🔌 Ports",
+"vi": "🔌 Cổng",
+"zh": "🔌 端口"
+},
+"🔗  Port x/y/w/h kết nối — ROI auto-tracking theo upstream. Shape vẽ tay làm template, mỗi lần Run sẽ dịch/scale theo port. Click 'Pick Color' rồi click ảnh để lấy màu lọc.": {
+"en": "🔗  Port x/y/w/h connected — ROI auto-tracking follows the upstream. The hand-drawn shape serves as a template; each Run will translate/scale it according to the port. Click 'Pick Color' then click the image to pick the filter color.",
+"vi": "🔗  Port x/y/w/h kết nối — ROI auto-tracking theo upstream. Shape vẽ tay làm template, mỗi lần Run sẽ dịch/scale theo port. Click 'Pick Color' rồi click ảnh để lấy màu lọc.",
+"zh": "🔗  端口 x/y/w/h 已连接 — ROI 自动跟踪上游。手绘形状作为模板,每次 Run 都会根据端口进行平移/缩放。点击 'Pick Color' 然后点击图像以拾取过滤颜色。"
+},
+"🔗  Port x/y/w/h kết nối — ROI auto-tracking. Có thể kéo override nhưng Run kế tiếp sẽ snap về port value.": {
+"en": "🔗  Port x/y/w/h connected — ROI auto-tracking. You can drag to override, but the next Run will snap back to the port value.",
+"vi": "🔗  Port x/y/w/h kết nối — ROI auto-tracking. Có thể kéo override nhưng Run kế tiếp sẽ snap về port value.",
+"zh": "🔗  端口 x/y/w/h 已连接 — ROI 自动跟踪。可以拖动覆盖,但下一次 Run 将自动恢复为端口值。"
+}
+}
