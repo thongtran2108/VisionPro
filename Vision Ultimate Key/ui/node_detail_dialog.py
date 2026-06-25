@@ -38,6 +38,7 @@ class InteractiveImageLabel(QLabel):
     mode="readonly" → xem + hiển thị rect cố định (port connected)
     """
     roi_changed    = Signal(int, int, int, int)
+    line_changed   = Signal(int, int, int, int)   # x1,y1,x2,y2 image coords
     pixel_picked   = Signal(int, int)
     pixel_hovered  = Signal(int, int)        # image coords, fires on mouse move
     mouse_left     = Signal()                # con trỏ rời khỏi widget
@@ -109,6 +110,14 @@ class InteractiveImageLabel(QLabel):
         self._shapes: List[dict] = []     # mỗi entry: {"type": str, "data": dict}
         self._active_idx: Optional[int] = None
 
+        # Line ROI (mode="line") — đoạn thẳng 2 đầu (x1,y1)-(x2,y2) image
+        # coords cho Caliper / Line / Distance. Kéo 1 trong 2 đầu để chỉnh,
+        # kéo thân để dịch, kéo vùng trống để vẽ đoạn mới.
+        self._line_data: dict = {}                 # {"x1","y1","x2","y2"}
+        self._line_action: Optional[str] = None    # "p1"|"p2"|"move"|"new"
+        self._line_anchor_w: Optional[QPoint] = None
+        self._line_orig: dict = {}
+
         # Draggable labels (vd Blob Analysis output) — list rect (x,y,w,h)
         # trong toạ độ ảnh + tâm anchor (cx, cy) tương ứng.
         self._label_rects: List[Tuple[int, int, int, int]] = []
@@ -131,7 +140,7 @@ class InteractiveImageLabel(QLabel):
             "background:#050810; border:1px solid #1e2d45; border-radius:6px;")
 
         cur_map = {
-            "roi": Qt.CrossCursor, "template": Qt.CrossCursor,
+            "roi": Qt.CrossCursor, "template": Qt.CrossCursor, "line": Qt.CrossCursor,
             "pick": Qt.PointingHandCursor, "view": Qt.ArrowCursor,
             "readonly": Qt.ArrowCursor,
         }
@@ -221,6 +230,84 @@ class InteractiveImageLabel(QLabel):
         if self._poly_drawing:
             self._poly_drawing = []
             self._render()
+
+    # ── Line ROI API (mode="line") ─────────────────────────────────
+    def _clamp_img(self, wx, wy) -> Tuple[int, int]:
+        """Widget → image coords, clamp trong biên ảnh."""
+        ix, iy = self._widget_to_img(wx, wy)
+        if self._arr is not None:
+            H, W = self._arr.shape[:2]
+            ix = max(0, min(ix, W - 1)); iy = max(0, min(iy, H - 1))
+        return int(ix), int(iy)
+
+    def set_line_data(self, x1, y1, x2, y2):
+        """Đặt đoạn thẳng ROI (image coords) cho mode='line' + render."""
+        self._line_data = {"x1": int(x1), "y1": int(y1),
+                           "x2": int(x2), "y2": int(y2)}
+        self._render()
+
+    def get_line(self) -> Optional[Tuple[int, int, int, int]]:
+        d = self._line_data
+        if not d:
+            return None
+        return (d["x1"], d["y1"], d["x2"], d["y2"])
+
+    def _line_endpoint_w(self, which: str) -> Optional[Tuple[int, int]]:
+        d = self._line_data
+        if not d:
+            return None
+        if which == "p1":
+            return self._img_to_widget(d["x1"], d["y1"])
+        return self._img_to_widget(d["x2"], d["y2"])
+
+    def _hit_line_endpoint(self, wx: int, wy: int, tol: int = 9) -> Optional[str]:
+        for which in ("p1", "p2"):
+            c = self._line_endpoint_w(which)
+            if c is None:
+                continue
+            if abs(wx - c[0]) <= tol and abs(wy - c[1]) <= tol:
+                return which
+        return None
+
+    def _hit_line_body(self, wx: int, wy: int, tol: int = 6) -> bool:
+        d = self._line_data
+        if not d:
+            return False
+        ax, ay = self._img_to_widget(d["x1"], d["y1"])
+        bx, by = self._img_to_widget(d["x2"], d["y2"])
+        vx = bx - ax; vy = by - ay
+        seg2 = vx * vx + vy * vy
+        if seg2 <= 1e-6:
+            dd = (wx - ax) ** 2 + (wy - ay) ** 2
+            return dd <= tol * tol
+        t = ((wx - ax) * vx + (wy - ay) * vy) / seg2
+        t = max(0.0, min(1.0, t))
+        px = ax + t * vx; py = ay + t * vy
+        return (wx - px) ** 2 + (wy - py) ** 2 <= tol * tol
+
+    def _update_line_drag(self, pos: QPoint):
+        """Cập nhật _line_data theo _line_action khi đang kéo chuột."""
+        act = self._line_action
+        if act in ("p1", "p2", "new"):
+            ix, iy = self._clamp_img(pos.x(), pos.y())
+            if act == "p1":
+                self._line_data["x1"] = ix; self._line_data["y1"] = iy
+            else:   # "p2" hoặc "new" → di chuyển đầu cuối
+                self._line_data["x2"] = ix; self._line_data["y2"] = iy
+        elif act == "move" and self._line_anchor_w is not None and self._scale:
+            dxi = int(round((pos.x() - self._line_anchor_w.x()) / self._scale))
+            dyi = int(round((pos.y() - self._line_anchor_w.y()) / self._scale))
+            o = self._line_orig
+            pts = {"x1": o["x1"] + dxi, "y1": o["y1"] + dyi,
+                   "x2": o["x2"] + dxi, "y2": o["y2"] + dyi}
+            if self._arr is not None:
+                H, W = self._arr.shape[:2]
+                for k in ("x1", "x2"):
+                    pts[k] = max(0, min(pts[k], W - 1))
+                for k in ("y1", "y2"):
+                    pts[k] = max(0, min(pts[k], H - 1))
+            self._line_data = pts
+        self._render()
 
     # ── Multi-shape API ────────────────────────────────────────────
     def set_multi_shape(self, enable: bool):
@@ -1018,6 +1105,24 @@ class InteractiveImageLabel(QLabel):
                 p.drawText(pts_w[0][0] + 8, pts_w[0][1] - 6,
                            f"Polygon: {len(pts_w)} pt — double-click để đóng")
 
+        # Line ROI (mode="line") — đoạn thẳng 2 đầu + 2 handle kéo được
+        if self.mode == "line" and self._line_data:
+            d = self._line_data
+            ax, ay = self._img_to_widget(d["x1"], d["y1"])
+            bx, by = self._img_to_widget(d["x2"], d["y2"])
+            lcol = QColor(0, 212, 255)
+            p.setPen(QPen(lcol, 2, Qt.SolidLine, Qt.RoundCap))
+            p.setBrush(Qt.NoBrush)
+            p.drawLine(ax, ay, bx, by)
+            # Handle 2 đầu
+            p.setPen(QPen(lcol, 1)); p.setBrush(QBrush(lcol))
+            p.drawEllipse(ax - 5, ay - 5, 10, 10)
+            p.drawEllipse(bx - 5, by - 5, 10, 10)
+            # Nhãn toạ độ 2 đầu
+            p.setPen(QPen(lcol)); p.setFont(QFont("Courier New", 9, QFont.Bold))
+            p.drawText(ax + 8, ay - 6, f"({d['x1']},{d['y1']})")
+            p.drawText(bx + 8, by - 6, f"({d['x2']},{d['y2']})")
+
         # Origin marker — hệ trục XY xoay được quanh tâm
         if self._show_origin and self._origin_xy is not None:
             eps = self._origin_axis_endpoints()
@@ -1301,6 +1406,27 @@ class InteractiveImageLabel(QLabel):
             self._dragging   = True
             self._rect = QRect(pos, QSize(0, 0))
             self._shape_data = {}    # xoá shape cũ (single mode); multi → tạo entry mới khi release
+        elif self.mode == "line":
+            self.setFocus()
+            # Có đoạn sẵn → ưu tiên kéo endpoint, rồi kéo thân để dịch.
+            if self._line_data:
+                ep = self._hit_line_endpoint(pos.x(), pos.y())
+                if ep:
+                    self._line_action = ep
+                    self._line_orig = dict(self._line_data)
+                    return
+                if self._hit_line_body(pos.x(), pos.y()):
+                    self._line_action = "move"
+                    self._line_anchor_w = pos
+                    self._line_orig = dict(self._line_data)
+                    return
+            if self._roi_locked:
+                return
+            # Vẽ đoạn mới: p1 = điểm bấm, p2 bám theo chuột tới khi nhả.
+            ix, iy = self._clamp_img(pos.x(), pos.y())
+            self._line_action = "new"
+            self._line_data = {"x1": ix, "y1": iy, "x2": ix, "y2": iy}
+            self._render()
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
         if self.mode in ("roi", "template") and self._shape == "polygon" \
@@ -1329,6 +1455,10 @@ class InteractiveImageLabel(QLabel):
 
     def mouseMoveEvent(self, event: QMouseEvent):
         pos = event.position().toPoint()
+        # Line ROI drag (mode="line") — xử lý trước mọi logic khác.
+        if self.mode == "line" and self._line_action:
+            self._update_line_drag(pos)
+            return
         # Hover color picker: phát toạ độ pixel ảnh khi con trỏ ở trong ảnh.
         if self._arr is not None and self._scale > 0:
             ix, iy = self._widget_to_img(pos.x(), pos.y())
@@ -1355,7 +1485,7 @@ class InteractiveImageLabel(QLabel):
             if self._hit_label(pos.x(), pos.y()) >= 0:
                 self.setCursor(QCursor(Qt.OpenHandCursor))
             else:
-                cur_map = {"roi": Qt.CrossCursor, "template": Qt.CrossCursor,
+                cur_map = {"roi": Qt.CrossCursor, "template": Qt.CrossCursor, "line": Qt.CrossCursor,
                            "pick": Qt.PointingHandCursor, "view": Qt.ArrowCursor,
                            "readonly": Qt.ArrowCursor}
                 self.setCursor(QCursor(cur_map.get(self.mode, Qt.ArrowCursor)))
@@ -1392,10 +1522,20 @@ class InteractiveImageLabel(QLabel):
         self._render()
 
     def mouseReleaseEvent(self, event: QMouseEvent):
+        if self._line_action:
+            self._line_action = None
+            self._line_anchor_w = None
+            self._line_orig = {}
+            d = self._line_data
+            if d:
+                self.line_changed.emit(int(d["x1"]), int(d["y1"]),
+                                       int(d["x2"]), int(d["y2"]))
+            self._render()
+            return
         if self._dragging_label:
             self._dragging_label = False
             self._label_drag_start_img = None
-            cur_map = {"roi": Qt.CrossCursor, "template": Qt.CrossCursor,
+            cur_map = {"roi": Qt.CrossCursor, "template": Qt.CrossCursor, "line": Qt.CrossCursor,
                        "pick": Qt.PointingHandCursor, "view": Qt.ArrowCursor,
                        "readonly": Qt.ArrowCursor}
             self.setCursor(QCursor(cur_map.get(self.mode, Qt.ArrowCursor)))
@@ -1490,7 +1630,7 @@ class InteractiveImageLabel(QLabel):
 
     def disarm_pick(self):
         self._pick_once = False
-        cur_map = {"roi": Qt.CrossCursor, "template": Qt.CrossCursor,
+        cur_map = {"roi": Qt.CrossCursor, "template": Qt.CrossCursor, "line": Qt.CrossCursor,
                    "pick": Qt.PointingHandCursor, "view": Qt.ArrowCursor,
                    "readonly": Qt.ArrowCursor}
         self.setCursor(QCursor(cur_map.get(self.mode, Qt.ArrowCursor)))
@@ -1981,6 +2121,42 @@ class NodeDetailDialog(QDialog):
             # vốn clear ảnh khi node chưa chạy).
             QTimer.singleShot(120, self._restore_create_shape_overlay)
 
+        elif getattr(tool, "roi_spec", None):
+            # ── ROI tổng quát ──────────────────────────────────────
+            # Mọi tool khai báo roi_spec → vẽ ROI bằng chuột kéo-thả +
+            # nhận ROI từ port. kind: "rect" / "rect_corners" (mode roi)
+            # hoặc "line" (mode line).
+            kind, pnames = tool.roi_spec
+            self._roi_spec_kind = kind
+            self._roi_spec_params = pnames
+            self._roi_port_connected = self._check_roi_spec_ports_connected()
+            if kind == "line":
+                draw_hint = tr("✏  Kéo vẽ đoạn ROI; kéo 2 đầu để chỉnh, kéo "
+                               "thân để dịch. Hoặc nhập toạ độ ở Params.")
+            else:
+                draw_hint = tr("✏  Kéo vẽ ROI; vẽ xong kéo thân để di chuyển, "
+                               "4 góc để resize. Hoặc nhập toạ độ ở Params.")
+            port_hint = tr("🔗  Port toạ độ kết nối — ROI auto-tracking theo "
+                           "upstream. Có thể kéo override nhưng Run kế tiếp sẽ "
+                           "snap về port value.")
+            self._mode_hint.setText(port_hint if self._roi_port_connected
+                                    else draw_hint)
+            self._mode_hint.show()
+            if kind == "line":
+                self._img_label = InteractiveImageLabel(mode="line")
+                self._img_label.line_changed.connect(self._on_generic_line_changed)
+                a, b, c, d = pnames
+                lx1 = int(node.params.get(a, 0) or 0)
+                ly1 = int(node.params.get(b, 0) or 0)
+                lx2 = int(node.params.get(c, 0) or 0)
+                ly2 = int(node.params.get(d, 0) or 0)
+                QTimer.singleShot(120,
+                    lambda v=(lx1, ly1, lx2, ly2): self._init_generic_line(*v))
+            else:
+                self._img_label = InteractiveImageLabel(mode="roi")
+                self._img_label.roi_changed.connect(self._on_generic_roi_changed)
+                QTimer.singleShot(120, self._init_generic_roi_rect)
+
         else:
             self._img_label = InteractiveImageLabel(mode="view")
 
@@ -2059,6 +2235,138 @@ class NodeDetailDialog(QDialog):
         """Dùng cho color_segment — giống _check_roi_ports_connected nhưng
         tên rõ ràng hơn (shape có thể là rect/circle/ellipse/polygon)."""
         return self._check_roi_ports_connected()
+
+    # ── Generic ROI (roi_spec) helpers ─────────────────────────────
+    def _check_roi_spec_ports_connected(self) -> bool:
+        """True nếu ≥1 port toạ độ ROI (theo roi_spec) đang kết nối. Tên port
+        input = tên param (x/y/w/h hoặc x1/y1/x2/y2)."""
+        pnames = getattr(self, "_roi_spec_params", None)
+        if not pnames:
+            return False
+        names = set(pnames)
+        for conn in self._graph.connections:
+            if conn.dst_id == self._node.node_id and conn.dst_port in names:
+                return True
+        return False
+
+    def _sync_spinbox(self, name, val):
+        """Set giá trị spinbox param (block signals chống loop). No-op nếu
+        param không có editor số."""
+        pr = getattr(self, "_param_rows", {}).get(name)
+        if pr:
+            ed = pr._editor
+            if hasattr(ed, "setValue"):
+                ed.blockSignals(True); ed.setValue(int(val)); ed.blockSignals(False)
+
+    def _maybe_auto_run(self):
+        if getattr(self, "_auto_run_cb", None) and self._auto_run_cb.isChecked():
+            self._auto_run_timer.start()
+
+    def _generic_rect_from_params(self) -> Optional[Tuple[int, int, int, int]]:
+        """(x,y,w,h) image-rect từ params theo roi_spec. w/h=0 (kind 'rect')
+        → full ảnh. None nếu thiếu dữ liệu / chưa có ảnh."""
+        node = self._node
+        kind = getattr(self, "_roi_spec_kind", "rect")
+        pn = getattr(self, "_roi_spec_params", None)
+        if not pn:
+            return None
+        a, b, c, d = pn
+        if kind == "rect_corners":
+            x1 = int(node.params.get(a, 0) or 0); y1 = int(node.params.get(b, 0) or 0)
+            x2 = int(node.params.get(c, 0) or 0); y2 = int(node.params.get(d, 0) or 0)
+            x = min(x1, x2); y = min(y1, y2)
+            w = abs(x2 - x1); h = abs(y2 - y1)
+        else:
+            x = int(node.params.get(a, 0) or 0); y = int(node.params.get(b, 0) or 0)
+            w = int(node.params.get(c, 0) or 0); h = int(node.params.get(d, 0) or 0)
+        arr = getattr(self._img_label, "_arr", None)
+        if arr is not None:
+            H, W = arr.shape[:2]
+            x = max(0, min(x, W - 1)); y = max(0, min(y, H - 1))
+            if w <= 0: w = W - x
+            if h <= 0: h = H - y
+            w = max(1, min(w, W - x)); h = max(1, min(h, H - y))
+        if w <= 0 or h <= 0:
+            return None
+        return (x, y, w, h)
+
+    def _init_generic_roi_rect(self):
+        # Node đã chạy → dùng ROI thực (đặc biệt khi port điều khiển), không
+        # vẽ lại từ param (có thể stale). Chưa chạy → vẽ từ param.
+        if self._node.outputs.get("_roi_used"):
+            self._sync_generic_roi_overlay(); return
+        r = self._generic_rect_from_params()
+        if r:
+            self._img_label.set_rect_from_params(*r)
+
+    def _on_generic_roi_changed(self, x, y, w, h):
+        """Kéo-thả ROI rect → ghi 4 param theo roi_spec + rerun. kind
+        'rect_corners' map (x,y,w,h)→(x1,y1,x2,y2)."""
+        pn = getattr(self, "_roi_spec_params", None)
+        if not pn:
+            return
+        a, b, c, d = pn
+        if getattr(self, "_roi_spec_kind", "rect") == "rect_corners":
+            vals = ((a, int(x)), (b, int(y)), (c, int(x + w)), (d, int(y + h)))
+        else:
+            vals = ((a, int(x)), (b, int(y)), (c, int(w)), (d, int(h)))
+        for name, val in vals:
+            self._node.params[name] = val
+            self._sync_spinbox(name, val)
+        self._maybe_auto_run()
+
+    def _init_generic_line(self, x1, y1, x2, y2):
+        """Khởi tạo overlay đoạn ROI từ params; fallback đoạn ngang giữa ảnh
+        nếu params suy biến (2 điểm trùng)."""
+        if self._node.outputs.get("_roi_used"):
+            self._sync_generic_roi_overlay(); return
+        if x1 == x2 and y1 == y2:
+            arr = getattr(self._img_label, "_arr", None)
+            if arr is not None:
+                H, W = arr.shape[:2]
+                x1, y1, x2, y2 = W // 4, H // 2, W * 3 // 4, H // 2
+        self._img_label.set_line_data(x1, y1, x2, y2)
+
+    def _on_generic_line_changed(self, x1, y1, x2, y2):
+        """Kéo-thả đoạn ROI → ghi 4 param (x1,y1,x2,y2) + rerun."""
+        pn = getattr(self, "_roi_spec_params", None)
+        if not pn:
+            return
+        for name, val in zip(pn, (int(x1), int(y1), int(x2), int(y2))):
+            self._node.params[name] = val
+            self._sync_spinbox(name, val)
+        self._maybe_auto_run()
+
+    def _sync_generic_roi_overlay(self):
+        """Sau mỗi run: đồng bộ overlay ROI (rect/line) + spinbox với ROI
+        thực sự đã dùng (_roi_used). Spinbox chỉ sync khi port điều khiển ROI
+        (tránh ghi đè giá trị '0=full' user nhập)."""
+        node = self._node
+        spec = getattr(node.tool, "roi_spec", None)
+        if not spec:
+            return
+        kind, pn = spec
+        ru = node.outputs.get("_roi_used")
+        if not (ru and len(ru) == 4):
+            return
+        try:
+            v = [int(round(float(x))) for x in ru]
+        except (TypeError, ValueError):
+            return
+        if kind == "line":
+            self._img_label.set_line_data(*v)
+        elif kind == "rect_corners":
+            x1, y1, x2, y2 = v
+            x = min(x1, x2); y = min(y1, y2)
+            w = max(1, abs(x2 - x1)); h = max(1, abs(y2 - y1))
+            self._img_label.set_rect_from_params(x, y, w, h)
+        else:
+            x, y, w, h = v
+            if w > 0 and h > 0:
+                self._img_label.set_rect_from_params(x, y, w, h)
+        if getattr(self, "_roi_port_connected", False):
+            for name, val in zip(pn, v):
+                self._sync_spinbox(name, val)
 
     def _get_input_image(self) -> Optional[np.ndarray]:
         for conn in self._graph.connections:
@@ -2317,12 +2625,18 @@ class NodeDetailDialog(QDialog):
                     "background:#0a0e1a; border-radius:3px; padding:3px 6px;")
                 lay.addWidget(r)
 
-        # Crop ROI special: show connection status
+        # ROI tools: show per-coord connection status (🔗 = port-fed, ✏ = vẽ
+        # tay / param). Crop ROI dùng x/y/w/h; tool khác theo roi_spec.
+        roi_port_names = None
         if tool.tool_id == "crop_roi":
+            roi_port_names = ("x", "y", "w", "h")
+        elif getattr(tool, "roi_spec", None):
+            roi_port_names = tool.roi_spec[1]
+        if roi_port_names:
             sep = QFrame(); sep.setFrameShape(QFrame.HLine)
             sep.setStyleSheet("color:#1e2d45;"); lay.addWidget(sep)
             ports_status = []
-            for pname in ("x","y","w","h"):
+            for pname in roi_port_names:
                 conn = any(c.dst_id == self._node.node_id and c.dst_port == pname
                            for c in self._graph.connections)
                 ports_status.append(f"{pname}:{'🔗' if conn else '✏'}")
@@ -3183,22 +3497,11 @@ class NodeDetailDialog(QDialog):
                             ed.setValue(int(val))
                             ed.blockSignals(False)
 
-            # dist_point: sync spinbox X1/Y1/X2/Y2 từ port-fed values
-            # (UI hiển thị giá trị thật đã dùng, không phải param mặc định 0).
-            elif node.tool.tool_id == "dist_point":
-                live = {"x1": node.outputs.get("x1"),
-                        "y1": node.outputs.get("y1"),
-                        "x2": node.outputs.get("x2"),
-                        "y2": node.outputs.get("y2")}
-                for name, val in live.items():
-                    if val is None: continue
-                    pr = getattr(self, "_param_rows", {}).get(name)
-                    if pr:
-                        ed = pr._editor
-                        if hasattr(ed, "setValue"):
-                            ed.blockSignals(True)
-                            ed.setValue(int(val))
-                            ed.blockSignals(False)
+            # ROI tổng quát (presence/intensity_stats/color_match/caliper/
+            # line_2pt/dist_point/find_line…): đồng bộ overlay ROI + spinbox
+            # với _roi_used thực sự đã dùng (port-fed hoặc param).
+            elif getattr(node.tool, "roi_spec", None):
+                self._sync_generic_roi_overlay()
 
             # patmax/patfind: hiển thị output image từ engine
             elif node.tool.tool_id in ("patmax", "patmax_align", "patfind"):

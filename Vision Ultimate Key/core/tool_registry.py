@@ -106,6 +106,15 @@ class ToolDef:
     # Output key chứa list[dict] objects để dialog đếm số object detect được.
     # Default "objects" (PatMax). YOLO dùng "detections".
     terminal_source_key: str = "objects"
+    # ROI tương tác: cho phép Detail dialog VẼ ROI bằng chuột kéo-thả và NHẬN
+    # ROI từ port bên ngoài. Giá trị = (kind, (p1, p2, p3, p4)) với kind:
+    #   "rect"         → 4 param = (x,  y,  w,  h)    — vùng chữ nhật (w/h px).
+    #   "rect_corners" → 4 param = (x1, y1, x2, y2)   — chữ nhật theo 2 góc đối.
+    #   "line"         → 4 param = (x1, y1, x2, y2)   — đoạn thẳng 2 đầu.
+    # User kéo-thả → ghi 4 param này; input port cùng tên (nếu nối) override
+    # param lúc pipeline chạy (proc_* đọc qua _roi_in). proc_* phát thêm
+    # output key "_roi_used" = tuple 4 số để dialog đồng bộ overlay/spinbox.
+    roi_spec: Optional[Tuple[str, Tuple[str, str, str, str]]] = None
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -118,6 +127,22 @@ def _gray(img):
 def _bgr(img):
     if img is None: return None
     return cv2.cvtColor(img, cv2.COLOR_GRAY2BGR) if len(img.shape)==2 else img
+
+def _roi_in(inputs, params, key, default=0):
+    """Đọc 1 thành phần ROI (x/y/w/h hoặc x1/y1/x2/y2…): ưu tiên giá trị từ
+    INPUT PORT (khi nối & khác None), fallback về PARAM. Dùng chung cho mọi
+    tool có ROI để 'truyền ROI từ bên ngoài vào' hoạt động đồng nhất.
+    run_one() luôn điền port chưa nối = default (None) nên phải null-check."""
+    v = inputs.get(key)
+    if v is not None:
+        try:
+            return int(round(float(v)))
+        except (TypeError, ValueError):
+            pass
+    try:
+        return int(params.get(key, default))
+    except (TypeError, ValueError):
+        return int(default)
 
 # Kích thước tham chiếu (cạnh ngắn). Ảnh nhỏ hơn → scale = 1.0;
 # ảnh lớn hơn → scale tăng theo tỷ lệ để chữ & nét không bị tí hon.
@@ -895,7 +920,8 @@ def proc_caliper(inputs, params):
     length = int(math.hypot(x2-x1, y2-y1))
     if length < 4:
         return {"image":vis,"edge1_pos":0.0,"edge2_pos":0.0,
-                "width":0.0,"pass":False,"edges_found":0}
+                "width":0.0,"pass":False,"edges_found":0,
+                "_roi_used":(x1,y1,x2,y2)}
 
     xs = np.linspace(x1,x2,length).astype(int)
     ys = np.linspace(y1,y2,length).astype(int)
@@ -966,7 +992,8 @@ def proc_caliper(inputs, params):
     print(f"[Caliper] width={width_mm:.3f}mm edges={len(edges)} {'PASS' if is_pass else 'FAIL'}")
 
     return {"image":vis,"edge1_pos":e1,"edge2_pos":e2,
-            "width":width_mm,"pass":is_pass,"edges_found":len(edges)}
+            "width":width_mm,"pass":is_pass,"edges_found":len(edges),
+            "_roi_used":(x1,y1,x2,y2)}
 
 def proc_caliper_multi(inputs, params):
     """TCaliperTool (Multi-edge) — Tìm tất cả cạnh trong vùng."""
@@ -985,7 +1012,8 @@ def proc_caliper_multi(inputs, params):
     y2 = _roi("y2", img.shape[0]//2)
     length = int(math.hypot(x2-x1, y2-y1))
     if length<4:
-        return {"image":vis,"edges":[],"count":0,"pass":False}
+        return {"image":vis,"edges":[],"count":0,"pass":False,
+                "_roi_used":(x1,y1,x2,y2)}
     xs=np.clip(np.linspace(x1,x2,length).astype(int),0,gray.shape[1]-1)
     ys=np.clip(np.linspace(y1,y2,length).astype(int),0,gray.shape[0]-1)
     profile=gray[ys,xs].astype(float)
@@ -1003,7 +1031,8 @@ def proc_caliper_multi(inputs, params):
     min_c=params.get("min_count",1); max_c=params.get("max_count",100)
     is_pass=min_c<=len(edges)<=max_c
     print(f"[CaliperMulti] edges={len(edges)} {'PASS' if is_pass else 'FAIL'}")
-    return {"image":vis,"edges":edges,"count":len(edges),"pass":is_pass}
+    return {"image":vis,"edges":edges,"count":len(edges),"pass":is_pass,
+            "_roi_used":(x1,y1,x2,y2)}
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -1305,7 +1334,8 @@ def proc_find_line(inputs, params):
     ry2 = min(h, _roi("y2", h//2 + 30))
     if rx2 <= rx1 or ry2 <= ry1:
         return {"image": vis, "found": False, "angle": 0.0, "distance": 0.0,
-                "point_x": float(w/2), "point_y": float(h/2), "pass": False}
+                "point_x": float(w/2), "point_y": float(h/2), "pass": False,
+                "_roi_used": (rx1, ry1, rx2, ry2)}
 
     # Crop ROI trước, sau đó Canny CHỈ trên band → tiết kiệm O(W*H/(roi_w*roi_h))
     band = gray[ry1:ry2, rx1:rx2]
@@ -1342,7 +1372,8 @@ def proc_find_line(inputs, params):
     print(f"[FindLine] angle={angle:.2f}deg "
           f"{'PASS' if is_pass else ('FAIL' if found else 'NOT FOUND')} ds={ds}")
     return {"image": vis, "found": found, "angle": angle, "distance": dist,
-            "point_x": px, "point_y": py, "pass": is_pass}
+            "point_x": px, "point_y": py, "pass": is_pass,
+            "_roi_used": (rx1, ry1, rx2, ry2)}
 
 
 def proc_line_2pt(inputs, params):
@@ -1430,6 +1461,7 @@ def proc_line_2pt(inputs, params):
             "x1": x1, "y1": y1, "x2": x2, "y2": y2,
             "angle": angle, "length": length, "length_px": length_px,
             "mid_x": mx, "mid_y": my,
+            "_roi_used": (int(x1), int(y1), int(x2), int(y2)),
             "_label_rects": label_rects,
             "_label_centroids": [(float(mx), float(my))] if label_rects else []}
 
@@ -2050,7 +2082,8 @@ def proc_color_match(inputs, params):
     cv2.rectangle(vis,(x+sw_w+gap,y+h+pad),(x+2*sw_w+gap,y+h+pad+sw_h),(ref_b,ref_g,ref_r),-1)
     print(f"[ColorMatch] dE={delta_e:.2f} {'PASS' if is_pass else 'FAIL'}")
     return {"image":vis,"pass":is_pass,"delta_e":delta_e,
-            "mean_r":int(mean_r),"mean_g":int(mean_g),"mean_b":int(mean_b)}
+            "mean_r":int(mean_r),"mean_g":int(mean_g),"mean_b":int(mean_b),
+            "_roi_used":(x,y,w,h)}
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -2556,6 +2589,7 @@ def proc_distance_point(inputs, params):
     return {"image":vis,"distance":dist,"distance_px":dist_px,
             "x1":float(x1),"y1":float(y1),"x2":float(x2),"y2":float(y2),
             "pass":is_pass,
+            "_roi_used": (int(x1), int(y1), int(x2), int(y2)),
             "_label_rects": label_rects,
             "_label_centroids": [(float(mx), float(my))] if label_rects else []}
 
@@ -4670,10 +4704,11 @@ def proc_presence(inputs, params):
         return {"image": None, "pass": False, "present": False, "score": 0.0}
     vis = _bgr(img.copy()); s = _draw_scale(vis)
     H, W = img.shape[:2]
-    x = max(0, min(int(params.get("x", 0)), W - 1))
-    y = max(0, min(int(params.get("y", 0)), H - 1))
-    w = int(params.get("w", 0)) or (W - x)   # 0 = full width
-    h = int(params.get("h", 0)) or (H - y)
+    # ROI rect — input port (x/y/w/h) override params nếu nối; w/h=0 → full.
+    x = max(0, min(_roi_in(inputs, params, "x", 0), W - 1))
+    y = max(0, min(_roi_in(inputs, params, "y", 0), H - 1))
+    w = _roi_in(inputs, params, "w", 0) or (W - x)   # 0 = full width
+    h = _roi_in(inputs, params, "h", 0) or (H - y)
     w = max(1, min(w, W - x)); h = max(1, min(h, H - y))
     roi = _gray(img)[y:y + h, x:x + w]
     method = str(params.get("method", "intensity"))
@@ -4689,7 +4724,8 @@ def proc_presence(inputs, params):
     present = float(params.get("min_score", 0)) <= score <= float(params.get("max_score", 1e12))
     cv2.rectangle(vis, (x, y), (x + w, y + h),
                   (0, 200, 0) if present else (0, 0, 255), _t(2, s))
-    return {"image": vis, "pass": present, "present": present, "score": round(score, 3)}
+    return {"image": vis, "pass": present, "present": present,
+            "score": round(score, 3), "_roi_used": (x, y, w, h)}
 
 
 def _geo_in(inputs, params, key):
@@ -4765,10 +4801,11 @@ def proc_intensity_stats(inputs, params):
         return {"image": None, "pass": False, "mean": 0, "std": 0, "min": 0, "max": 0}
     vis = _bgr(img.copy()); s = _draw_scale(vis)
     H, W = img.shape[:2]
-    x = max(0, min(int(params.get("x", 0)), W - 1))
-    y = max(0, min(int(params.get("y", 0)), H - 1))
-    w = int(params.get("w", 0)) or (W - x)   # 0 = full width
-    h = int(params.get("h", 0)) or (H - y)
+    # ROI rect — input port (x/y/w/h) override params nếu nối; w/h=0 → full.
+    x = max(0, min(_roi_in(inputs, params, "x", 0), W - 1))
+    y = max(0, min(_roi_in(inputs, params, "y", 0), H - 1))
+    w = _roi_in(inputs, params, "w", 0) or (W - x)   # 0 = full width
+    h = _roi_in(inputs, params, "h", 0) or (H - y)
     w = max(1, min(w, W - x)); h = max(1, min(h, H - y))
     g = _gray(img)[y:y + h, x:x + w]
     mn, sd = float(np.mean(g)), float(np.std(g))
@@ -4776,7 +4813,7 @@ def proc_intensity_stats(inputs, params):
     cv2.rectangle(vis, (x, y), (x + w, y + h), (0, 200, 255), _t(2, s))
     passed = float(params.get("min_mean", 0)) <= mn <= float(params.get("max_mean", 255))
     return {"image": vis, "pass": passed, "mean": round(mn, 2), "std": round(sd, 2),
-            "min": mi, "max": ma}
+            "min": mi, "max": ma, "_roi_used": (x, y, w, h)}
 
 
 TOOL_REGISTRY: List[ToolDef] = [
@@ -4946,7 +4983,8 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("max_width","Max Width (mm)","float",9999.0,0,10000),
      P("show_labels","Display: show labels on image","bool",False,
        tooltip="Bật để vẽ label edge (E1:42.5 …) lên ảnh output. Mặc định tắt — số đo vẫn được log ra console.")],
-    proc_caliper, "TCaliperTool"),
+    proc_caliper, "TCaliperTool",
+    roi_spec=("line",("x1","y1","x2","y2"))),
 
   ToolDef("caliper_multi","Caliper Multi-Edge","Caliper",
     "Tìm tất cả cạnh trong vùng — TCaliperTool","#1b4332","📏",
@@ -4960,7 +4998,8 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("edge_threshold","Edge Threshold","float",10.0,0,500),
      P("min_count","Min Edges","int",1,0,100),
      P("max_count","Max Edges","int",100,0,1000)],
-    proc_caliper_multi, "TCaliperTool"),
+    proc_caliper_multi, "TCaliperTool",
+    roi_spec=("line",("x1","y1","x2","y2"))),
 
   # ── BLOB ────────────────────────────────────────────────────────
   ToolDef("blob","Blob Analysis","Blob Analysis",
@@ -5068,7 +5107,8 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("max_angle","Max Angle (°)","float",180,-180,180),
      P("downscale","Coarse Downscale","int",0,0,16,
        tooltip="0=auto (target ~1.5MP). Canny chỉ chạy trong ROI band; downscale thêm khi band lớn.")],
-    proc_find_line, "TFindLineTool"),
+    proc_find_line, "TFindLineTool",
+    roi_spec=("rect_corners",("x1","y1","x2","y2"))),
 
   ToolDef("find_circle","Find Circle","Edge & Geometry",
     "Fit đường tròn chính xác — TFindCircleTool","#134074","⭕",
@@ -5123,7 +5163,8 @@ TOOL_REGISTRY: List[ToolDef] = [
        choices=["Simplex","Plain","Duplex","Complex","Triplex"]),
      P("label_size","Label Size","float",0.6,0.2,3.0,step=0.05,use_slider=True),
      P("label_thickness","Label Thickness","int",2,1,8,use_slider=True)],
-    proc_line_2pt, "TLineSegmentTool"),
+    proc_line_2pt, "TLineSegmentTool",
+    roi_spec=("line",("x1","y1","x2","y2"))),
 
   # ── SHAPE CREATION ──────────────────────────────────────────────
   ToolDef("create_rectangle","Create Rectangle","Edge & Geometry",
@@ -5203,16 +5244,19 @@ TOOL_REGISTRY: List[ToolDef] = [
   # ── COLOR ───────────────────────────────────────────────────────
   ToolDef("intensity_stats","Intensity Stats","Color Analysis",
     "Thống kê cường độ trong ROI: mean / std / min / max (kiểm sáng, exposure, "
-    "hỗ trợ presence). ROI W/H = 0 → full ảnh. PASS khi mean ∈ [min_mean, max_mean].",
+    "hỗ trợ presence). ROI W/H = 0 → full ảnh. PASS khi mean ∈ [min_mean, max_mean].\n"
+    "Kéo chuột vẽ ROI trên ảnh, hoặc nối port x/y/w/h để nhận ROI từ tool khác.",
     "#6b2737","📊",
-    [PortDef("image","image")],
+    [PortDef("image","image"),
+     PortDef("x","number",required=False),PortDef("y","number",required=False),
+     PortDef("w","number",required=False),PortDef("h","number",required=False)],
     [PortDef("image","image"),PortDef("mean","number"),PortDef("std","number"),
      PortDef("min","number"),PortDef("max","number"),PortDef("pass","bool")],
     [P("x","ROI X","int",0,0,99999),P("y","ROI Y","int",0,0,99999),
      P("w","ROI W (0=full)","int",0,0,99999),P("h","ROI H (0=full)","int",0,0,99999),
      P("min_mean","Min Mean (PASS)","float",0,0,255),
      P("max_mean","Max Mean (PASS)","float",255,0,255)],
-    proc_intensity_stats,""),
+    proc_intensity_stats,"",roi_spec=("rect",("x","y","w","h"))),
 
   ToolDef("color_picker","Color Picker","Color Analysis",
     "Click chuột lấy màu → xuất HSV range","#6b2737","🎨",
@@ -5344,7 +5388,8 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("ref_r","Ref R","int",128,0,255),P("ref_g","Ref G","int",128,0,255),
      P("ref_b","Ref B","int",128,0,255),
      P("max_delta_e","Max ΔE","float",30.0,0,441,tooltip="ΔE Euclidean RGB distance")],
-    proc_color_match, "TColorMatchTool"),
+    proc_color_match, "TColorMatchTool",
+    roi_spec=("rect",("x","y","w","h"))),
 
   # ── ID / READ ───────────────────────────────────────────────────
   ToolDef("id_reader","ID Reader","ID & Read",
@@ -5486,7 +5531,8 @@ TOOL_REGISTRY: List[ToolDef] = [
        choices=["Simplex","Plain","Duplex","Complex","Triplex"]),
      P("label_size","Label Size","float",0.6,0.2,3.0,step=0.05,use_slider=True),
      P("label_thickness","Label Thickness","int",2,1,8,use_slider=True)],
-    proc_distance_point, "TDistancePointPointTool"),
+    proc_distance_point, "TDistancePointPointTool",
+    roi_spec=("line",("x1","y1","x2","y2"))),
 
   ToolDef("dist_point_line","Distance Point-Line","Measurement",
     "Khoảng cách vuông góc từ điểm đến đường thẳng — TDistancePointLineTool",
@@ -5563,9 +5609,13 @@ TOOL_REGISTRY: List[ToolDef] = [
 
   ToolDef("presence","Presence / Absence","Surface Inspection",
     "Kiểm CÓ/THIẾU vật trong ROI theo intensity / edge_density / fill_ratio. "
-    "present=True khi score ∈ [min_score, max_score]. ROI W/H = 0 → full ảnh.",
+    "present=True khi score ∈ [min_score, max_score]. ROI W/H = 0 → full ảnh.\n"
+    "Kéo chuột vẽ ROI trực tiếp trên ảnh, hoặc nối port x/y/w/h để nhận ROI "
+    "từ tool khác (Crop ROI, PatMax, Fixture…).",
     "#4a0404","✅",
-    [PortDef("image","image")],
+    [PortDef("image","image"),
+     PortDef("x","number",required=False),PortDef("y","number",required=False),
+     PortDef("w","number",required=False),PortDef("h","number",required=False)],
     [PortDef("image","image"),PortDef("pass","bool"),
      PortDef("present","bool"),PortDef("score","number")],
     [P("x","ROI X","int",0,0,99999),P("y","ROI Y","int",0,0,99999),
@@ -5577,7 +5627,7 @@ TOOL_REGISTRY: List[ToolDef] = [
      P("dark_object","Vật tối trên nền sáng","bool",False,visible_if={"method":"fill_ratio"}),
      P("min_score","Min score (present)","float",0,-1e9,1e9),
      P("max_score","Max score (present)","float",1e9,-1e9,1e12)],
-    proc_presence,""),
+    proc_presence,"",roi_spec=("rect",("x","y","w","h"))),
 
   ToolDef("surface_defect","Surface Defect","Surface Inspection",
     "Phát hiện khuyết tật bề mặt","#4a0404","🔴",
