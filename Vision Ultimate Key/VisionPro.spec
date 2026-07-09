@@ -144,6 +144,45 @@ for mod_name, _label in _optional:
         print(f"[spec]  ⚠ Bỏ qua '{_label}' — collect lỗi "
               f"({type(_e).__name__}): {_e}")
 
+# ── PaddlePaddle / PaddleOCR (OCR Max) ───────────────────────────────
+# Gói RIÊNG (không nằm trong _optional) vì paddle cực khó đóng gói:
+# libpaddle.pyd phụ thuộc 1 loạt DLL trong paddle/libs (mkl, iomp5,
+# openblas, common...). Thiếu → app .exe báo:
+#   "DLL load failed while importing libpaddle: The specified module
+#    could not be found."
+# Gom từng bước ĐỘC LẬP: 1 bước lỗi vẫn giữ các bước còn lại (nhất là DLL).
+def _bundle_paddle(pkg, label):
+    try:
+        __import__(pkg)
+    except Exception:
+        print(f"[spec]  – Skip (chưa cài): {label}")
+        return
+    import importlib, glob as _glob
+    _root = os.path.dirname(importlib.import_module(pkg).__file__)
+    _parent = os.path.dirname(_root)
+    try:
+        datas.extend(collect_data_files(pkg))          # dict/font/config/version
+    except Exception as _e:
+        print(f"[spec]    ! data {pkg}: {_e}")
+    try:
+        binaries.extend(collect_dynamic_libs(pkg))
+    except Exception as _e:
+        print(f"[spec]    ! dylibs {pkg}: {_e}")
+    # Glob MỌI .dll/.pyd trong package (giữ nguyên cây thư mục) → fix DLL load
+    _n = 0
+    for _p in (_glob.glob(os.path.join(_root, '**', '*.dll'), recursive=True) +
+               _glob.glob(os.path.join(_root, '**', '*.pyd'), recursive=True)):
+        binaries.append((_p, os.path.relpath(os.path.dirname(_p), _parent)))
+        _n += 1
+    try:
+        hiddenimports.extend(collect_submodules(pkg))  # dynamic import lúc runtime
+    except Exception as _e:
+        print(f"[spec]    ! submodules {pkg} ({type(_e).__name__}): {_e}")
+    print(f"[spec]  ✓ Include {label} (+{_n} dll/pyd)")
+
+_bundle_paddle('paddle', 'PaddlePaddle')
+_bundle_paddle('paddleocr', 'PaddleOCR')
+
 # ── Camera SDK DLL (MVS HikRobot) ────────────────────────────────────
 # Nếu có folder dll/ cạnh main.py, copy TẤT CẢ .dll vào _internal/dll/.
 # Đặt nguyên cụm DLL cùng 1 thư mục để chúng tìm thấy nhau khi load

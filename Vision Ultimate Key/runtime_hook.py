@@ -21,6 +21,29 @@ if getattr(sys, 'frozen', False):
     sys.path.insert(0, exe_dir)
     sys.path.insert(0, os.path.join(exe_dir, '_internal'))
 
+# ── 1b. PaddlePaddle DLL search path (OCR Max) ────────────────────────
+# libpaddle.pyd phụ thuộc 1 loạt DLL trong paddle/libs. Trong app freeze,
+# Windows KHÔNG tự dò DLL ở thư mục con → 'import paddle' báo "DLL load
+# failed while importing libpaddle". Thêm tường minh trước khi paddle được
+# import (OCR Max lazy-import lúc chạy node).
+if getattr(sys, 'frozen', False) and hasattr(os, 'add_dll_directory'):
+    _pbase = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(sys.executable)
+    _seen_dll_dirs = set()
+    for _cand in (
+        os.path.join(_pbase, 'paddle', 'libs'),
+        os.path.join(_pbase, 'paddle', 'base'),
+        os.path.join(_pbase, 'paddle', 'fluid'),
+        os.path.join(_pbase, '_internal', 'paddle', 'libs'),
+        os.path.join(_pbase, '_internal', 'paddle', 'base'),
+        os.path.join(_pbase, '_internal', 'paddle', 'fluid'),
+    ):
+        if os.path.isdir(_cand) and _cand not in _seen_dll_dirs:
+            _seen_dll_dirs.add(_cand)
+            try:
+                os.add_dll_directory(_cand)
+            except OSError:
+                pass
+
 # ── 2. Qt plugin path ─────────────────────────────────────────────────
 # PySide6 lookup plugins (platforms/, imageformats/, styles/...) qua
 # QT_PLUGIN_PATH. Khi frozen, set thẳng để tránh load nhầm DLL hệ thống.

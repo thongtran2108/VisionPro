@@ -2198,6 +2198,14 @@ def _paddle_offline_hint(err: Exception, base_dir: str) -> str:
     import os
     d = base_dir or os.path.join(_ocr_base_dir(), "models", "paddle")
     if isinstance(err, (ModuleNotFoundError, ImportError)):
+        s0 = str(err).lower()
+        if ("libpaddle" in s0 or "dll load failed" in s0
+                or "specified module could not be found" in s0):
+            return ("Đã có PaddleOCR nhưng KHÔNG nạp được DLL của PaddlePaddle "
+                    "(libpaddle). Ở bản .exe: build lại bằng spec đã gom paddle "
+                    "(paddle/libs). Trên máy đích: cài Microsoft Visual C++ "
+                    "Redistributable x64 mới nhất (thiếu msvcp140.dll…). "
+                    f"Lỗi gốc: {err}")
         return ("Chưa cài PaddleOCR. Chạy: pip install paddlepaddle paddleocr. "
                 f"Lỗi gốc: {err}")
     s = str(err).lower()
