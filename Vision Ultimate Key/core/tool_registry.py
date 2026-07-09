@@ -2206,7 +2206,19 @@ def _paddle_offline_hint(err: Exception, base_dir: str) -> str:
         return ("PaddleOCR cần tải model nhưng máy không có mạng. Đặt sẵn model vào "
                 f"{d}\\det, {d}\\rec, {d}\\cls (xem models/README.md), hoặc chạy "
                 f"tools/fetch_ocr_models.py --paddle trên máy có mạng. Lỗi gốc: {err}")
-    return f"PaddleOCR init lỗi: {err}"
+    # PaddlePaddle 3.x PIR executor lỗi 'Unimplemented ConvertPirAttribute' —
+    # do paddleocr 3.x + bản paddlepaddle không khớp (thiếu phép chuyển PIR).
+    if any(k in s for k in ("convertpirattribute", "pir::", "unimplemented",
+                            "new_executor", "has not been implemented")):
+        return ("PaddleOCR 3.x không khớp với bản paddlepaddle đang cài (lỗi PIR "
+                "'ConvertPirAttribute Unimplemented'). Cách sửa ỔN ĐỊNH — dùng bộ "
+                "2.x mà tool hỗ trợ đầy đủ (kể cả offline):\n"
+                "  pip uninstall -y paddleocr paddlepaddle paddlepaddle-gpu\n"
+                "  pip install \"paddlepaddle==2.6.2\" \"paddleocr==2.7.3\"\n"
+                "Hoặc thử nâng paddlepaddle lên 3.x mới nhất: "
+                "pip install -U paddlepaddle paddleocr. "
+                f"Lỗi gốc: {str(err)[:180]}")
+    return f"PaddleOCR lỗi: {err}"
 
 
 def _paddle_try_init(PaddleOCR, kw):
@@ -2484,7 +2496,10 @@ def proc_ocr_max(inputs, params):
     try:
         text, conf, boxes = _run_paddle()
     except Exception as e:
-        text = f"[OCR error] {e}"
+        # Diễn giải lỗi runtime (PIR/version mismatch, mất mạng…) thành hướng
+        # dẫn khắc phục thay vì stack-trace thô.
+        hint = _paddle_offline_hint(e, str(params.get("paddle_dir_path", "") or ""))
+        text = f"[OCR error] {hint}"
         conf = 0.0
 
     has_text = bool(text) and not text.startswith("[")
