@@ -112,16 +112,37 @@ _optional = [
     ('pytesseract', 'Tesseract wrapper'),
     ('pyzbar', 'pyzbar (barcode/QR)'),
 ]
+# collect_submodules() import từng submodule trong 1 isolated subprocess để
+# liệt kê. Vài submodule làm subprocess CRASH CỨNG (access violation
+# 0xC0000005) — KHÔNG phải ImportError → except ImportError không bắt được,
+# cả build chết. Điển hình: onnx.reference (pure-Python evaluator) kéo native
+# ext xung đột numpy/protobuf. Xử lý 2 lớp:
+#   • filter: bỏ submodule độc hại khỏi việc duyệt (không recurse vào nó).
+#   • except Exception rộng: 1 dep collect lỗi thì SKIP dep đó, build vẫn xong.
+_submodule_filters = {
+    # onnx.reference không cần lúc runtime (inference qua onnxruntime).
+    'onnx': lambda name: not name.startswith('onnx.reference'),
+}
+
 binaries = []
 for mod_name, _label in _optional:
     try:
         __import__(mod_name)
-        hiddenimports += collect_submodules(mod_name)
+    except Exception:
+        print(f"[spec]  – Skip (chưa cài): {_label}")
+        continue
+    try:
+        _flt = _submodule_filters.get(mod_name)
+        if _flt is not None:
+            hiddenimports += collect_submodules(mod_name, filter=_flt)
+        else:
+            hiddenimports += collect_submodules(mod_name)
         datas += collect_data_files(mod_name)
         binaries += collect_dynamic_libs(mod_name)
         print(f"[spec]  ✓ Include optional dep: {_label}")
-    except ImportError:
-        print(f"[spec]  – Skip (chưa cài): {_label}")
+    except Exception as _e:
+        print(f"[spec]  ⚠ Bỏ qua '{_label}' — collect lỗi "
+              f"({type(_e).__name__}): {_e}")
 
 # ── Camera SDK DLL (MVS HikRobot) ────────────────────────────────────
 # Nếu có folder dll/ cạnh main.py, copy TẤT CẢ .dll vào _internal/dll/.
@@ -143,6 +164,7 @@ else:
 # ────────────────────────────────────────────────────────────────────
 excludes = [
     'tkinter',              # dùng PySide6, không cần Tk
+    'onnx.reference',       # pure-Python evaluator — crash lúc collect, vô dụng runtime
     'matplotlib',           # project không dùng
     'IPython',
     'jupyter',
