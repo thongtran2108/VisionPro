@@ -11,7 +11,26 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from PySide6.QtWidgets import QApplication, QDialog
 from PySide6.QtCore import Qt, QSettings
 from PySide6.QtGui import QIcon, QFont, QPalette, QColor
-from ui.main_window import MainWindow
+
+try:
+    from ui.main_window import MainWindow
+except ImportError as _imp_err:
+    # cv2 / paddle được build cho numpy 1.x không load được dưới numpy 2.x
+    # (ABI đổi ở numpy 2.0) → ImportError 'numpy.core.multiarray failed to
+    # import'. Biến crash khó hiểu này thành hướng dẫn sửa cụ thể.
+    _m = str(_imp_err).lower()
+    if any(k in _m for k in ("multiarray", "numpy._core", "numpy.core",
+                             "abi version", "_arraymodule")) or (
+            "numpy" in _m and "import" in _m):
+        sys.stderr.write(
+            "\n[Vision Ultimate] Không nạp được thư viện native (OpenCV/PaddlePaddle).\n"
+            "Nguyên nhân: numpy 2.x không tương thích với các gói build cho "
+            "numpy 1.x (cv2, paddlepaddle...).\n"
+            "Cách sửa — kích hoạt đúng venv rồi hạ numpy:\n"
+            "    pip install \"numpy<2\"\n"
+            f"Chi tiết gốc: {_imp_err}\n")
+        sys.exit(1)
+    raise
 
 
 def apply_dark_theme(app: QApplication):
