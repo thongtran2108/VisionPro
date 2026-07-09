@@ -183,6 +183,34 @@ def _bundle_paddle(pkg, label):
 _bundle_paddle('paddle', 'PaddlePaddle')
 _bundle_paddle('paddleocr', 'PaddleOCR')
 
+# Cython: vài thành phần trong stack paddle/paddleocr đọc file mẫu trong
+# Cython/Utility (*.pyx, *.pxd, *.c, *.cpp, *.h, cả .py) lúc chạy. PyInstaller
+# mặc định không gom → app .exe báo:
+#   "PaddleOCR init lỗi: ...\_internal\Cython\Utility\CppSupport.cpp".
+# Gom data (kèm .py) + submodules; tách bước để lỗi submodule không mất data.
+try:
+    import Cython  # noqa: F401
+    try:
+        datas += collect_data_files('Cython', include_py_files=True)
+    except Exception as _e:
+        print(f"[spec]    ! Cython data: {_e}")
+    try:
+        hiddenimports += collect_submodules('Cython')
+    except Exception as _e:
+        print(f"[spec]    ! Cython submodules ({type(_e).__name__}): {_e}")
+    # Glob thẳng thư mục Utility cho chắc (đây là thứ báo thiếu).
+    import glob as _cglob
+    _cy_root = os.path.dirname(Cython.__file__)
+    _cy_parent = os.path.dirname(_cy_root)
+    _cn = 0
+    for _p in _cglob.glob(os.path.join(_cy_root, 'Utility', '*')):
+        if os.path.isfile(_p):
+            datas.append((_p, os.path.relpath(os.path.dirname(_p), _cy_parent)))
+            _cn += 1
+    print(f"[spec]  ✓ Include Cython (+{_cn} Utility files)")
+except Exception:
+    print("[spec]  – Skip Cython (chưa cài)")
+
 # ── Camera SDK DLL (MVS HikRobot) ────────────────────────────────────
 # Nếu có folder dll/ cạnh main.py, copy TẤT CẢ .dll vào _internal/dll/.
 # Đặt nguyên cụm DLL cùng 1 thư mục để chúng tìm thấy nhau khi load

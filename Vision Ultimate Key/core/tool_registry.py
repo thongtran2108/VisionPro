@@ -2214,6 +2214,15 @@ def _paddle_offline_hint(err: Exception, base_dir: str) -> str:
         return ("PaddleOCR cần tải model nhưng máy không có mạng. Đặt sẵn model vào "
                 f"{d}\\det, {d}\\rec, {d}\\cls (xem models/README.md), hoặc chạy "
                 f"tools/fetch_ocr_models.py --paddle trên máy có mạng. Lỗi gốc: {err}")
+    # PaddleOCR 3.x biên dịch Cython/C++ lúc chạy (đọc Cython/Utility/*.cpp) —
+    # không hợp đóng gói .exe (thiếu file/compiler). Khuyên hạ về 2.x.
+    if "cython" in s and any(k in s for k in (".cpp", ".pyx", ".pxd",
+                                              "utility", "cppsupport")):
+        return ("PaddleOCR 3.x cần biên dịch Cython/C++ lúc chạy — KHÔNG hợp để "
+                "đóng gói .exe. Cách sửa ổn định: dùng PaddleOCR 2.x rồi build lại:\n"
+                "  pip uninstall -y paddleocr paddlepaddle paddlepaddle-gpu\n"
+                "  pip install \"paddlepaddle==2.6.2\" \"paddleocr==2.7.3\"\n"
+                f"Lỗi gốc: {str(err)[:180]}")
     # PaddlePaddle 3.x PIR executor lỗi 'Unimplemented ConvertPirAttribute' —
     # do paddleocr 3.x + bản paddlepaddle không khớp (thiếu phép chuyển PIR).
     if any(k in s for k in ("convertpirattribute", "pir::", "unimplemented",
