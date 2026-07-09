@@ -2209,6 +2209,33 @@ def _paddle_offline_hint(err: Exception, base_dir: str) -> str:
     return f"PaddleOCR init lỗi: {err}"
 
 
+def _paddle_try_init(PaddleOCR, kw):
+    """Khởi tạo PaddleOCR chịu được khác biệt tham số giữa các phiên bản.
+
+    PaddleOCR 2.x nhận show_log / use_angle_cls / *_model_dir; bản 3.x đã bỏ
+    hoặc đổi tên chúng và NÉM LỖI khi gặp tham số lạ — thông báo dạng
+    'Unknown argument: show_log' (ValueError, KHÔNG phải TypeError) hoặc
+    "__init__() got an unexpected keyword argument 'show_log'" (TypeError).
+    Cả 2 kiểu → tự gỡ đúng tham số bị báo rồi thử lại (tối đa 8 vòng) thay
+    vì chỉ bắt TypeError như trước (khiến 3.x crash ngay)."""
+    import re
+    kw = dict(kw)
+    for _ in range(8):
+        try:
+            return PaddleOCR(**kw)
+        except Exception as e:            # bắt rộng: 3.x ném ValueError/khác
+            msg = str(e)
+            m = (re.search(r"unexpected keyword argument ['\"]([\w]+)['\"]", msg)
+                 or re.search(r"[Uu]nknown argument:?\s*['\"]?([\w]+)", msg))
+            if not m:
+                raise                      # lỗi thật (không phải tham số lạ)
+            bad = m.group(1)
+            if bad not in kw:
+                raise                      # không gỡ được → tránh lặp vô hạn
+            kw.pop(bad, None)
+    return PaddleOCR(**kw)                  # thử lần cuối (raise tự nhiên nếu lỗi)
+
+
 def _get_paddle_reader(plang: str, base_dir: str = "", allow_download: bool = False):
     """Lazy-init + cache PaddleOCR. Có model local (models/paddle/{det,rec,cls}) →
     chạy offline; không có → Paddle tự tải (cần mạng). Init lỗi → cache fast-fail."""
@@ -2228,13 +2255,9 @@ def _get_paddle_reader(plang: str, base_dir: str = "", allow_download: bool = Fa
             kw["rec_model_dir"] = rec
         if cls:
             kw["cls_model_dir"] = cls
-        try:
-            r = PaddleOCR(**kw)
-        except TypeError:
-            # PaddleOCR 3.x đổi/bỏ vài tham số → thử lại bản tối giản.
-            for bad in ("show_log", "use_angle_cls"):
-                kw.pop(bad, None)
-            r = PaddleOCR(**kw)
+        # Tự thích ứng tham số theo phiên bản PaddleOCR (2.x vs 3.x). 3.x bỏ
+        # show_log / use_angle_cls → helper gỡ dần đúng tham số bị báo lỗi.
+        r = _paddle_try_init(PaddleOCR, kw)
     except Exception as e:
         hint = _paddle_offline_hint(e, base_dir)
         _PADDLE_FAILED[key] = hint
@@ -2429,8 +2452,16 @@ def proc_ocr_max(inputs, params):
                   else cv2.cvtColor(proc_gray, cv2.COLOR_GRAY2BGR))
         try:
             result = reader.ocr(img_in, cls=True)
-        except TypeError:
-            result = reader.ocr(img_in)              # PaddleOCR 3.x bỏ tham số cls
+        except Exception as e:
+            # PaddleOCR 3.x bỏ/đổi tham số cls trong .ocr() — chỉ gọi lại
+            # không cls khi lỗi đúng là do tham số (giữ nguyên lỗi thật khác).
+            msg = str(e).lower()
+            if ("cls" in msg or "unexpected keyword" in msg
+                    or "unknown argument" in msg or "positional argument" in msg
+                    or isinstance(e, TypeError)):
+                result = reader.ocr(img_in)
+            else:
+                raise
         t_acc, c_acc, words, bxs = "", 0.0, 0, []
         for pts, t, sc in _paddle_lines(result):
             if not str(t).strip():
