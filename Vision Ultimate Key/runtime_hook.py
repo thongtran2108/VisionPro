@@ -21,50 +21,39 @@ if getattr(sys, 'frozen', False):
     sys.path.insert(0, exe_dir)
     sys.path.insert(0, os.path.join(exe_dir, '_internal'))
 
-# ── 1b. PaddlePaddle DLL search path (OCR Max) ────────────────────────
-# libpaddle.pyd phụ thuộc 1 loạt DLL trong paddle/libs. Trong app freeze,
-# Windows KHÔNG tự dò DLL ở thư mục con → 'import paddle' báo "DLL load
-# failed while importing libpaddle". Thêm tường minh trước khi paddle được
-# import (OCR Max lazy-import lúc chạy node).
-if getattr(sys, 'frozen', False) and hasattr(os, 'add_dll_directory'):
-    _pbase = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(sys.executable)
+# ── 1b. Native DLL search path cho PaddleOCR + PyTorch (OCR Max & YOLO) ─
+# App gói CẢ paddle (OCR) LẪN torch (YOLO) — 2 stack native nặng. Trong app
+# freeze phát sinh 2 vấn đề:
+#   1) Windows không tự dò DLL ở thư mục con → libpaddle.pyd / torchvision._C
+#      không tìm được DLL phụ thuộc → "Can not import paddle core" hoặc
+#      "[WinError 127] procedure could not be found".
+#   2) Cả paddle và torch đều ship Intel OpenMP (libiomp5md.dll) + MKL. Nạp
+#      2 bản OpenMP trong 1 process → Intel OMP abort ("OMP: Error #15") hoặc
+#      lệch symbol (WinError 127). KMP_DUPLICATE_LIB_OK=TRUE cho phép trùng.
+# Xử lý: set KMP_DUPLICATE_LIB_OK, rồi với MỖI thư mục lib vừa
+# add_dll_directory (dò DLL trực tiếp) VỪA prepend vào PATH (dò DLL bắc cầu
+# — dependency-của-dependency mà add_dll_directory không phủ).
+os.environ.setdefault('KMP_DUPLICATE_LIB_OK', 'TRUE')
+if getattr(sys, 'frozen', False):
+    _nbase = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(sys.executable)
+    _lib_subdirs = (
+        # paddle (OCR Max)
+        ('paddle', 'libs'), ('paddle', 'base'), ('paddle', 'fluid'),
+        # torch / torchvision (YOLO)
+        ('torch', 'lib'), ('torchvision',),
+    )
     _seen_dll_dirs = set()
-    for _cand in (
-        os.path.join(_pbase, 'paddle', 'libs'),
-        os.path.join(_pbase, 'paddle', 'base'),
-        os.path.join(_pbase, 'paddle', 'fluid'),
-        os.path.join(_pbase, '_internal', 'paddle', 'libs'),
-        os.path.join(_pbase, '_internal', 'paddle', 'base'),
-        os.path.join(_pbase, '_internal', 'paddle', 'fluid'),
-    ):
-        if os.path.isdir(_cand) and _cand not in _seen_dll_dirs:
-            _seen_dll_dirs.add(_cand)
-            try:
-                os.add_dll_directory(_cand)
-            except OSError:
-                pass
-
-# ── 1c. PyTorch / TorchVision DLL search path (YOLO) ──────────────────
-# torchvision\_C.pyd link động tới DLL của torch (c10.dll, torch_cpu.dll,
-# torch_python.dll, cùng cả cuDNN/cuBLAS khi bản CUDA) nằm trong torch\lib.
-# Chạy source OK vì torch\__init__.py tự gọi os.add_dll_directory(torch/lib);
-# nhưng trong app freeze cơ chế đó KHÔNG chạy đúng → app .exe báo:
-#   "[YOLO] Error: [WinError 127] The specified procedure could not be found.
-#    Error loading ...torchvision\_C.pyd" (thiếu hàm export của torch DLL).
-# Đăng ký tường minh torch\lib TRƯỚC khi YOLO lazy-import torch/ultralytics.
-if getattr(sys, 'frozen', False) and hasattr(os, 'add_dll_directory'):
-    _tbase = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(sys.executable)
-    for _tc in (
-        os.path.join(_tbase, 'torch', 'lib'),
-        os.path.join(_tbase, 'torchvision'),
-        os.path.join(_tbase, '_internal', 'torch', 'lib'),
-        os.path.join(_tbase, '_internal', 'torchvision'),
-    ):
-        if os.path.isdir(_tc):
-            try:
-                os.add_dll_directory(_tc)
-            except OSError:
-                pass
+    for _root in (_nbase, os.path.join(_nbase, '_internal')):
+        for _parts in _lib_subdirs:
+            _cand = os.path.join(_root, *_parts)
+            if os.path.isdir(_cand) and _cand not in _seen_dll_dirs:
+                _seen_dll_dirs.add(_cand)
+                if hasattr(os, 'add_dll_directory'):
+                    try:
+                        os.add_dll_directory(_cand)
+                    except OSError:
+                        pass
+                os.environ['PATH'] = _cand + os.pathsep + os.environ.get('PATH', '')
 
 # ── 2. Qt plugin path ─────────────────────────────────────────────────
 # PySide6 lookup plugins (platforms/, imageformats/, styles/...) qua

@@ -4324,7 +4324,9 @@ def proc_yolo_detect(inputs, params):
         return out
 
     except Exception as e:
-        print(f"[YOLO] Error: {str(e)[:120]}")
+        # In FULL lỗi (kèm loại exception + đường dẫn DLL đầy đủ) — trước đây
+        # cắt [:120] làm mất tên DLL khiến không chẩn đoán được WinError 126/127.
+        print(f"[YOLO] Error ({type(e).__name__}): {e}")
         return _yolo_empty_outputs(vis)
 
 
