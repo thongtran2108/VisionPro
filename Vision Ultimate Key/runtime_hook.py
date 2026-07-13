@@ -44,6 +44,28 @@ if getattr(sys, 'frozen', False) and hasattr(os, 'add_dll_directory'):
             except OSError:
                 pass
 
+# ── 1c. PyTorch / TorchVision DLL search path (YOLO) ──────────────────
+# torchvision\_C.pyd link động tới DLL của torch (c10.dll, torch_cpu.dll,
+# torch_python.dll, cùng cả cuDNN/cuBLAS khi bản CUDA) nằm trong torch\lib.
+# Chạy source OK vì torch\__init__.py tự gọi os.add_dll_directory(torch/lib);
+# nhưng trong app freeze cơ chế đó KHÔNG chạy đúng → app .exe báo:
+#   "[YOLO] Error: [WinError 127] The specified procedure could not be found.
+#    Error loading ...torchvision\_C.pyd" (thiếu hàm export của torch DLL).
+# Đăng ký tường minh torch\lib TRƯỚC khi YOLO lazy-import torch/ultralytics.
+if getattr(sys, 'frozen', False) and hasattr(os, 'add_dll_directory'):
+    _tbase = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(sys.executable)
+    for _tc in (
+        os.path.join(_tbase, 'torch', 'lib'),
+        os.path.join(_tbase, 'torchvision'),
+        os.path.join(_tbase, '_internal', 'torch', 'lib'),
+        os.path.join(_tbase, '_internal', 'torchvision'),
+    ):
+        if os.path.isdir(_tc):
+            try:
+                os.add_dll_directory(_tc)
+            except OSError:
+                pass
+
 # ── 2. Qt plugin path ─────────────────────────────────────────────────
 # PySide6 lookup plugins (platforms/, imageformats/, styles/...) qua
 # QT_PLUGIN_PATH. Khi frozen, set thẳng để tránh load nhầm DLL hệ thống.
