@@ -183,6 +183,38 @@ def _bundle_paddle(pkg, label):
 _bundle_paddle('paddle', 'PaddlePaddle')
 _bundle_paddle('paddleocr', 'PaddleOCR')
 
+# PaddleOCR 2.x chèn thư mục GÓI CỦA CHÍNH NÓ vào sys.path rồi import các package
+# con như TOP-LEVEL: `import tools.infer...`, `import ppocr...` (KHÔNG phải
+# `paddleocr.tools`). Trong app .exe, sys.path có _internal (sys._MEIPASS) nên
+# resolver đi tìm `_internal\tools\__init__.py`, `_internal\ppocr\...` ở GỐC.
+# collect_submodules('paddleocr') chỉ đặt tên 'paddleocr.tools...' → KHÔNG khớp
+# → app báo:
+#   "PaddleOCR init lỗi: [Errno 2] No such file or directory:
+#    ...\_internal\tools\__init__.py".
+# Fix: copy NGUYÊN CÂY tools/ ppocr/ ppstructure/ (kèm mọi file: .py, .yml, dict,
+# font…) của paddleocr ra GỐC _internal để `import tools`/`import ppocr` chạy.
+def _paddleocr_toplevel_pkgs():
+    try:
+        import paddleocr
+    except Exception:
+        return
+    import glob as _g
+    _root = os.path.dirname(paddleocr.__file__)
+    _n = 0
+    for _top in ('tools', 'ppocr', 'ppstructure'):
+        _src = os.path.join(_root, _top)
+        if not os.path.isdir(_src):
+            continue
+        for _f in _g.glob(os.path.join(_src, '**', '*'), recursive=True):
+            if os.path.isfile(_f):
+                # dst = đường dẫn tương đối so với gói paddleocr → bắt đầu bằng
+                # <_top> ⇒ file rơi vào _internal\<_top>\... (gốc _internal).
+                datas.append((_f, os.path.relpath(os.path.dirname(_f), _root)))
+                _n += 1
+    print(f"[spec]  ✓ PaddleOCR top-level (tools/ppocr/ppstructure) +{_n} files")
+
+_paddleocr_toplevel_pkgs()
+
 # Cython: vài thành phần trong stack paddle/paddleocr đọc file mẫu trong
 # Cython/Utility (*.pyx, *.pxd, *.c, *.cpp, *.h, cả .py) lúc chạy. PyInstaller
 # mặc định không gom → app .exe báo:
